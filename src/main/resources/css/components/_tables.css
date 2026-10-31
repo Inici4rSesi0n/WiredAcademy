@@ -1,11 +1,5 @@
 /* Contenedor de la tabla (efecto tarjeta sutil) */
-.tabla-wrapper {
-    -fx-background-color: rgba(22, 26, 41, 0.5);
-    -fx-background-radius: 12px;
-    -fx-border-color: rgba(255, 255, 255, 0.08);
-    -fx-border-radius: 12px;
-    -fx-padding: 15px;
-}
+
 
 /* Fondo de la tabla (Transparente) */
 .seccion-tabla {
@@ -66,64 +60,110 @@
 }
 
 /* TabPane Interno (Sin fondos blancos) */
-.seccion-tabpane .tab-header-area .tab-header-background {
-    -fx-background-color: transparent;
-}
-.seccion-tabpane .tab {
-    -fx-background-color: transparent;
-    -fx-padding: 10px 20px;
-}
-.seccion-tabpane .tab:selected {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent transparent #00D2FF transparent;
-    -fx-border-width: 0 0 2px 0;
-}
-.seccion-tabpane .tab:selected .tab-label {
-    -fx-text-fill: #00D2FF;
-}
-.seccion-tabpane .tab-label {
-    -fx-text-fill: #94A3B8;
-}
-.seccion-tabpane .tab-content-area {
-    -fx-background-color: transparent;
+
+/* =========================================
+   CONTENEDOR DE TABLAS (ADN Premium)
+   ========================================= */
+
+
+/* =========================================
+   TABPANE Y PESTAÑAS (ADN Unificado)
+   ========================================= */
+
+/* =========================================
+   CONTENEDOR DE TABLAS (ADN Premium)
+   ========================================= */
+.tabla-wrapper {
+    -fx-background-color: rgba(22, 26, 41, 0.5);
+    -fx-background-radius: 12px;
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-radius: 12px;
+    -fx-padding: 15px;
 }
 
 /* =========================================
-   TAB PANE (Gestión Académica)
+   TABPANE Y PESTAÑAS (Transparencia Total)
    ========================================= */
-.seccion-tabpane {
-    -fx-background-color: transparent;
+.tab-pane {
+    -fx-background-color: transparent !important;
     -fx-tab-min-height: 35px;
+    -fx-padding: 0 !important;
 }
-.seccion-tabpane .tab-header-area {
-    -fx-padding: 10px 0 0 20px; /* Un poco de aire a la izquierda */
+.tab-pane > .tab-header-area {
+    -fx-padding: 0;
 }
-.seccion-tabpane .tab-header-area .tab-header-background {
-    -fx-background-color: transparent;
+.tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color: transparent !important;
 }
-.seccion-tabpane .tab {
+.tab-pane > .tab-header-area > .headers-region > .tab {
     -fx-background-color: transparent;
     -fx-padding: 8px 16px;
     -fx-background-radius: 8px 8px 0 0;
-    -fx-border-radius: 8px 8px 0 0;
 }
-.seccion-tabpane .tab:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.05);
-}
-.seccion-tabpane .tab:selected {
+.tab-pane > .tab-header-area > .headers-region > .tab:selected {
     -fx-background-color: rgba(0, 210, 255, 0.1);
     -fx-border-color: transparent transparent #00D2FF transparent;
     -fx-border-width: 0 0 2px 0;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
-.seccion-tabpane .tab:selected .tab-label {
-    -fx-text-fill: #00D2FF;
-    -fx-font-weight: bold;
-}
-.seccion-tabpane .tab-label {
+.tab-pane > .tab-header-area > .headers-region > .tab .tab-label {
     -fx-text-fill: #94A3B8;
     -fx-font-size: 13px;
 }
-.seccion-tabpane .tab-content-area {
+.tab-pane > .tab-header-area > .headers-region > .tab:selected .tab-label {
+    -fx-text-fill: #00D2FF;
+    -fx-font-weight: bold;
+}
+
+/* LA CLAVE: Eliminar el fondo y el padding del área de contenido */
+.tab-pane > .tab-content-area {
+    -fx-background-color: transparent !important;
+    -fx-padding: 0 !important;
+    -fx-border-color: transparent !important;
+}
+
+
+/* =========================================
+   SCROLLBAR (ADN Premium Ensanchado)
+   ========================================= */
+.scroll-bar {
     -fx-background-color: transparent;
-    -fx-padding: 15px;
+    -fx-padding: 2px;
+}
+.scroll-bar:horizontal {
+    -fx-pref-height: 14px;
+}
+.scroll-bar:vertical {
+    -fx-pref-width: 14px;
+}
+
+.scroll-bar .track {
+    -fx-background-color: rgba(15, 23, 42, 0.6);
+    -fx-border-color: transparent;
+    -fx-background-radius: 7px;
+    -fx-border-radius: 7px;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(0, 210, 255, 0.4);
+    -fx-background-radius: 7px;
+    -fx-border-radius: 7px;
+}
+.scroll-bar .thumb:hover {
+    -fx-background-color: rgba(0, 210, 255, 0.8);
+}
+.scroll-bar .thumb:pressed {
+    -fx-background-color: #00D2FF;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-shape: " ";
+    -fx-padding: 0;
 }

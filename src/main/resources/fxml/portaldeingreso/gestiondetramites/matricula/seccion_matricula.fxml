@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="presentacion.controlador.portaldeingreso.gestiondetramites.matricula.SeccionMatriculaController">
+    
+    <center>
+        <VBox spacing="20.0" style="-fx-padding: 30px;">
+            <HBox styleClass="crud-header" alignment="CENTER_LEFT">
+                <Label styleClass="crud-title" text="Gestión de Matrículas" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnNuevaMatricula" text="+ Nueva Matrícula" styleClass="boton-primario" onAction="#handleNuevaMatricula" />
+            </HBox>
+            
+            <VBox styleClass="tabla-wrapper" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tablaMatriculas" styleClass="seccion-tabla" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colNumMatricula" text="N°" prefWidth="60.0" />
+                        <TableColumn fx:id="colEstudiante" text="Estudiante" prefWidth="180.0" />
+                        <TableColumn fx:id="colPeriodo" text="Periodo" prefWidth="120.0" />
+                        <TableColumn fx:id="colGrupo" text="Grupo" prefWidth="150.0" />
+                        <TableColumn fx:id="colFecha" text="Fecha" prefWidth="100.0" />
+                        <TableColumn fx:id="colEstado" text="Estado" prefWidth="100.0" />
+                        <TableColumn fx:id="colAccionesMatricula" text="Acciones" prefWidth="160.0" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </center>
+    
+    <right>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox fx:id="panelFormularioMatricula" styleClass="formulario-panel" visible="false" managed="false" spacing="15.0" prefWidth="400.0">
+                <padding><Insets top="30.0" right="30.0" bottom="30.0" left="30.0" /></padding>
+                
+                <Label styleClass="formulario-title" text="Datos de la Matrícula" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F8FAFC;"/>
+                <Separator styleClass="formulario-separator" />
+                
+                <Label text="Estudiante:" styleClass="formulario-label" />
+                <ComboBox fx:id="cmbEstudianteMatricula" promptText="Seleccione un estudiante" styleClass="formulario-input" maxWidth="1.0E8"/>
+                
+                <Label text="Periodo:" styleClass="formulario-label" />
+                <ComboBox fx:id="cmbPeriodoMatricula" promptText="Seleccione un periodo" styleClass="formulario-input" maxWidth="1.0E8"/>
+                
+                <Label text="Grupo:" styleClass="formulario-label" />
+                <ComboBox fx:id="cmbGrupoMatricula" promptText="Seleccione un grupo" styleClass="formulario-input" maxWidth="1.0E8"/>
+                
+                <Label text="Fecha (YYYY-MM-DD):" styleClass="formulario-label" />
+                <TextField fx:id="txtFechaMatricula" promptText="Ej. 2026-10-19" styleClass="formulario-input" />
+                
+                <Label text="Estado:" styleClass="formulario-label" />
+                <ComboBox fx:id="cmbEstadoMatricula" promptText="Seleccione un estado" styleClass="formulario-input" maxWidth="1.0E8"/>
+                
+                <Region VBox.vgrow="ALWAYS" />
+                
+                <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-padding: 20 0 0 0;">
+                    <Button fx:id="btnCancelarMatricula" text="Cancelar" styleClass="boton-morado-suave" onAction="#handleCancelarMatricula" prefWidth="140.0" minWidth="140.0" maxWidth="140.0" prefHeight="40.0" />
+                    <Button fx:id="btnGuardarMatricula" text="Guardar" styleClass="boton-primario" onAction="#handleGuardarMatricula" prefWidth="140.0" minWidth="140.0" maxWidth="140.0" prefHeight="40.0" />
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </right>
+</BorderPane>

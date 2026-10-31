@@ -1,4 +1,6 @@
 package presentacion.controlador;
+
+import presentacion.controlador.portaldeingreso.DashboardController;
 import aplicacion.casosdeuso.portaldeingreso.sistema.GestionPermisos;
 import dominio.modelo.Usuario;
 import infraestructura.configuracion.SpringFxmlLoader;
@@ -65,7 +67,7 @@ public class MainController implements Initializable {
     private void precargarRutas() {
         rutasVistas.put("main", "/fxml/main.fxml");
         rutasVistas.put("login", "/fxml/login.fxml");
-        rutasVistas.put("dashboard", "/fxml/dashboard.fxml");
+        rutasVistas.put("dashboard", "/fxml/portaldeingreso/dashboard.fxml");
     }
 
     @FXML private void handlePortalIngreso() { navegar("INGRESO", btnPortalIngreso); }

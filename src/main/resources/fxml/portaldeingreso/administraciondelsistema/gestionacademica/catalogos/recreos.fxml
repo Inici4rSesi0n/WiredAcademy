@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos.RecreosController">
+    
+    <center>
+        <VBox styleClass="tabla-wrapper" VBox.vgrow="ALWAYS" style="-fx-padding: 10px 15px 15px 15px;">
+            <TableView fx:id="tablaRecreos" styleClass="seccion-tabla" VBox.vgrow="ALWAYS">
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY" /></columnResizePolicy>
+                <columns>
+                    <TableColumn fx:id="colNumRecreo" text="N°" prefWidth="50.0" />
+                    <TableColumn fx:id="colDiaRecreo" text="Día" prefWidth="100.0" />
+                    <TableColumn fx:id="colInicioRecreo" text="Inicio" prefWidth="80.0" />
+                    <TableColumn fx:id="colFinRecreo" text="Fin" prefWidth="80.0" />
+                    <TableColumn fx:id="colDescripcionRecreo" text="Descripción" prefWidth="200.0" />
+                    <TableColumn fx:id="colAccionesRecreo" text="Acciones" prefWidth="160.0" />
+                </columns>
+            </TableView>
+        </VBox>
+    </center>
+    <right>
+        <ScrollPane fx:id="scrollPaneFormulario" visible="false" managed="false" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox fx:id="panelFormularioRecreo" styleClass="formulario-panel" spacing="15.0" prefWidth="400.0">
+                <padding><Insets top="30.0" right="30.0" bottom="30.0" left="30.0" /></padding>
+                <Label styleClass="formulario-title" text="Datos del Recreo" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F8FAFC;"/>
+                <Separator styleClass="formulario-separator" />
+                <Label text="Día:" styleClass="formulario-label" />
+                <ComboBox fx:id="cmbDiaRecreo" promptText="Seleccione un día" styleClass="formulario-input" maxWidth="1.0E8"/>
+                <Label text="Periodo:" styleClass="formulario-label" />
+                <VBox spacing="10.0">
+                    <ComboBox fx:id="cmbPeriodoRecreo" promptText="Seleccione un periodo" styleClass="formulario-input" maxWidth="1.0E8"/>
+                    <Button text="+ Añadir Periodo" styleClass="boton-secundario" onAction="#handleAgregarPeriodoRecreo" maxWidth="1.0E8" />
+                </VBox>
+                <Label text="Periodos asociados:" styleClass="formulario-label" />
+                <ListView fx:id="listViewPeriodosRecreo" prefHeight="150.0" styleClass="formulario-input" />
+                <HBox spacing="10.0" style="-fx-padding: 10 0 0 0;">
+                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                        <Label text="Hora Inicio:" styleClass="formulario-label" />
+                        <TextField fx:id="txtInicioRecreo" promptText="HH:mm" styleClass="formulario-input" />
+                    </VBox>
+                    <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                        <Label text="Hora Fin:" styleClass="formulario-label" />
+                        <TextField fx:id="txtFinRecreo" promptText="HH:mm" styleClass="formulario-input" />
+                    </VBox>
+                </HBox>
+                <Label text="Descripción:" styleClass="formulario-label" />
+                <TextField fx:id="txtDescripcionRecreo" promptText="Recreo" styleClass="formulario-input" />
+                <Region VBox.vgrow="ALWAYS" />
+                <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-padding: 20 0 0 0;">
+                    <Button fx:id="btnCancelarRecreo" text="Cancelar" styleClass="boton-morado-suave" onAction="#handleCancelarRecreo" prefWidth="120.0" />
+                    <Button fx:id="btnGuardarRecreo" text="Guardar" styleClass="boton-primario" onAction="#handleGuardarRecreo" prefWidth="120.0" />
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </right>
+</BorderPane>

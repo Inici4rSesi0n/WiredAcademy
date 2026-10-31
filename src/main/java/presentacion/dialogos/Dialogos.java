@@ -1,5 +1,6 @@
 package presentacion.dialogos;
 
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogPane;
@@ -18,6 +19,22 @@ public class Dialogos {
             String css = Dialogos.class.getResource("/css/app.css").toExternalForm();
             dialogPane.getStylesheets().add(css);
             dialogPane.getStyleClass().add("dialog-pane");
+            
+            // Forzar estilo oscuro al contenedor
+            dialogPane.setStyle("-fx-background-color: #0F172A; -fx-border-color: #00D2FF; -fx-border-width: 1px;");
+            
+            // Forzar estilo a los botones (evita que el SO imponga su color)
+            for (ButtonType type : dialogPane.getButtonTypes()) {
+                Node button = dialogPane.lookupButton(type);
+                if (button != null) {
+                    button.setStyle("-fx-background-color: linear-gradient(to right, #00D2FF, #3B82F6); " +
+                                    "-fx-text-fill: white; " +
+                                    "-fx-font-weight: bold; " +
+                                    "-fx-background-radius: 6px; " +
+                                    "-fx-cursor: hand; " +
+                                    "-fx-padding: 8px 24px;");
+                }
+            }
         } catch (Exception e) {
             System.err.println("No se pudo cargar el CSS en el diálogo: " + e.getMessage());
         }

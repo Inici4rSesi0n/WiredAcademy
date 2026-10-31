@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.SeccionGestionAcademicaController"
+            styleClass="app-background">
+    
+    <center>
+        <VBox spacing="10.0" style="-fx-padding: 30px 30px 15px 30px;">
+            <!-- Cabecera -->
+            <HBox styleClass="crud-header" alignment="CENTER_LEFT" spacing="15.0">
+                <Label styleClass="crud-title" text="Gestión Académica" />
+                <Label text="Vista:" styleClass="formulario-label" style="-fx-font-size: 14px;"/>
+                <ComboBox fx:id="cmbCategoria" promptText="Seleccione categoría" styleClass="formulario-input" prefWidth="200.0" style="-fx-background-color: #161A29; -fx-border-color: rgba(0, 210, 255, 0.3);" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnNuevoGlobal" text="+ Nuevo Registro" styleClass="boton-primario" onAction="#handleNuevoGlobal" />
+                <Button fx:id="btnVerHorarioGlobal" text="📅 Ver Horario" styleClass="boton-secundario" onAction="#handleVerHorarioGlobal" />
+            </HBox>
+            
+            <!-- Contenedor de pestañas -->
+            <StackPane fx:id="contenedorCategorias" VBox.vgrow="ALWAYS">
+                <fx:include fx:id="tabPaneCatalogos" source="catalogos/contenedor_catalogos.fxml" />
+                <fx:include fx:id="tabPaneAsignacionesGroup" source="asignaciones/contenedor_asignaciones.fxml" />
+                <fx:include fx:id="tabPaneHorarios" source="horarios/gestion_horarios.fxml" />
+            </StackPane>
+        </VBox>
+    </center>
+</BorderPane>

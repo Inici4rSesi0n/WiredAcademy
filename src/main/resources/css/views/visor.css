@@ -15,13 +15,6 @@
     -fx-background-radius: 8px 8px 0 0;
 }
 
-.visor-title {
-    -fx-font-size: 24px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #F8FAFC;
-    -fx-effect: dropshadow(gaussian, rgba(0, 210, 255, 0.4), 15, 0.2, 0, 0);
-}
-
 .visor-close-btn {
     -fx-background-color: rgba(239, 68, 68, 0.1);
     -fx-text-fill: #EF4444;
@@ -41,47 +34,12 @@
     -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.6), 10, 0.2, 0, 0);
 }
 
-.visor-tabla {
+/* Eliminar fondos blancos del ScrollPane del Visor */
+.visor-root .scroll-pane {
     -fx-background-color: transparent;
+    -fx-background: transparent;
     -fx-border-color: transparent;
-    -fx-padding: 20px;
 }
-
-.visor-tabla .column-header-background {
-    -fx-background-color: rgba(15, 23, 42, 0.8);
-    -fx-border-color: transparent transparent rgba(0, 210, 255, 0.3) transparent;
-    -fx-border-width: 0 0 2px 0;
-}
-
-.visor-tabla .column-header {
+.visor-root .scroll-pane > .viewport {
     -fx-background-color: transparent;
-    -fx-font-weight: bold;
-    -fx-text-fill: #00D2FF;
-    -fx-padding: 12px 10px;
-}
-
-.visor-tabla .table-row-cell {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.05) transparent;
-    -fx-border-width: 0 0 1px 0;
-}
-
-.visor-tabla .table-row-cell:hover {
-    -fx-background-color: rgba(0, 210, 255, 0.05);
-}
-
-.visor-tabla .table-cell {
-    -fx-text-fill: #E2E8F0;
-    -fx-alignment: center-left;
-    -fx-padding: 0 10px;
-}
-
-.visor-tabla .placeholder .label {
-    -fx-text-fill: #64748B;
-    -fx-font-style: italic;
-}
-
-/* Centrar columnas específicas */
-.col-center {
-    -fx-alignment: center;
 }

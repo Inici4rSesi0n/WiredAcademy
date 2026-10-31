@@ -16,7 +16,6 @@ public class Matricula implements Serializable {
     private List<Asignatura> asignaturas;
     private String fecha;
     private EstadoMatricula estado;
-
     protected Matricula() {
         this.asignaturas = new ArrayList<>();
     }
@@ -60,10 +59,8 @@ public class Matricula implements Serializable {
     }
     public String getFecha() { return fecha; }
     public void setFecha(String fecha) { this.fecha = fecha; }
-
     public EstadoMatricula getEstado() { return estado; }
     public void setEstado(EstadoMatricula estado) { this.estado = estado; }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

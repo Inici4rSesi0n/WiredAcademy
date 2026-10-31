@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+
+<TabPane fx:id="tabPaneCatalogos" xmlns="http://javafx.com/javafx/23.0.1"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos.ContenedorCatalogosController"
+         tabClosingPolicy="UNAVAILABLE" style="-fx-background-color: transparent;">
+    <tabs>
+        <Tab fx:id="tabAsignaturas" text="Asignaturas">
+            <fx:include fx:id="includeAsignaturas" source="asignaturas.fxml" />
+        </Tab>
+        <Tab fx:id="tabPeriodos" text="Periodos">
+            <fx:include fx:id="includePeriodos" source="periodos.fxml" />
+        </Tab>
+        <Tab fx:id="tabAulas" text="Aulas">
+            <fx:include fx:id="includeAulas" source="aulas.fxml" />
+        </Tab>
+        <Tab fx:id="tabGrupos" text="Grupos">
+            <fx:include fx:id="includeGrupos" source="grupos.fxml" />
+        </Tab>
+        <Tab fx:id="tabRecreos" text="Recreos">
+            <fx:include fx:id="includeRecreos" source="recreos.fxml" />
+        </Tab>
+        <Tab fx:id="tabGrados" text="Grados">
+            <fx:include fx:id="includeGrados" source="grados.fxml" />
+        </Tab>
+        <Tab fx:id="tabTurnos" text="Turnos">
+            <fx:include fx:id="includeTurnos" source="turnos.fxml" />
+        </Tab>
+    </tabs>
+</TabPane>

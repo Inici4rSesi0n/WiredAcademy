@@ -31,7 +31,7 @@ public class BootstrapRunner {
     public void inicializar(Stage stage) {
         if (repoAdmin.listarTodos().isEmpty()) {
             try {
-                FXMLLoader loader = fxmlLoader.crearLoader("/fxml/ConfiguracionInicial.fxml");
+                FXMLLoader loader = fxmlLoader.crearLoader("/fxml/configuracion_inicial.fxml");
                 Parent root = loader.load();
                 BootstrapController controller = loader.getController();
 

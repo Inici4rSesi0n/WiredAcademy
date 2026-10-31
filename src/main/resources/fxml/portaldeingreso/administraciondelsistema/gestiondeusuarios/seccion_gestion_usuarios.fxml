@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="presentacion.controlador.portaldeingreso.administraciondelsistema.gestiondeusuarios.SeccionGestionUsuariosController">
+    
+    <center>
+        <VBox spacing="20.0" style="-fx-padding: 30px;">
+            <!-- Cabecera del CRUD -->
+            <HBox styleClass="crud-header" alignment="CENTER_LEFT">
+                <Label styleClass="crud-title" text="Gestión de Usuarios" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnNuevoUsuario" text="+ Nuevo Usuario" styleClass="boton-primario" onAction="#handleNuevoUsuario" />
+            </HBox>
+            
+            <!-- Tabla envuelta (vgrow ALWAYS para que ocupe todo el alto) -->
+            <VBox styleClass="tabla-wrapper" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tablaUsuarios" styleClass="seccion-tabla" VBox.vgrow="ALWAYS">
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                    <columns>
+                        <TableColumn fx:id="colCodigo" text="Código" prefWidth="120.0" />
+                        <TableColumn fx:id="colNombre" text="Nombre" prefWidth="200.0" />
+                        <TableColumn fx:id="colApellido" text="Apellido" prefWidth="200.0" />
+                        <TableColumn fx:id="colDni" text="DNI" prefWidth="120.0" />
+                        <TableColumn fx:id="colRol" text="Rol" prefWidth="150.0" />
+                        <TableColumn fx:id="colAcciones" text="Acciones" prefWidth="180.0" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </center>
+    
+    <right>
+        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox fx:id="panelFormulario" styleClass="formulario-panel" visible="false" managed="false" spacing="15.0" prefWidth="400.0">
+                <padding><Insets top="30.0" right="30.0" bottom="30.0" left="30.0" /></padding>
+                
+                <Label styleClass="formulario-title" text="Datos del Usuario" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F8FAFC;"/>
+                <Separator styleClass="formulario-separator" />
+                
+                <Label text="Rol:" styleClass="formulario-label" />
+                <ComboBox fx:id="cmbRol" promptText="Seleccione un rol" styleClass="formulario-input" maxWidth="1.0E8"/>
+                
+                <Label text="Código:" styleClass="formulario-label" />
+                <TextField fx:id="txtCodigo" promptText="Código de usuario" styleClass="formulario-input" />
+                
+                <Label text="Nombre:" styleClass="formulario-label" />
+                <TextField fx:id="txtNombre" promptText="Nombre" styleClass="formulario-input" />
+                
+                <Label text="Apellido:" styleClass="formulario-label" />
+                <TextField fx:id="txtApellido" promptText="Apellido" styleClass="formulario-input" />
+                
+                <Label text="DNI:" styleClass="formulario-label" />
+                <TextField fx:id="txtDni" promptText="DNI" styleClass="formulario-input" />
+                
+                <Label text="Edad:" styleClass="formulario-label" />
+                <TextField fx:id="txtEdad" promptText="Edad" styleClass="formulario-input" />
+                
+                <Label text="Contraseña:" styleClass="formulario-label" />
+                <TextField fx:id="txtContrasena" promptText="Contraseña temporal" styleClass="formulario-input" />
+                
+                <Region VBox.vgrow="ALWAYS" />
+                
+                <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-padding: 20 0 0 0;">
+                    <Button fx:id="btnCancelar" text="Cancelar" styleClass="boton-morado-suave" onAction="#handleCancelar" prefWidth="140.0" minWidth="140.0" maxWidth="140.0" prefHeight="40.0" />
+                    <Button fx:id="btnGuardar" text="Guardar" styleClass="boton-primario" onAction="#handleGuardar" prefWidth="140.0" minWidth="140.0" maxWidth="140.0" prefHeight="40.0" />
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </right>
+</BorderPane>

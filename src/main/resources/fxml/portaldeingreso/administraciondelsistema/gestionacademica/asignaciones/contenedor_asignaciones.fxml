@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+
+<TabPane fx:id="tabPaneAsignacionesGroup" xmlns="http://javafx.com/javafx/23.0.1"
+         xmlns:fx="http://javafx.com/fxml/1"
+         fx:controller="presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.asignaciones.ContenedorAsignacionesController"
+         tabClosingPolicy="UNAVAILABLE" style="-fx-background-color: transparent;">
+    <tabs>
+        <Tab fx:id="tabAsigDocente" text="Docente">
+            <fx:include fx:id="includeAsigDocente" source="asignacion_docente.fxml" />
+        </Tab>
+        <Tab fx:id="tabAsigTutor" text="Tutor">
+            <fx:include fx:id="includeAsigTutor" source="asignacion_tutor.fxml" />
+        </Tab>
+        <Tab fx:id="tabAsigCoordinador" text="Coordinador">
+            <fx:include fx:id="includeAsigCoordinador" source="asignacion_coordinador.fxml" />
+        </Tab>
+    </tabs>
+</TabPane>
