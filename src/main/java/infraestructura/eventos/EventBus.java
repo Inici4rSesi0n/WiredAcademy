@@ -1,5 +1,6 @@
 package infraestructura.eventos;
 import dominio.modelo.TipoEvento;
+import dominio.puerto.externo.EventPublisher;
 import dominio.puerto.externo.EventBusListener;
 import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
@@ -15,7 +16,7 @@ import java.util.Map;
  * @author inici4rsesi0n
  */
 @Component
-public class EventBus {
+public class EventBus implements EventPublisher {
     private static final Logger log = LoggerFactory.getLogger("WiredAcademy.EVENTBUS");
     private final Map<TipoEvento, List<WeakReference<EventBusListener>>> suscriptores = new EnumMap<>(TipoEvento.class);
     public void suscribir(TipoEvento evento, EventBusListener listener) {
@@ -30,10 +31,12 @@ public class EventBus {
             log.debug("[EVENT] desuscribir evento={} listener={}", evento, listener.getClass().getSimpleName());
         }
     }
+    @Override
     public void notificar(TipoEvento... eventos) {
         if (eventos == null) return;
         for (TipoEvento e : eventos) notificar(e);
     }
+    @Override
     public void notificar(TipoEvento evento) {
         if (evento == null) return;
         List<WeakReference<EventBusListener>> lista = suscriptores.get(evento);
