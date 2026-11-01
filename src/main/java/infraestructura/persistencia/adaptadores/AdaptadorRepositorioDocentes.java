@@ -5,6 +5,7 @@ import infraestructura.persistencia.entidades.AsignaturaEntity;
 import infraestructura.persistencia.entidades.DocenteEntity;
 import infraestructura.persistencia.jpa.AsignaturaJpaRepository;
 import infraestructura.persistencia.jpa.DocenteJpaRepository;
+import infraestructura.persistencia.jpa.GrupoJpaRepository;
 import infraestructura.persistencia.mappers.DocenteMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,20 +19,22 @@ import java.util.Optional;
 public class AdaptadorRepositorioDocentes implements RepositorioDocentes{
     private final DocenteJpaRepository jpaRepository;
     private final AsignaturaJpaRepository asignaturaJpa;
+    private final GrupoJpaRepository grupoJpa;
     private final DocenteMapper mapper;
-    
-    public AdaptadorRepositorioDocentes(DocenteJpaRepository jpaRepository, AsignaturaJpaRepository asignaturaJpa, DocenteMapper mapper){
+    public AdaptadorRepositorioDocentes(DocenteJpaRepository jpaRepository, AsignaturaJpaRepository asignaturaJpa,
+                                        GrupoJpaRepository grupoJpa, DocenteMapper mapper){
         this.jpaRepository=jpaRepository;
         this.asignaturaJpa=asignaturaJpa;
+        this.grupoJpa=grupoJpa;
         this.mapper=mapper;
     }
-    
     @Override @Transactional
     public void agregar(Docente docente){
         if(docente==null) throw new IllegalArgumentException("El docente no puede ser nulo");
         DocenteEntity entity = mapper.toEntity(docente);
         entity.setAsignaturas(resolverAsignaturas(docente));
-        jpaRepository.save(entity);
+        entity.setTutoria(resolverTutoria(docente));
+        jpaRepository.saveAndFlush(entity);
     }
     @Override
     public Optional<Docente> buscarPorDni(String dni){
@@ -56,18 +59,23 @@ public class AdaptadorRepositorioDocentes implements RepositorioDocentes{
         entity.setDni(actualizado.getDni());
         entity.setEspecialidad(actualizado.getEspecialidad());
         entity.setAsignaturas(resolverAsignaturas(actualizado));
-        jpaRepository.save(entity);
+        entity.setTutoria(resolverTutoria(actualizado));
+        jpaRepository.saveAndFlush(entity);
     }
     @Override @Transactional
     public void eliminar(Docente docente){
         jpaRepository.findByCodigo(docente.getCodigo()).ifPresent(jpaRepository::delete);
     }
-    
     private List<AsignaturaEntity> resolverAsignaturas(Docente docente){
-        if(docente.getAsignaturas() == null || docente.getAsignaturas().isEmpty()) return List.of();
+        if(docente.getAsignaturas() == null || docente.getAsignaturas().isEmpty()) return new java.util.ArrayList<>();
         return docente.getAsignaturas().stream()
                 .map(a -> asignaturaJpa.findByNombre(a.getNombre())
                         .orElseThrow(()->new IllegalArgumentException("Asignatura no existe: " + a.getNombre())))
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
+    }
+    private infraestructura.persistencia.entidades.GrupoEntity resolverTutoria(Docente docente){
+        if(docente.getTutoria() == null) return null;
+        return grupoJpa.findByNombre(docente.getTutoria().getNombre())
+                .orElseThrow(()->new IllegalArgumentException("Grupo de tutoría no existe: " + docente.getTutoria().getNombre()));
     }
 }

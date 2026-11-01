@@ -6,7 +6,6 @@ import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
 import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
-import presentacion.utilidades.ValidadorUI;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -38,7 +37,6 @@ public class AulasController implements Initializable {
     @FXML private VBox panelFormularioAula;
     @FXML private javafx.scene.control.ScrollPane scrollPaneFormulario;
     @FXML private TextField txtNombreAula, txtCapacidadAula, txtUbicacionAula, txtTipoAula;
-    @FXML private Label lblFeedbackNombre, lblFeedbackCapacidad, lblFeedbackUbicacion, lblFeedbackTipo;
     @FXML private ComboBox<String> cmbModalidadAula;
     @FXML private Button btnNuevaAula, btnGuardarAula, btnCancelarAula;
     private ObservableList<Aula> listaAulas;
@@ -51,17 +49,9 @@ public class AulasController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         configurarComboModalidad();
         configurarTabla();
-        configurarValidaciones();
         cargarAulas();
         SistemaEventBus.suscribir(TipoEvento.AULAS, this::cargarAulas);
-    }
-    private void configurarValidaciones() {
-        ValidadorUI.aplicar(txtNombreAula, val -> !val.trim().isEmpty(), lblFeedbackNombre);
-        ValidadorUI.aplicar(txtCapacidadAula, val -> val.matches("\\d+") && Integer.parseInt(val) > 0, lblFeedbackCapacidad);
-        ValidadorUI.aplicar(txtUbicacionAula, val -> !val.trim().isEmpty(), lblFeedbackUbicacion);
-        ValidadorUI.aplicar(txtTipoAula, val -> !val.trim().isEmpty(), lblFeedbackTipo);
-    }
-    private void configurarComboModalidad() {
+    }    private void configurarComboModalidad() {
         cmbModalidadAula.getItems().clear();
         cmbModalidadAula.getItems().add("Seleccione modalidad");
         for (ModalidadAula m : ModalidadAula.values()) {

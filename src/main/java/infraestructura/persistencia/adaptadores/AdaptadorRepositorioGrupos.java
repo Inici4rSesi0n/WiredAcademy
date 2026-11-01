@@ -39,7 +39,7 @@ public class AdaptadorRepositorioGrupos implements RepositorioGrupos{
             entity.setTutor(docenteJpa.findByCodigo(grupo.getTutor().getCodigo())
                     .orElseThrow(()->new IllegalArgumentException("Tutor no existe")));
         }
-        jpaRepository.save(entity);
+        jpaRepository.saveAndFlush(entity);
     }
     
     @Override
@@ -68,7 +68,7 @@ public class AdaptadorRepositorioGrupos implements RepositorioGrupos{
         } else {
             entity.setTutor(null);
         }
-        jpaRepository.save(entity);
+        jpaRepository.saveAndFlush(entity);
     }
     
     @Override @Transactional

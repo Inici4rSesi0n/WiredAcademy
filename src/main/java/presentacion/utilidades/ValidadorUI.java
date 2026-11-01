@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 public class ValidadorUI {
     public static void aplicar(TextField campo, Predicate<String> regla, Label feedback) {
         campo.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (feedback == null) return;
             campo.getStyleClass().removeAll("input-error", "input-success");
             if (newVal == null || newVal.trim().isEmpty()) {
                 feedback.setText("");

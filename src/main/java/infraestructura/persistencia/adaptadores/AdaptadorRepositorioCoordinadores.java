@@ -59,10 +59,10 @@ public class AdaptadorRepositorioCoordinadores implements RepositorioCoordinador
     }
     
     private List<GradoEntity> resolverGrados(CoordinadorAcademico coord){
-        if(coord.getGradosSupervisados() == null || coord.getGradosSupervisados().isEmpty()) return List.of();
+        if(coord.getGradosSupervisados() == null || coord.getGradosSupervisados().isEmpty()) return new java.util.ArrayList<>();
         return coord.getGradosSupervisados().stream()
                 .map(g -> gradoJpa.findByNombreAndNivel(g.getNombre(), g.getNivel())
                         .orElseThrow(()->new IllegalArgumentException("Grado no existe: " + g.getNombre())))
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
     }
 }

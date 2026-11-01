@@ -31,7 +31,7 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
         if(recreo==null) throw new IllegalArgumentException("El recreo no puede ser nulo");
         RecreoEntity entity = mapper.toEntity(recreo);
         entity.setPeriodos(resolverPeriodos(recreo));
-        jpaRepository.save(entity);
+        jpaRepository.saveAndFlush(entity);
     }
     
     @Override
@@ -54,7 +54,7 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
         entity.setHoraFin(actualizada.getHoraFin());
         entity.setDescripcion(actualizada.getDescripcion());
         entity.setPeriodos(resolverPeriodos(actualizada));
-        jpaRepository.save(entity);
+        jpaRepository.saveAndFlush(entity);
     }
     
     @Override @Transactional
@@ -68,6 +68,6 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
         return recreo.getPeriodos().stream()
                 .map(p -> periodoJpaRepository.findByNombre(p.getNombre())
                         .orElseThrow(()->new IllegalArgumentException("Periodo no encontrado: " + p.getNombre())))
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
     }
 }

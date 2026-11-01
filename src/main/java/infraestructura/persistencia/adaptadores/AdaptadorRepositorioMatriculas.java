@@ -38,7 +38,7 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
         if(matricula==null) throw new IllegalArgumentException("La matrícula no puede ser nula");
         MatriculaEntity entity = mapper.toEntity(matricula);
         resolverRelaciones(entity, matricula);
-        jpaRepository.save(entity);
+        jpaRepository.saveAndFlush(entity);
     }
     
     @Override
@@ -61,7 +61,7 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
                 .orElseThrow(()->new IllegalArgumentException("La matrícula no existe"));
         entity.setFecha(actualizada.getFecha());
         entity.setEstado(actualizada.getEstado().name());
-        jpaRepository.save(entity);
+        jpaRepository.saveAndFlush(entity);
     }
     
     @Override @Transactional
@@ -82,7 +82,7 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
             List<AsignaturaEntity> asignaturas = domain.getAsignaturas().stream()
                     .map(a -> asignaturaJpa.findByNombre(a.getNombre())
                             .orElseThrow(()->new IllegalArgumentException("Asignatura no existe: " + a.getNombre())))
-                    .toList();
+                    .collect(java.util.stream.Collectors.toList());
             entity.setAsignaturas(asignaturas);
         }
     }

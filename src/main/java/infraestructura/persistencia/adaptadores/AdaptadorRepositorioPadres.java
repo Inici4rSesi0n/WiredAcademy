@@ -59,10 +59,10 @@ public class AdaptadorRepositorioPadres implements RepositorioPadres{
     }
     
     private List<EstudianteEntity> resolverEstudiantes(Padre padre){
-        if(padre.getEstudiantes() == null || padre.getEstudiantes().isEmpty()) return List.of();
+        if(padre.getEstudiantes() == null || padre.getEstudiantes().isEmpty()) return new java.util.ArrayList<>();
         return padre.getEstudiantes().stream()
                 .map(e -> estudianteJpa.findByCodigo(e.getCodigo())
                         .orElseThrow(()->new IllegalArgumentException("Estudiante no existe: " + e.getCodigo())))
-                .toList();
+                .collect(java.util.stream.Collectors.toList());
     }
 }
