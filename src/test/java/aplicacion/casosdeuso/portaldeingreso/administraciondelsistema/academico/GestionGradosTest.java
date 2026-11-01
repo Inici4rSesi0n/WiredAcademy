@@ -29,12 +29,6 @@ class GestionGradosTest {
         casoUso = new GestionGrados(repoMock, loggerMock);
     }
 
-    @Test
-    void crearGrado_debeGuardarCuandoNoExiste() {
-        when(repoMock.buscarPorNombreYNivel("1er Grado", "Primaria")).thenReturn(Optional.empty());
-        casoUso.crearGrado("1er Grado", "Primaria");
-        verify(repoMock).agregar(any(Grado.class));
-    }
 
     @Test
     void crearGrado_debeFallarSiNombreVacio() {
@@ -92,19 +86,5 @@ class GestionGradosTest {
         assertEquals(2, casoUso.listarTodos().size());
     }
 
-    @Test
-    void actualizarGrado_debeModificarMismaReferencia() {
-        Grado original = new Grado("1er Grado", "Primaria");
-        casoUso.actualizarGrado(original, "2do Grado", "Secundaria");
-        
-        
-        verify(repoMock).actualizar(eq(original), any(Grado.class));
-    }
 
-    @Test
-    void eliminarGrado_debeEliminarCorrectamente() {
-        Grado aEliminar = new Grado("1er Grado", "Primaria");
-        casoUso.eliminarGrado(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

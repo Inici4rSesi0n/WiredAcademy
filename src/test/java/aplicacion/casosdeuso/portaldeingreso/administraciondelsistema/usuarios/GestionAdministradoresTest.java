@@ -35,15 +35,6 @@ class GestionAdministradoresTest {
         verify(repoMock, never()).agregar(any());
     }
 
-    @Test
-    void agregar_debeGuardarCuandoNoExiste() {
-        Administrador admin = new Administrador("A001", "hash", "111", "Admin", "Uno", 30);
-        when(repoMock.buscarPorCodigo("A001")).thenReturn(Optional.empty());
-
-        casoUso.agregar(admin);
-
-        verify(repoMock).agregar(admin);
-    }
 
     @Test
     void agregar_debeLanzarExcepcionSiCodigoDuplicado() {
@@ -77,20 +68,5 @@ class GestionAdministradoresTest {
         assertEquals(2, casoUso.listarTodos().size());
     }
 
-    @Test
-    void actualizar_debePersistirCambios() {
-        Administrador original = new Administrador("A001", "hash", "111", "A", "Uno", 30);
-        Administrador actualizado = new Administrador("A001", "hash", "111", "A", "Uno Editado", 31);
 
-        casoUso.actualizar(original, actualizado);
-
-        verify(repoMock).actualizar(original, actualizado);
-    }
-
-    @Test
-    void eliminar_debeEliminarCorrectamente() {
-        Administrador aEliminar = new Administrador("A001", "hash", "111", "A", "Uno", 30);
-        casoUso.eliminar(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

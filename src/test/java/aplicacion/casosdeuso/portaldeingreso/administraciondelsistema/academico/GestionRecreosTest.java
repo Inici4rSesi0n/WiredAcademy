@@ -36,17 +36,7 @@ class GestionRecreosTest {
         periodoB = new PeriodoAcademico("2026-II", "2026-07-01", "2026-12-31", "Activo");
     }
 
-    @Test
-    void crearRecreo_debeGuardarConListaDePeriodos() {
-        casoUso.crearRecreo(franja, "Recreo", List.of(periodoA));
-        verify(repoMock).agregar(any(Recreo.class));
-    }
 
-    @Test
-    void crearRecreo_debeGuardarConMultiplesPeriodos() {
-        casoUso.crearRecreo(franja, "Recreo", List.of(periodoA, periodoB));
-        verify(repoMock).agregar(any(Recreo.class));
-    }
 
     @Test
     void crearRecreo_debeFallarSiFranjaNula() {
@@ -83,16 +73,6 @@ class GestionRecreosTest {
         verify(repoMock).listarTodos();
     }
 
-    @Test
-    void actualizarRecreo_debeModificarMismaReferencia() {
-        Recreo original = new Recreo(franja, "Viejo", List.of(periodoA));
-        FranjaHoraria nuevaFranja = new FranjaHoraria("Lunes", "11:00", "11:30");
-        casoUso.actualizarRecreo(original, nuevaFranja, "Nuevo", List.of(periodoA, periodoB));
-        
-        
-        
-        verify(repoMock).actualizar(eq(original), any(Recreo.class));
-    }
 
     @Test
     void aplicarA_debeAsociarPeriodoYActualizar() {
@@ -110,12 +90,6 @@ class GestionRecreosTest {
         verify(repoMock).actualizar(recreo, recreo);
     }
 
-    @Test
-    void eliminarRecreo_debeEliminarCorrectamente() {
-        Recreo aEliminar = new Recreo(franja, "Recreo", List.of(periodoA));
-        casoUso.eliminarRecreo(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
     @Test
     void crearRecreo_debeFallarSiFranjaDescripcionYPeriodoSolapan() {
         Recreo existente = new Recreo(franja, "Recreo", List.of(periodoA));

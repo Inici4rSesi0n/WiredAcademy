@@ -5,6 +5,7 @@ import dominio.modelo.PeriodoAcademico;
 import dominio.modelo.Recreo;
 import dominio.puerto.repositorio.RepositorioPeriodos;
 import integration.BaseIntegrationTest;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class GestionRecreosIT extends BaseIntegrationTest {
     @Autowired private GestionRecreos gestionRecreos;
     @Autowired private RepositorioPeriodos repoPeriodos;
+    @Autowired private EntityManager em;
     @Test
     public void testCrearRecreoCorrectamente() {
         PeriodoAcademico periodo = new PeriodoAcademico("RECREO-IT-Periodo", "2026-01-01", "2026-06-30", "Activo");
@@ -46,5 +48,32 @@ public class GestionRecreosIT extends BaseIntegrationTest {
         gestionRecreos.removerDe(recreo, periodo);
         Recreo actualizado = gestionRecreos.buscarPorDescripcion("RECREO-IT-Aplicar");
         assertTrue(actualizado.getPeriodos().isEmpty());
+    }
+    @Test
+    public void testActualizarRecreo() {
+        PeriodoAcademico periodo = new PeriodoAcademico("RECREO-IT-Periodo4", "2026-01-01", "2026-06-30", "Activo");
+        repoPeriodos.agregar(periodo);
+        FranjaHoraria franja = new FranjaHoraria("Jueves", "10:00", "10:30");
+        gestionRecreos.crearRecreo(franja, "RECREO-IT-UP", List.of(periodo));
+        Recreo original = gestionRecreos.buscarPorDescripcion("RECREO-IT-UP");
+        FranjaHoraria nuevaFranja = new FranjaHoraria("Viernes", "11:00", "11:30");
+        gestionRecreos.actualizarRecreo(original, nuevaFranja, "RECREO-IT-UP-NEW", List.of(periodo));
+        em.flush(); em.clear();
+        assertNull(gestionRecreos.buscarPorDescripcion("RECREO-IT-UP"));
+        Recreo actualizado = gestionRecreos.buscarPorDescripcion("RECREO-IT-UP-NEW");
+        assertNotNull(actualizado);
+        assertEquals("Viernes", actualizado.getDiaSemana());
+        assertEquals("11:00", actualizado.getHoraInicio());
+    }
+    @Test
+    public void testEliminarRecreo() {
+        PeriodoAcademico periodo = new PeriodoAcademico("RECREO-IT-Periodo5", "2026-01-01", "2026-06-30", "Activo");
+        repoPeriodos.agregar(periodo);
+        FranjaHoraria franja = new FranjaHoraria("Sábado", "10:00", "10:30");
+        gestionRecreos.crearRecreo(franja, "RECREO-IT-DEL", List.of(periodo));
+        Recreo r = gestionRecreos.buscarPorDescripcion("RECREO-IT-DEL");
+        gestionRecreos.eliminarRecreo(r);
+        em.flush(); em.clear();
+        assertNull(gestionRecreos.buscarPorDescripcion("RECREO-IT-DEL"));
     }
 }

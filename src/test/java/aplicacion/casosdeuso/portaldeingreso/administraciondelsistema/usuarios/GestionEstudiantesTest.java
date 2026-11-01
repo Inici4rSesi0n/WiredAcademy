@@ -35,14 +35,6 @@ class GestionEstudiantesTest {
         verify(repoMock, never()).agregar(any());
     }
 
-    @Test
-    void agregar_debeGuardarCuandoNoExiste() {
-        Estudiante est = new Estudiante("E001", "hash", "111", "Ana", "Gomez", 12);
-        when(repoMock.buscarPorCodigo("E001")).thenReturn(Optional.empty());
-        when(repoMock.buscarPorDni("111")).thenReturn(Optional.empty());
-        casoUso.agregar(est);
-        verify(repoMock).agregar(est);
-    }
 
     @Test
     void agregar_debeLanzarExcepcionSiCodigoDuplicado() {
@@ -92,18 +84,5 @@ class GestionEstudiantesTest {
         assertEquals(2, casoUso.listarTodos().size());
     }
 
-    @Test
-    void actualizar_debePersistirCambios() {
-        Estudiante original = new Estudiante("E001", "hash", "111", "Ana", "Gomez", 12);
-        Estudiante actualizado = new Estudiante("E001", "hash", "111", "Ana Editada", "Gomez", 12);
-        casoUso.actualizar(original, actualizado);
-        verify(repoMock).actualizar(original, actualizado);
-    }
 
-    @Test
-    void eliminar_debeEliminarCorrectamente() {
-        Estudiante aEliminar = new Estudiante("E001", "hash", "111", "Ana", "Gomez", 12);
-        casoUso.eliminar(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

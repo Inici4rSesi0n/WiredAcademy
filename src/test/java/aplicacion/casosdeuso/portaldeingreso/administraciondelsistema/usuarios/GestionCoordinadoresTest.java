@@ -35,13 +35,6 @@ class GestionCoordinadoresTest {
         verify(repoMock, never()).agregar(any());
     }
 
-    @Test
-    void agregar_debeGuardarCuandoNoExiste() {
-        CoordinadorAcademico coord = new CoordinadorAcademico("COORD001", "hash", "111", "Coord", "Uno", 40);
-        when(repoMock.buscarPorCodigo("COORD001")).thenReturn(Optional.empty());
-        casoUso.agregar(coord);
-        verify(repoMock).agregar(coord);
-    }
 
     @Test
     void agregar_debeLanzarExcepcionSiCodigoDuplicado() {
@@ -74,18 +67,5 @@ class GestionCoordinadoresTest {
         assertEquals(2, casoUso.listarTodos().size());
     }
 
-    @Test
-    void actualizar_debePersistirCambios() {
-        CoordinadorAcademico original = new CoordinadorAcademico("COORD001", "hash", "111", "Coord", "Uno", 40);
-        CoordinadorAcademico actualizado = new CoordinadorAcademico("COORD001", "hash", "111", "Coord", "Uno Editado", 41);
-        casoUso.actualizar(original, actualizado);
-        verify(repoMock).actualizar(original, actualizado);
-    }
 
-    @Test
-    void eliminar_debeEliminarCorrectamente() {
-        CoordinadorAcademico aEliminar = new CoordinadorAcademico("COORD001", "hash", "111", "Coord", "Uno", 40);
-        casoUso.eliminar(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

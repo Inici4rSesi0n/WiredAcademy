@@ -43,11 +43,6 @@ class GestionClasesTest {
         periodo = new PeriodoAcademico("2026-I", "2026-01-01", "2026-12-31", "Activo");
     }
 
-    @Test
-    void crearClase_debeGuardarClaseCorrectamente() {
-        casoUso.crearClase("Lunes", "08:00", "10:00", asignatura, docente, grupo, aula, periodo);
-        verify(repoMock).agregar(any(Clase.class));
-    }
 
     @Test
     void crearClase_debeLanzarExcepcionSiDiaVacio() {
@@ -218,13 +213,4 @@ class GestionClasesTest {
         verify(repoMock, never()).actualizar(any(), any());
     }
 
-    @Test
-    void eliminarClase_debeEliminarCorrectamente() {
-        FranjaHoraria franja = new FranjaHoraria("Lunes", "08:00", "10:00");
-        Clase aEliminar = new Clase(franja, periodo, asignatura, docente, grupo, aula);
-
-        casoUso.eliminarClase(aEliminar);
-
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

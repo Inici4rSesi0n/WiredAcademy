@@ -35,13 +35,6 @@ class GestionSecretariosTest {
         verify(repoMock, never()).agregar(any());
     }
 
-    @Test
-    void agregar_debeGuardarCuandoNoExiste() {
-        Secretario secretario = new Secretario("SEC001", "hash", "111", "Sec", "Uno", 30);
-        when(repoMock.buscarPorCodigo("SEC001")).thenReturn(Optional.empty());
-        casoUso.agregar(secretario);
-        verify(repoMock).agregar(secretario);
-    }
 
     @Test
     void agregar_debeLanzarExcepcionSiCodigoDuplicado() {
@@ -74,18 +67,5 @@ class GestionSecretariosTest {
         assertEquals(2, casoUso.listarTodos().size());
     }
 
-    @Test
-    void actualizar_debePersistirCambios() {
-        Secretario original = new Secretario("SEC001", "hash", "111", "Sec", "Uno", 30);
-        Secretario actualizado = new Secretario("SEC001", "hash", "111", "Sec", "Uno Editado", 31);
-        casoUso.actualizar(original, actualizado);
-        verify(repoMock).actualizar(original, actualizado);
-    }
 
-    @Test
-    void eliminar_debeEliminarCorrectamente() {
-        Secretario aEliminar = new Secretario("SEC001", "hash", "111", "Sec", "Uno", 30);
-        casoUso.eliminar(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

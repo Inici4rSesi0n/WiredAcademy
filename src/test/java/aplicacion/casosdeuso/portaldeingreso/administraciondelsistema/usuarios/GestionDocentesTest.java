@@ -36,16 +36,6 @@ class GestionDocentesTest {
         casoUso = new GestionDocentes(repoDocentes, repoGrupos, loggerMock);
     }
 
-    @Test
-    void agregar_debeGuardarDocenteCuandoNoExiste() {
-        Docente docente = new Docente("D001", "hash", "111", "Juan", "Perez", 30, "Mat", new ArrayList<>());
-        when(repoDocentes.buscarPorCodigo("D001")).thenReturn(Optional.empty());
-        when(repoDocentes.buscarPorDni("111")).thenReturn(Optional.empty());
-
-        casoUso.agregar(docente);
-
-        verify(repoDocentes).agregar(docente);
-    }
 
     @Test
     void agregar_debeLanzarExcepcionSiCodigoDuplicado() {

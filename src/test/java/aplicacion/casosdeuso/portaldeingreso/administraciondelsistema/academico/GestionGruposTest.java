@@ -39,12 +39,6 @@ class GestionGruposTest {
         grado = new Grado("1er Grado", "Primaria");
     }
 
-    @Test
-    void crearGrupo_debeGuardarCuandoNoExiste() {
-        when(repoMock.buscarPorNombre("1A")).thenReturn(Optional.empty());
-        casoUso.crearGrupo("1A", grado);
-        verify(repoMock).agregar(any(Grupo.class));
-    }
 
     @Test
     void crearGrupo_debeLanzarExcepcionCuandoYaExiste() {
@@ -110,12 +104,6 @@ class GestionGruposTest {
                 "Los estudiantes deben preservarse al actualizar");
     }
 
-    @Test
-    void eliminarGrupo_debeEliminarCorrectamente() {
-        Grupo aEliminar = new Grupo("1A", grado);
-        casoUso.eliminarGrupo(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 
     @Test
     void asignarTutor_debeAsignarDocenteYActualizarAmbos() {

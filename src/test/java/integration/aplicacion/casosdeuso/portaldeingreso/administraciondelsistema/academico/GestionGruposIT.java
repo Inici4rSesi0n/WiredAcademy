@@ -29,8 +29,7 @@ public class GestionGruposIT extends BaseIntegrationTest {
         gestionDocentes.agregar(docente);
         Grupo grupo = gestionGrupos.buscarPorNombre("GRUPO-IT-A");
         gestionGrupos.asignarTutor(grupo, docente);
-        em.flush();
-        em.clear();
+        em.flush(); em.clear();
         Grupo persistido = gestionGrupos.buscarPorNombre("GRUPO-IT-A");
         assertNotNull(persistido.getTutor());
         assertEquals("GRUPO-IT-DOC", persistido.getTutor().getCodigo());
@@ -47,13 +46,36 @@ public class GestionGruposIT extends BaseIntegrationTest {
         gestionDocentes.agregar(docente);
         Grupo grupo = gestionGrupos.buscarPorNombre("GRUPO-IT-B");
         gestionGrupos.asignarTutor(grupo, docente);
-        em.flush();
-        em.clear();
+        em.flush(); em.clear();
         Grupo grupoRecargado = gestionGrupos.buscarPorNombre("GRUPO-IT-B");
         gestionGrupos.removerTutor(grupoRecargado);
-        em.flush();
-        em.clear();
+        em.flush(); em.clear();
         Grupo persistido = gestionGrupos.buscarPorNombre("GRUPO-IT-B");
         assertNull(persistido.getTutor());
+    }
+    @Test
+    public void testActualizarGrupo() {
+        Grado gradoA = new Grado("IT-GRP-GA", "Primaria");
+        Grado gradoB = new Grado("IT-GRP-GB", "Secundaria");
+        repoGrados.agregar(gradoA);
+        repoGrados.agregar(gradoB);
+        gestionGrupos.crearGrupo("IT-GRP-UP", gradoA);
+        Grupo original = gestionGrupos.buscarPorNombre("IT-GRP-UP");
+        gestionGrupos.actualizarGrupo(original, "IT-GRP-UP-NEW", gradoB);
+        em.flush(); em.clear();
+        assertNull(gestionGrupos.buscarPorNombre("IT-GRP-UP"));
+        Grupo actualizado = gestionGrupos.buscarPorNombre("IT-GRP-UP-NEW");
+        assertNotNull(actualizado);
+        assertEquals("IT-GRP-GB", actualizado.getGrado().getNombre());
+    }
+    @Test
+    public void testEliminarGrupo() {
+        Grado grado = new Grado("IT-GRP-DEL-G", "Primaria");
+        repoGrados.agregar(grado);
+        gestionGrupos.crearGrupo("IT-GRP-DEL", grado);
+        Grupo g = gestionGrupos.buscarPorNombre("IT-GRP-DEL");
+        gestionGrupos.eliminarGrupo(g);
+        em.flush(); em.clear();
+        assertNull(gestionGrupos.buscarPorNombre("IT-GRP-DEL"));
     }
 }

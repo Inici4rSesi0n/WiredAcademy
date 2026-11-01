@@ -26,8 +26,7 @@ public class GestionPadresIT extends BaseIntegrationTest {
         Estudiante estudianteRecargado = gestionEstudiantes.buscarPorCodigo("PAD-IT-EST1");
         Padre padreRecargado = gestionPadres.buscarPorCodigo("PAD-IT-001");
         gestionPadres.vincularEstudiante(padreRecargado, estudianteRecargado);
-        em.flush();
-        em.clear();
+        em.flush(); em.clear();
         Padre padrePersistido = gestionPadres.buscarPorCodigo("PAD-IT-001");
         assertNotNull(padrePersistido);
         assertEquals(1, padrePersistido.getEstudiantes().size());
@@ -42,14 +41,33 @@ public class GestionPadresIT extends BaseIntegrationTest {
         Padre padreRecargado = gestionPadres.buscarPorCodigo("PAD-IT-002");
         Estudiante estudianteRecargado = gestionEstudiantes.buscarPorCodigo("PAD-IT-EST2");
         gestionPadres.vincularEstudiante(padreRecargado, estudianteRecargado);
-        em.flush();
-        em.clear();
+        em.flush(); em.clear();
         Padre padreConHijo = gestionPadres.buscarPorCodigo("PAD-IT-002");
         Estudiante estudianteConPadre = gestionEstudiantes.buscarPorCodigo("PAD-IT-EST2");
         gestionPadres.desvincularEstudiante(padreConHijo, estudianteConPadre);
-        em.flush();
-        em.clear();
+        em.flush(); em.clear();
         Padre padreFinal = gestionPadres.buscarPorCodigo("PAD-IT-002");
         assertTrue(padreFinal.getEstudiantes().isEmpty());
+    }
+    @Test
+    public void testActualizarPadre() {
+        Padre padre = new Padre("PAD-IT-UPD", "hashIT", "77000020", "Padre", "Old", 40, new ArrayList<>());
+        gestionPadres.agregar(padre);
+        Padre original = gestionPadres.buscarPorCodigo("PAD-IT-UPD");
+        Padre actualizado = new Padre("PAD-IT-UPD", "hashIT2", "77000020", "Padre", "New", 45, new ArrayList<>());
+        gestionPadres.actualizar(original, actualizado);
+        em.flush(); em.clear();
+        Padre recargado = gestionPadres.buscarPorCodigo("PAD-IT-UPD");
+        assertEquals("New", recargado.getApellido());
+        assertEquals(45, recargado.getEdad());
+    }
+    @Test
+    public void testEliminarPadre() {
+        Padre padre = new Padre("PAD-IT-DEL", "hashIT", "77000021", "Padre", "DEL", 40, new ArrayList<>());
+        gestionPadres.agregar(padre);
+        Padre p = gestionPadres.buscarPorCodigo("PAD-IT-DEL");
+        gestionPadres.eliminar(p);
+        em.flush(); em.clear();
+        assertNull(gestionPadres.buscarPorCodigo("PAD-IT-DEL"));
     }
 }

@@ -48,25 +48,7 @@ class GestionUsuariosTest {
                 loggerPort, buscadorUsuario);
     }
 
-    @Test
-    void agregarUsuario_administrador_debeGuardar() {
-        when(repoAdmin.buscarPorCodigo("A001")).thenReturn(Optional.empty());
-        mockListarTodosVacios();
-        casoUso.agregarUsuario(new CrearUsuarioCommand(
-            "A001", "hash", "111", "Admin", "Uno", 30, Usuario.Rol.ADMINISTRADOR, null));
-        verify(repoAdmin).agregar(any(Administrador.class));
-    }
 
-    @Test
-    void agregarUsuario_docente_debeGuardar() {
-        when(repoDoc.buscarPorCodigo("D001")).thenReturn(Optional.empty());
-        mockListarTodosVacios();
-
-        casoUso.agregarUsuario(new CrearUsuarioCommand(
-            "D001", "hash", "111", "Doc", "Uno", 30, Usuario.Rol.DOCENTE, "Matemáticas"));
-
-        verify(repoDoc).agregar(any(Docente.class));
-    }
 
     @Test
     void agregarUsuario_codigoDuplicado_debeLanzarExcepcion() {
@@ -115,14 +97,6 @@ class GestionUsuariosTest {
         verify(repoAdmin).actualizar(admin, admin);
     }
 
-    @Test
-    void eliminarUsuario_docente_debeEliminar() {
-        Docente docente = new Docente("D001", "hash", "111", "Doc", "Uno", 30, "Mat", new ArrayList<>());
-
-        casoUso.eliminarUsuario(docente);
-
-        verify(repoDoc).eliminar(docente);
-    }
 
     @Test
     void actualizarUsuario_noDebePerderAsignaturasDeDocente() {

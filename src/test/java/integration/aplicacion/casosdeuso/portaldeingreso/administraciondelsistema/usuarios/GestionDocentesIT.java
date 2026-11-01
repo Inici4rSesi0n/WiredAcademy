@@ -30,8 +30,7 @@ public class GestionDocentesIT extends BaseIntegrationTest {
         Grupo grupo = gestionGrupos.buscarPorNombre("DOC-IT-Grupo");
         Docente docenteRecargado = gestionDocentes.buscarPorCodigo("DOC-IT-001");
         gestionDocentes.asignarTutoria(docenteRecargado, grupo);
-        em.flush();
-        em.clear();
+        em.flush(); em.clear();
         Grupo grupoPersistido = gestionGrupos.buscarPorNombre("DOC-IT-Grupo");
         assertNotNull(grupoPersistido.getTutor());
         assertEquals("DOC-IT-001", grupoPersistido.getTutor().getCodigo());
@@ -50,13 +49,33 @@ public class GestionDocentesIT extends BaseIntegrationTest {
         gestionDocentes.agregar(tutor2);
         Grupo grupo = gestionGrupos.buscarPorNombre("DOC-IT-Grupo2");
         gestionDocentes.asignarTutoria(gestionDocentes.buscarPorCodigo("DOC-IT-T1"), grupo);
-        em.flush();
-        em.clear();
+        em.flush(); em.clear();
         Grupo grupoRecargado = gestionGrupos.buscarPorNombre("DOC-IT-Grupo2");
         gestionDocentes.asignarTutoria(gestionDocentes.buscarPorCodigo("DOC-IT-T2"), grupoRecargado);
-        em.flush();
-        em.clear();
+        em.flush(); em.clear();
         Grupo persistido = gestionGrupos.buscarPorNombre("DOC-IT-Grupo2");
         assertEquals("DOC-IT-T2", persistido.getTutor().getCodigo());
+    }
+    @Test
+    public void testActualizarDocente() {
+        Docente docente = new Docente("IT-DOC-UPD", "hashIT", "88000010", "Doc", "Old", 35, "Mat", new ArrayList<>());
+        gestionDocentes.agregar(docente);
+        Docente original = gestionDocentes.buscarPorCodigo("IT-DOC-UPD");
+        Docente actualizado = new Docente("IT-DOC-UPD", "hashIT2", "88000010", "Doc", "New", 40, "Fisica", new ArrayList<>());
+        gestionDocentes.actualizar(original, actualizado);
+        em.flush(); em.clear();
+        Docente recargado = gestionDocentes.buscarPorCodigo("IT-DOC-UPD");
+        assertEquals("New", recargado.getApellido());
+        assertEquals(40, recargado.getEdad());
+        assertEquals("Fisica", recargado.getEspecialidad());
+    }
+    @Test
+    public void testEliminarDocente() {
+        Docente docente = new Docente("IT-DOC-DEL", "hashIT", "88000011", "Doc", "DEL", 35, "Mat", new ArrayList<>());
+        gestionDocentes.agregar(docente);
+        Docente d = gestionDocentes.buscarPorCodigo("IT-DOC-DEL");
+        gestionDocentes.eliminar(d);
+        em.flush(); em.clear();
+        assertNull(gestionDocentes.buscarPorCodigo("IT-DOC-DEL"));
     }
 }

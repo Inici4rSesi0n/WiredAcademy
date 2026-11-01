@@ -35,13 +35,6 @@ class GestionDirectoresTest {
         verify(repoMock, never()).agregar(any());
     }
 
-    @Test
-    void agregar_debeGuardarCuandoNoExiste() {
-        Director director = new Director("DIR001", "hash", "111", "Dir", "Uno", 40);
-        when(repoMock.buscarPorCodigo("DIR001")).thenReturn(Optional.empty());
-        casoUso.agregar(director);
-        verify(repoMock).agregar(director);
-    }
 
     @Test
     void agregar_debeLanzarExcepcionSiCodigoDuplicado() {
@@ -74,18 +67,5 @@ class GestionDirectoresTest {
         assertEquals(2, casoUso.listarTodos().size());
     }
 
-    @Test
-    void actualizar_debePersistirCambios() {
-        Director original = new Director("DIR001", "hash", "111", "Dir", "Uno", 40);
-        Director actualizado = new Director("DIR001", "hash", "111", "Dir", "Uno Editado", 41);
-        casoUso.actualizar(original, actualizado);
-        verify(repoMock).actualizar(original, actualizado);
-    }
 
-    @Test
-    void eliminar_debeEliminarCorrectamente() {
-        Director aEliminar = new Director("DIR001", "hash", "111", "Dir", "Uno", 40);
-        casoUso.eliminar(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

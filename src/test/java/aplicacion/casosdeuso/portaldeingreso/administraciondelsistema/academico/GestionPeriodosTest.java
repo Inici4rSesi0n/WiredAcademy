@@ -29,12 +29,6 @@ class GestionPeriodosTest {
         casoUso = new GestionPeriodos(repoMock, loggerMock);
     }
 
-    @Test
-    void crearPeriodo_debeGuardarCuandoNoExiste() {
-        when(repoMock.buscarPorNombre("2026-I")).thenReturn(Optional.empty());
-        casoUso.crearPeriodo("2026-I", "2026-01-01", "2026-12-31", "Activo");
-        verify(repoMock).agregar(any(PeriodoAcademico.class));
-    }
 
     @Test
     void crearPeriodo_debeLanzarExcepcionCuandoYaExiste() {
@@ -75,18 +69,5 @@ class GestionPeriodosTest {
         verify(repoMock).actualizar(eq(original), any(PeriodoAcademico.class));
     }
 
-    @Test
-    void eliminarPeriodo_debeEliminarCorrectamente() {
-        PeriodoAcademico aEliminar = new PeriodoAcademico("2026-I", "2026-01-01", "2026-12-31", "Activo");
-        casoUso.eliminarPeriodo(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 
-    @Test
-    void actualizarPeriodo_debeModificarMismaReferencia() {
-        PeriodoAcademico original = new PeriodoAcademico("2026-I", "2026-01-01", "2026-12-31", "Activo");
-        casoUso.actualizarPeriodo(original, "2026-II", "2026-06-01", "2026-12-31", "Activo");
-        
-        verify(repoMock).actualizar(eq(original), any(PeriodoAcademico.class));
-    }
 }

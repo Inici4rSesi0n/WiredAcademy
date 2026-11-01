@@ -31,7 +31,7 @@ public class AdaptadorRepositorioCoordinadores implements RepositorioCoordinador
         if(coordinador==null) throw new IllegalArgumentException("El coordinador no puede ser nulo");
         CoordinadorEntity entity = mapper.toEntity(coordinador);
         entity.setGradosSupervisados(resolverGrados(coordinador));
-        jpaRepository.save(entity);
+        jpaRepository.saveAndFlush(entity);
     }
     @Override
     public Optional<CoordinadorAcademico> buscarPorCodigo(String codigo){
@@ -51,7 +51,7 @@ public class AdaptadorRepositorioCoordinadores implements RepositorioCoordinador
         entity.setHashContrasena(actualizado.getHashContrasena());
         entity.setDni(actualizado.getDni());
         entity.setGradosSupervisados(resolverGrados(actualizado));
-        jpaRepository.save(entity);
+        jpaRepository.saveAndFlush(entity);
     }
     @Override @Transactional
     public void eliminar(CoordinadorAcademico coordinador){

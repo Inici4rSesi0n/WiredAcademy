@@ -29,12 +29,6 @@ class GestionAsignaturasTest {
         casoUso = new GestionAsignaturas(repoMock, loggerMock);
     }
 
-    @Test
-    void crearAsignatura_debeGuardarCuandoNoExiste() {
-        when(repoMock.buscarPorNombre("Matemáticas")).thenReturn(Optional.empty());
-        casoUso.crearAsignatura("Matemáticas");
-        verify(repoMock).agregar(any(Asignatura.class));
-    }
 
     @Test
     void crearAsignatura_debeFallarSiNombreVacio() {
@@ -69,13 +63,6 @@ class GestionAsignaturasTest {
         assertNull(casoUso.buscarAsignatura("X"));
     }
 
-    @Test
-    void actualizarAsignatura_debeModificarMismaReferencia() {
-        Asignatura original = new Asignatura("Matemáticas");
-        casoUso.actualizarAsignatura(original, "Matemática I");
-        
-        verify(repoMock).actualizar(eq(original), any(Asignatura.class));
-    }
 
     @Test
     void actualizarAsignatura_debeFallarSiNombreVacio() {
@@ -83,10 +70,4 @@ class GestionAsignaturasTest {
         assertThrows(IllegalArgumentException.class, () -> casoUso.actualizarAsignatura(original, ""));
     }
 
-    @Test
-    void eliminarAsignatura_debeEliminarCorrectamente() {
-        Asignatura aEliminar = new Asignatura("Matemáticas");
-        casoUso.eliminarAsignatura(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

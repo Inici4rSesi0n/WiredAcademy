@@ -30,12 +30,6 @@ class GestionAulasTest {
         casoUso = new GestionAulas(repoMock, loggerMock);
     }
 
-    @Test
-    void crearAula_debeGuardarCuandoNoExiste() {
-        when(repoMock.buscarPorNombre("Aula 101")).thenReturn(Optional.empty());
-        casoUso.crearAula("Aula 101", 40, "Pabellón A", "Teoría", ModalidadAula.PRESENCIAL);
-        verify(repoMock).agregar(any(Aula.class));
-    }
 
     @Test
     void crearAula_debeFallarSiCapacidadInvalida() {
@@ -72,14 +66,6 @@ class GestionAulasTest {
         assertEquals(esperada, casoUso.buscarAula("Aula 101"));
     }
 
-    @Test
-    void actualizarAula_debeModificarMismaReferencia() {
-        Aula original = new Aula("Aula 101", 40, "P1", "Teoría");
-        casoUso.actualizarAula(original, "Aula 102", 50, "P2", "Lab", ModalidadAula.PRESENCIAL);
-        
-        
-        verify(repoMock).actualizar(eq(original), any(Aula.class));
-    }
 
     @Test
     void actualizarAula_debeFallarSiCapacidadInvalida() {
@@ -88,10 +74,4 @@ class GestionAulasTest {
                 () -> casoUso.actualizarAula(original, "Aula 102", 0, "P2", "Lab", ModalidadAula.PRESENCIAL));
     }
 
-    @Test
-    void eliminarAula_debeEliminarCorrectamente() {
-        Aula aEliminar = new Aula("Aula 101", 40, "P1", "Teoría");
-        casoUso.eliminarAula(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

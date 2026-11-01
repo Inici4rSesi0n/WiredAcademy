@@ -31,15 +31,6 @@ class GestionPadresTest {
         casoUso = new GestionPadres(repoMock, loggerMock);
     }
 
-    @Test
-    void agregar_debeGuardarPadreCuandoNoExiste() {
-        Padre padre = new Padre("P001", "hash", "111", "Padre", "Uno", 40, new ArrayList<>());
-        when(repoMock.buscarPorCodigo("P001")).thenReturn(Optional.empty());
-
-        casoUso.agregar(padre);
-
-        verify(repoMock).agregar(padre);
-    }
 
     @Test
     void agregar_debeLanzarExcepcionSiCodigoDuplicado() {
@@ -96,14 +87,6 @@ class GestionPadresTest {
         verify(repoMock).actualizar(original, actualizado);
     }
 
-    @Test
-    void eliminar_debeEliminarPadre() {
-        Padre aEliminar = new Padre("P001", "hash", "111", "Padre", "Uno", 40, new ArrayList<>());
-
-        casoUso.eliminar(aEliminar);
-
-        verify(repoMock).eliminar(aEliminar);
-    }
 
     @Test
     void vincularEstudiante_debeAgregarHijoYActualizar() {

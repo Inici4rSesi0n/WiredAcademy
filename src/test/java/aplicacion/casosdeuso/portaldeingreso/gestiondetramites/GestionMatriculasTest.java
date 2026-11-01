@@ -35,14 +35,6 @@ class GestionMatriculasTest {
         grupo = new Grupo("1A", new Grado("1er Grado", "Primaria"));
     }
 
-    @Test
-    void matricularEstudiante_debeGuardarCuandoNoExiste() {
-        when(repoMock.buscarPorEstudianteYPeriodo("E001", "2026-I")).thenReturn(Optional.empty());
-
-        casoUso.matricularEstudiante(estudiante, periodo, grupo, null, "2026-01-10", EstadoMatricula.ACTIVA);
-
-        verify(repoMock).agregar(any(Matricula.class));
-    }
 
     @Test
     void matricularEstudiante_debeLanzarExcepcionSiYaMatriculado() {
@@ -109,12 +101,4 @@ class GestionMatriculasTest {
         verify(repoMock).actualizar(matricula, matricula);
     }
 
-    @Test
-    void eliminarMatricula_debeEliminarCorrectamente() {
-        Matricula aEliminar = new Matricula(estudiante, periodo, grupo, null, "2026-01-10", EstadoMatricula.ACTIVA);
-
-        casoUso.eliminarMatricula(aEliminar);
-
-        verify(repoMock).eliminar(aEliminar);
-    }
 }

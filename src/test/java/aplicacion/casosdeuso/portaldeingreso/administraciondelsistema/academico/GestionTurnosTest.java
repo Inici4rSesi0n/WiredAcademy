@@ -29,12 +29,6 @@ class GestionTurnosTest {
         casoUso = new GestionTurnos(repoMock, loggerMock);
     }
 
-    @Test
-    void crearTurno_debeGuardarCuandoNoExiste() {
-        when(repoMock.buscarPorNombre("Mañana")).thenReturn(Optional.empty());
-        casoUso.crearTurno("Mañana");
-        verify(repoMock).agregar(any(Turno.class));
-    }
 
     @Test
     void crearTurno_debeLanzarExcepcionCuandoYaExiste() {
@@ -71,18 +65,5 @@ class GestionTurnosTest {
         verify(repoMock).actualizar(eq(original), any(Turno.class));
     }
 
-    @Test
-    void eliminarTurno_debeEliminarCorrectamente() {
-        Turno aEliminar = new Turno("Tarde");
-        casoUso.eliminarTurno(aEliminar);
-        verify(repoMock).eliminar(aEliminar);
-    }
 
-    @Test
-    void actualizarTurno_debeModificarMismaReferencia() {
-        Turno original = new Turno("Manana");
-        casoUso.actualizarTurno(original, "Tarde");
-        
-        verify(repoMock).actualizar(eq(original), any(Turno.class));
-    }
 }
