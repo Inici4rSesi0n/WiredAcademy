@@ -79,3 +79,5 @@ Thumbs.db
 *~
 .env
 .backup-unit-tests-*
+*.bak
+.github/workflows/*.bak
