@@ -174,7 +174,6 @@
                         </excludes>
                     <argLine>
                         -Xshare:off
-                        -javaagent:${settings.localRepository}/net/bytebuddy/byte-buddy-agent/1.15.4/byte-buddy-agent-1.15.4.jar
                     </argLine>
                     <systemPropertyVariables>
                         <mockito.mock.maker.class>mock-maker-subclass</mockito.mock.maker.class>
