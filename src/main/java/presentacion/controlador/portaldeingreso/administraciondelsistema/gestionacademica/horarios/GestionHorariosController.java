@@ -1,4 +1,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.horarios;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAsignaturas;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAulas;
@@ -15,7 +17,6 @@ import dominio.modelo.PeriodoAcademico;
 import dominio.puerto.externo.LoggerPort;
 import infraestructura.configuracion.SpringFxmlLoader;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 
 import java.io.IOException;
@@ -60,7 +61,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class GestionHorariosController implements Initializable {
+public class GestionHorariosController implements Initializable, EventBusListener {
 
     @FXML private BorderPane root;
     public BorderPane getRoot() { return root; }
@@ -73,6 +74,7 @@ public class GestionHorariosController implements Initializable {
     private final GestionPeriodos gestionPeriodos;
     private final SpringFxmlLoader fxmlLoader;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private TableView<Clase> tablaClases;
     @FXML private TableColumn<Clase, Integer> colNumClase;
@@ -96,7 +98,7 @@ public class GestionHorariosController implements Initializable {
                                  GestionAulas gestionAulas,
                                  GestionPeriodos gestionPeriodos,
                                  SpringFxmlLoader fxmlLoader,
-                                 LoggerPort logger) {
+                                 LoggerPort logger, EventBus eventBus) {
         this.gestionClases = gestionClases;
         this.gestionAsignaturas = gestionAsignaturas;
         this.gestionDocentes = gestionDocentes;
@@ -105,18 +107,32 @@ public class GestionHorariosController implements Initializable {
         this.gestionPeriodos = gestionPeriodos;
         this.fxmlLoader = fxmlLoader;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case CLASES -> cargarClases();
+            case GRUPOS -> recargarDesdeEvento();
+            case DOCENTES -> recargarDesdeEvento();
+            case AULAS -> recargarDesdeEvento();
+            case PERIODOS -> recargarDesdeEvento();
+            case ASIGNATURAS -> recargarDesdeEvento();
+            default -> {}
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTablaClases();
         cargarClases();
-        SistemaEventBus.suscribir(TipoEvento.CLASES, this::cargarClases);
-        SistemaEventBus.suscribir(TipoEvento.GRUPOS, this::recargarDesdeEvento);
-        SistemaEventBus.suscribir(TipoEvento.DOCENTES, this::recargarDesdeEvento);
-        SistemaEventBus.suscribir(TipoEvento.AULAS, this::recargarDesdeEvento);
-        SistemaEventBus.suscribir(TipoEvento.PERIODOS, this::recargarDesdeEvento);
-        SistemaEventBus.suscribir(TipoEvento.ASIGNATURAS, this::recargarDesdeEvento);
+        eventBus.suscribir(TipoEvento.CLASES, this);
+        eventBus.suscribir(TipoEvento.GRUPOS, this);
+        eventBus.suscribir(TipoEvento.DOCENTES, this);
+        eventBus.suscribir(TipoEvento.AULAS, this);
+        eventBus.suscribir(TipoEvento.PERIODOS, this);
+        eventBus.suscribir(TipoEvento.ASIGNATURAS, this);
     }
 
     private void recargarDesdeEvento() {
@@ -236,7 +252,7 @@ public class GestionHorariosController implements Initializable {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar esta clase?")) return;
         try {
             gestionClases.eliminarClase(c);
-            SistemaEventBus.notificar(TipoEvento.CLASES);
+            eventBus.notificar(TipoEvento.CLASES);
         } catch (Exception e) {
             logger.error("Error al eliminar clase: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -293,7 +309,7 @@ public class GestionHorariosController implements Initializable {
             } else {
                 gestionClases.actualizarClase(claseEditando, dia, inicio, fin, asig, doc, grupo, aula, periodo);
             }
-            SistemaEventBus.notificar(TipoEvento.CLASES);
+            eventBus.notificar(TipoEvento.CLASES);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

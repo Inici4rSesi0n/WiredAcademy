@@ -1,10 +1,11 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAulas;
 import dominio.modelo.Aula;
 import dominio.modelo.ModalidadAula;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -25,9 +26,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class AulasController implements Initializable {
+public class AulasController implements Initializable, EventBusListener {
     private final GestionAulas gestionAulas;
     private final LoggerPort logger;
+    private final EventBus eventBus;
     @FXML private TableView<Aula> tablaAulas;
     @FXML private TableColumn<Aula, Integer> colNumAula;
     @FXML private TableColumn<Aula, String> colNombreAula, colUbicacionAula, colTipoAula;
@@ -41,16 +43,25 @@ public class AulasController implements Initializable {
     @FXML private Button btnNuevaAula, btnGuardarAula, btnCancelarAula;
     private ObservableList<Aula> listaAulas;
     private Aula aulaEditando;
-    public AulasController(GestionAulas gestionAulas, LoggerPort logger) {
+    public AulasController(GestionAulas gestionAulas, LoggerPort logger, EventBus eventBus) {
         this.gestionAulas = gestionAulas;
         this.logger = logger;
+        this.eventBus = eventBus;
     }
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case AULAS -> cargarAulas();
+            default -> {}
+        }
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarComboModalidad();
         configurarTabla();
         cargarAulas();
-        SistemaEventBus.suscribir(TipoEvento.AULAS, this::cargarAulas);
+        eventBus.suscribir(TipoEvento.AULAS, this);
     }    private void configurarComboModalidad() {
         cmbModalidadAula.getItems().clear();
         cmbModalidadAula.getItems().add("Seleccione modalidad");
@@ -116,7 +127,7 @@ public class AulasController implements Initializable {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionAulas.eliminarAula(a);
-            SistemaEventBus.notificar(TipoEvento.AULAS);
+            eventBus.notificar(TipoEvento.AULAS);
         } catch (Exception e) {
             logger.error("Error al eliminar aula: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -152,7 +163,7 @@ public class AulasController implements Initializable {
             } else {
                 gestionAulas.actualizarAula(aulaEditando, nombre, capacidad, ubicacion, tipo, modalidad);
             }
-            SistemaEventBus.notificar(TipoEvento.AULAS);
+            eventBus.notificar(TipoEvento.AULAS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

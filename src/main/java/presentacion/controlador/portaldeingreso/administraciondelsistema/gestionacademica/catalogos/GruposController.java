@@ -1,11 +1,12 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrados;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
 import dominio.modelo.Grado;
 import dominio.modelo.Grupo;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -26,10 +27,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class GruposController implements Initializable {
+public class GruposController implements Initializable, EventBusListener {
     private final GestionGrupos gestionGrupos;
     private final GestionGrados gestionGrados;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private TableView<Grupo> tablaGrupos;
     @FXML private TableColumn<Grupo, Integer> colNumGrupo;
@@ -44,10 +46,20 @@ public class GruposController implements Initializable {
     private ObservableList<Grupo> listaGrupos;
     private Grupo grupoEditando;
 
-    public GruposController(GestionGrupos gestionGrupos, GestionGrados gestionGrados, LoggerPort logger) {
+    public GruposController(GestionGrupos gestionGrupos, GestionGrados gestionGrados, LoggerPort logger, EventBus eventBus) {
         this.gestionGrupos = gestionGrupos;
         this.gestionGrados = gestionGrados;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case GRUPOS -> cargarGrupos();
+            case GRADOS -> recargarComboGrados();
+            default -> {}
+        }
     }
 
     @Override
@@ -55,8 +67,8 @@ public class GruposController implements Initializable {
         configurarTabla();
         recargarComboGrados();
         cargarGrupos();
-        SistemaEventBus.suscribir(TipoEvento.GRUPOS, this::cargarGrupos);
-        SistemaEventBus.suscribir(TipoEvento.GRADOS, this::recargarComboGrados);
+        eventBus.suscribir(TipoEvento.GRUPOS, this);
+        eventBus.suscribir(TipoEvento.GRADOS, this);
     }
 
     private void configurarTabla() {
@@ -125,7 +137,7 @@ public class GruposController implements Initializable {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionGrupos.eliminarGrupo(g);
-            SistemaEventBus.notificar(TipoEvento.GRUPOS);
+            eventBus.notificar(TipoEvento.GRUPOS);
         } catch (Exception e) {
             logger.error("Error al eliminar grupo: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -153,7 +165,7 @@ public class GruposController implements Initializable {
         try {
             if (grupoEditando == null) gestionGrupos.crearGrupo(nombre, grado);
             else gestionGrupos.actualizarGrupo(grupoEditando, nombre, grado);
-            SistemaEventBus.notificar(TipoEvento.GRUPOS);
+            eventBus.notificar(TipoEvento.GRUPOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

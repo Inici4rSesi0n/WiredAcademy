@@ -1,4 +1,6 @@
 package presentacion.controlador.portaldeingreso.gestiondetramites.matricula;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionEstudiantes;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
@@ -11,7 +13,6 @@ import dominio.modelo.Matricula;
 import dominio.modelo.PeriodoAcademico;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 
 import java.net.URL;
@@ -36,12 +37,13 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class SeccionMatriculaController implements Initializable {
+public class SeccionMatriculaController implements Initializable, EventBusListener {
     private final GestionMatriculas gestionMatriculas;
     private final GestionEstudiantes gestionEstudiantes;
     private final GestionPeriodos gestionPeriodos;
     private final GestionGrupos gestionGrupos;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private TableView<Matricula> tablaMatriculas;
     @FXML private TableColumn<Matricula, Integer> colNumMatricula;
@@ -64,12 +66,24 @@ public class SeccionMatriculaController implements Initializable {
     public SeccionMatriculaController(GestionMatriculas gestionMatriculas,
                                  GestionEstudiantes gestionEstudiantes,
                                  GestionPeriodos gestionPeriodos,
-                                 GestionGrupos gestionGrupos, LoggerPort logger) {
+                                 GestionGrupos gestionGrupos, LoggerPort logger, EventBus eventBus) {
         this.gestionMatriculas = gestionMatriculas;
         this.gestionEstudiantes = gestionEstudiantes;
         this.gestionPeriodos = gestionPeriodos;
         this.gestionGrupos = gestionGrupos;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case MATRICULAS -> cargarMatriculas();
+            case GRUPOS -> recargarDesdeEvento();
+            case ESTUDIANTES -> recargarDesdeEvento();
+            case PERIODOS -> recargarDesdeEvento();
+            default -> {}
+        }
     }
 
     @Override
@@ -78,10 +92,10 @@ public class SeccionMatriculaController implements Initializable {
         configurarColumnaAcciones();
         configurarComboEstado();
         cargarDatosIniciales();
-        SistemaEventBus.suscribir(TipoEvento.MATRICULAS, this::cargarMatriculas);
-        SistemaEventBus.suscribir(TipoEvento.GRUPOS, this::recargarDesdeEvento);
-        SistemaEventBus.suscribir(TipoEvento.ESTUDIANTES, this::recargarDesdeEvento);
-        SistemaEventBus.suscribir(TipoEvento.PERIODOS, this::recargarDesdeEvento);
+        eventBus.suscribir(TipoEvento.MATRICULAS, this);
+        eventBus.suscribir(TipoEvento.GRUPOS, this);
+        eventBus.suscribir(TipoEvento.ESTUDIANTES, this);
+        eventBus.suscribir(TipoEvento.PERIODOS, this);
     }
 
     private void recargarDesdeEvento() {
@@ -218,7 +232,7 @@ public class SeccionMatriculaController implements Initializable {
                 matriculaEditando.setFecha(fecha);
                 gestionMatriculas.actualizar(matriculaEditando);
             }
-            SistemaEventBus.notificar(TipoEvento.MATRICULAS);
+            eventBus.notificar(TipoEvento.MATRICULAS);
             limpiarFormulario();
         } catch (Exception e) {
             logger.error("Error al guardar matrícula: " + e.getMessage());
@@ -255,7 +269,7 @@ public class SeccionMatriculaController implements Initializable {
         if (Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar la matricula de " + matricula.getEstudiante().getCodigo() + "?")) {
             try {
                 gestionMatriculas.eliminarMatricula(matricula);
-                SistemaEventBus.notificar(TipoEvento.MATRICULAS);
+                eventBus.notificar(TipoEvento.MATRICULAS);
             } catch (Exception e) {
                 logger.error("Error al eliminar matrícula: " + e.getMessage());
                 Dialogos.info(e.getMessage());

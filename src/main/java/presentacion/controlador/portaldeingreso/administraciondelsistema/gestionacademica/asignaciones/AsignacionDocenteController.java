@@ -1,4 +1,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.asignaciones;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import presentacion.dto.AsignacionItem;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAsignaturas;
@@ -16,7 +18,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 
 import java.net.URL;
@@ -28,10 +29,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class AsignacionDocenteController implements Initializable {
+public class AsignacionDocenteController implements Initializable, EventBusListener {
     private final GestionDocentes gestionDocentes;
     private final GestionAsignaturas gestionAsignaturas;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private BorderPane root;
     public BorderPane getRoot() { return root; }
@@ -43,10 +45,20 @@ public class AsignacionDocenteController implements Initializable {
 
     private ObservableList<AsignacionItem> listaAsignacionesDocente;
 
-    public AsignacionDocenteController(GestionDocentes gestionDocentes, GestionAsignaturas gestionAsignaturas, LoggerPort logger) {
+    public AsignacionDocenteController(GestionDocentes gestionDocentes, GestionAsignaturas gestionAsignaturas, LoggerPort logger, EventBus eventBus) {
         this.gestionDocentes = gestionDocentes;
         this.gestionAsignaturas = gestionAsignaturas;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case DOCENTES -> recargarDesdeEvento();
+            case ASIGNATURAS -> recargarDesdeEvento();
+            default -> {}
+        }
     }
 
     @Override
@@ -54,8 +66,8 @@ public class AsignacionDocenteController implements Initializable {
         configurarTablaAsignacionesDocente();
         recargarCombosAsignaciones();
         cargarAsignacionesDocente();
-        SistemaEventBus.suscribir(TipoEvento.DOCENTES, this::recargarDesdeEvento);
-        SistemaEventBus.suscribir(TipoEvento.ASIGNATURAS, this::recargarDesdeEvento);
+        eventBus.suscribir(TipoEvento.DOCENTES, this);
+        eventBus.suscribir(TipoEvento.ASIGNATURAS, this);
     }
 
     private void recargarDesdeEvento() {
@@ -91,7 +103,7 @@ public class AsignacionDocenteController implements Initializable {
                     if (docente != null) {
                         try {
                             gestionDocentes.removerAsignatura(docente, item.getAsignatura());
-                            SistemaEventBus.notificar(TipoEvento.DOCENTES);
+                            eventBus.notificar(TipoEvento.DOCENTES);
                         } catch (Exception ex) {
                             logger.error("Error al remover asignatura: " + ex.getMessage());
                             Dialogos.info(ex.getMessage());
@@ -134,7 +146,7 @@ public class AsignacionDocenteController implements Initializable {
         if (a == null) { Dialogos.info("Asignatura no encontrada."); return; }
         try {
             gestionDocentes.agregarAsignatura(docente, a);
-            SistemaEventBus.notificar(TipoEvento.DOCENTES);
+            eventBus.notificar(TipoEvento.DOCENTES);
         } catch (Exception e) {
             logger.error("Error al agregar asignatura a docente: " + e.getMessage());
             Dialogos.info(e.getMessage());

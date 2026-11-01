@@ -1,9 +1,10 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAsignaturas;
 import dominio.modelo.Asignatura;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -24,9 +25,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class AsignaturasController implements Initializable {
+public class AsignaturasController implements Initializable, EventBusListener {
     private final GestionAsignaturas gestionAsignaturas;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private TableView<Asignatura> tablaAsignaturas;
     @FXML private TableColumn<Asignatura, Integer> colNumAsignatura;
@@ -40,16 +42,25 @@ public class AsignaturasController implements Initializable {
     private ObservableList<Asignatura> listaAsignaturas;
     private Asignatura asignaturaEditando;
 
-    public AsignaturasController(GestionAsignaturas gestionAsignaturas, LoggerPort logger) {
+    public AsignaturasController(GestionAsignaturas gestionAsignaturas, LoggerPort logger, EventBus eventBus) {
         this.gestionAsignaturas = gestionAsignaturas;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case ASIGNATURAS -> cargarAsignaturas();
+            default -> {}
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
         cargarAsignaturas();
-        SistemaEventBus.suscribir(TipoEvento.ASIGNATURAS, this::cargarAsignaturas);
+        eventBus.suscribir(TipoEvento.ASIGNATURAS, this);
     }
 
     private void configurarTabla() {
@@ -105,7 +116,7 @@ public class AsignaturasController implements Initializable {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionAsignaturas.eliminarAsignatura(a);
-            SistemaEventBus.notificar(TipoEvento.ASIGNATURAS);
+            eventBus.notificar(TipoEvento.ASIGNATURAS);
         } catch (Exception e) {
             logger.error("Error al eliminar asignatura: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -127,7 +138,7 @@ public class AsignaturasController implements Initializable {
         try {
             if (asignaturaEditando == null) gestionAsignaturas.crearAsignatura(nombre);
             else gestionAsignaturas.actualizarAsignatura(asignaturaEditando, nombre);
-            SistemaEventBus.notificar(TipoEvento.ASIGNATURAS);
+            eventBus.notificar(TipoEvento.ASIGNATURAS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

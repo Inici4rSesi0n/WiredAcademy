@@ -1,11 +1,12 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestiondeusuarios;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionUsuarios;
 import aplicacion.dto.CrearUsuarioCommand;
 import dominio.modelo.Usuario;
 import dominio.puerto.externo.HashProvider;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -26,10 +27,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class SeccionGestionUsuariosController implements Initializable {
+public class SeccionGestionUsuariosController implements Initializable, EventBusListener {
     private final GestionUsuarios gestionUsuarios;
     private final HashProvider hashProvider;
     private final LoggerPort logger;
+    private final EventBus eventBus;
     @FXML private TableView<Usuario> tablaUsuarios;
     @FXML private TableColumn<Usuario, String> colCodigo, colNombre, colApellido, colDni, colRol;
     @FXML private TableColumn<Usuario, Void> colAcciones;
@@ -39,17 +41,26 @@ public class SeccionGestionUsuariosController implements Initializable {
     @FXML private Button btnNuevoUsuario, btnGuardar, btnCancelar;
     private ObservableList<Usuario> listaUsuarios;
     private Usuario usuarioEditando;
-    public SeccionGestionUsuariosController(GestionUsuarios gestionUsuarios, HashProvider hashProvider, LoggerPort logger) {
+    public SeccionGestionUsuariosController(GestionUsuarios gestionUsuarios, HashProvider hashProvider, LoggerPort logger, EventBus eventBus) {
         this.gestionUsuarios = gestionUsuarios;
         this.hashProvider = hashProvider;
         this.logger = logger;
+        this.eventBus = eventBus;
     }
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case USUARIOS -> cargarUsuarios();
+            default -> {}
+        }
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
         configurarColumnaAcciones();
         configurarComboRoles();
-        SistemaEventBus.suscribir(TipoEvento.USUARIOS, this::cargarUsuarios);
+        eventBus.suscribir(TipoEvento.USUARIOS, this);
         cargarUsuarios();
     }
     private void configurarTabla() {
@@ -153,7 +164,7 @@ public class SeccionGestionUsuariosController implements Initializable {
             limpiarFormulario();
             panelFormulario.setManaged(false);
             panelFormulario.setVisible(false);
-            SistemaEventBus.notificar(TipoEvento.USUARIOS);
+            eventBus.notificar(TipoEvento.USUARIOS);
         } catch (Exception e) {
             logger.error("Error al guardar usuario: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -176,7 +187,7 @@ public class SeccionGestionUsuariosController implements Initializable {
         if (Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar al usuario " + usuario.getCodigo() + "?")) {
             try {
                 gestionUsuarios.eliminarUsuario(usuario);
-                SistemaEventBus.notificar(TipoEvento.USUARIOS);
+                eventBus.notificar(TipoEvento.USUARIOS);
             } catch (Exception e) {
                 logger.error("Error al eliminar usuario: " + e.getMessage());
                 Dialogos.info(e.getMessage());

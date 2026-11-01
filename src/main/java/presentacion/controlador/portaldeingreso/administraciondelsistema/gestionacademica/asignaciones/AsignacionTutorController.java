@@ -1,4 +1,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.asignaciones;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import presentacion.dto.TutorItem;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
@@ -15,7 +17,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 
 import java.net.URL;
@@ -27,10 +28,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class AsignacionTutorController implements Initializable {
+public class AsignacionTutorController implements Initializable, EventBusListener {
     private final GestionDocentes gestionDocentes;
     private final GestionGrupos gestionGrupos;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private BorderPane root;
     public BorderPane getRoot() { return root; }
@@ -40,10 +42,20 @@ public class AsignacionTutorController implements Initializable {
     @FXML private TableColumn<TutorItem, String> colGrupoTutor, colDocenteTutor;
     @FXML private TableColumn<TutorItem, Void> colAccionesTutor;
 
-    public AsignacionTutorController(GestionDocentes gestionDocentes, GestionGrupos gestionGrupos, LoggerPort logger) {
+    public AsignacionTutorController(GestionDocentes gestionDocentes, GestionGrupos gestionGrupos, LoggerPort logger, EventBus eventBus) {
         this.gestionDocentes = gestionDocentes;
         this.gestionGrupos = gestionGrupos;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case GRUPOS -> recargarDesdeEvento();
+            case DOCENTES -> recargarDesdeEvento();
+            default -> {}
+        }
     }
 
     @Override
@@ -51,8 +63,8 @@ public class AsignacionTutorController implements Initializable {
         configurarTabla();
         recargarCombos();
         cargarTutores();
-        SistemaEventBus.suscribir(TipoEvento.GRUPOS, this::recargarDesdeEvento);
-        SistemaEventBus.suscribir(TipoEvento.DOCENTES, this::recargarDesdeEvento);
+        eventBus.suscribir(TipoEvento.GRUPOS, this);
+        eventBus.suscribir(TipoEvento.DOCENTES, this);
     }
 
     private void recargarDesdeEvento() {
@@ -81,7 +93,7 @@ public class AsignacionTutorController implements Initializable {
                     TutorItem item = getTableView().getItems().get(getIndex());
                     try {
                         gestionGrupos.removerTutor(item.getGrupo());
-                        SistemaEventBus.notificar(TipoEvento.GRUPOS, TipoEvento.DOCENTES);
+                        eventBus.notificar(TipoEvento.GRUPOS, TipoEvento.DOCENTES);
                     } catch (Exception ex) {
                         logger.error("Error al remover tutor: " + ex.getMessage());
                         Dialogos.info(ex.getMessage());
@@ -124,7 +136,7 @@ public class AsignacionTutorController implements Initializable {
         if (grupo == null) { Dialogos.info("Grupo no encontrado."); return; }
         try {
             gestionGrupos.asignarTutor(grupo, docente);
-            SistemaEventBus.notificar(TipoEvento.GRUPOS, TipoEvento.DOCENTES);
+            eventBus.notificar(TipoEvento.GRUPOS, TipoEvento.DOCENTES);
         } catch (Exception e) {
             logger.error("Error al asignar tutor: " + e.getMessage());
             Dialogos.info(e.getMessage());

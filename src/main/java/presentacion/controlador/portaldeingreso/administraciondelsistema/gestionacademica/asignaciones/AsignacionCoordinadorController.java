@@ -1,4 +1,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.asignaciones;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import presentacion.dto.CoordinacionItem;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrados;
@@ -16,7 +18,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 
 import java.net.URL;
@@ -28,10 +29,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class AsignacionCoordinadorController implements Initializable {
+public class AsignacionCoordinadorController implements Initializable, EventBusListener {
     private final GestionUsuarios gestionUsuarios;
     private final GestionGrados gestionGrados;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private BorderPane root;
     public BorderPane getRoot() { return root; }
@@ -41,10 +43,20 @@ public class AsignacionCoordinadorController implements Initializable {
     @FXML private TableColumn<CoordinacionItem, String> colCoordinadorNombre, colGradoCoordinado;
     @FXML private TableColumn<CoordinacionItem, Void> colAccionesCoordinacion;
 
-    public AsignacionCoordinadorController(GestionUsuarios gestionUsuarios, GestionGrados gestionGrados, LoggerPort logger) {
+    public AsignacionCoordinadorController(GestionUsuarios gestionUsuarios, GestionGrados gestionGrados, LoggerPort logger, EventBus eventBus) {
         this.gestionUsuarios = gestionUsuarios;
         this.gestionGrados = gestionGrados;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case USUARIOS -> recargarDesdeEvento();
+            case GRADOS -> recargarDesdeEvento();
+            default -> {}
+        }
     }
 
     @Override
@@ -52,8 +64,8 @@ public class AsignacionCoordinadorController implements Initializable {
         configurarTabla();
         recargarCombos();
         cargarCoordinaciones();
-        SistemaEventBus.suscribir(TipoEvento.USUARIOS, this::recargarDesdeEvento);
-        SistemaEventBus.suscribir(TipoEvento.GRADOS, this::recargarDesdeEvento);
+        eventBus.suscribir(TipoEvento.USUARIOS, this);
+        eventBus.suscribir(TipoEvento.GRADOS, this);
     }
 
     private void recargarDesdeEvento() {
@@ -85,7 +97,7 @@ public class AsignacionCoordinadorController implements Initializable {
                     try {
                         item.getCoordinador().removerGrado(item.getGrado());
                         gestionUsuarios.actualizarUsuario(item.getCoordinador());
-                        SistemaEventBus.notificar(TipoEvento.USUARIOS, TipoEvento.GRADOS);
+                        eventBus.notificar(TipoEvento.USUARIOS, TipoEvento.GRADOS);
                     } catch (Exception ex) {
                         logger.error("Error al remover coordinación: " + ex.getMessage());
                         Dialogos.info(ex.getMessage());
@@ -130,7 +142,7 @@ public class AsignacionCoordinadorController implements Initializable {
         try {
             coord.agregarGrado(g);
             gestionUsuarios.actualizarUsuario(coord);
-            SistemaEventBus.notificar(TipoEvento.USUARIOS, TipoEvento.GRADOS);
+            eventBus.notificar(TipoEvento.USUARIOS, TipoEvento.GRADOS);
         } catch (Exception e) {
             logger.error("Error al asignar coordinación: " + e.getMessage());
             Dialogos.info(e.getMessage());

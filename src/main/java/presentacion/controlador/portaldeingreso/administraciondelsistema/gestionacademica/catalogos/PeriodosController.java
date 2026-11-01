@@ -1,9 +1,10 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionPeriodos;
 import dominio.modelo.PeriodoAcademico;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 import java.net.URL;
 import java.time.LocalDate;
@@ -25,9 +26,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class PeriodosController implements Initializable {
+public class PeriodosController implements Initializable, EventBusListener {
     private final GestionPeriodos gestionPeriodos;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private TableView<PeriodoAcademico> tablaPeriodos;
     @FXML private TableColumn<PeriodoAcademico, Integer> colNumPeriodo;
@@ -43,9 +45,18 @@ public class PeriodosController implements Initializable {
     private ObservableList<PeriodoAcademico> listaPeriodos;
     private PeriodoAcademico periodoEditando;
 
-    public PeriodosController(GestionPeriodos gestionPeriodos, LoggerPort logger) {
+    public PeriodosController(GestionPeriodos gestionPeriodos, LoggerPort logger, EventBus eventBus) {
         this.gestionPeriodos = gestionPeriodos;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case PERIODOS -> cargarPeriodos();
+            default -> {}
+        }
     }
 
     @Override
@@ -53,7 +64,7 @@ public class PeriodosController implements Initializable {
         configurarComboEstado();
         configurarTabla();
         cargarPeriodos();
-        SistemaEventBus.suscribir(TipoEvento.PERIODOS, this::cargarPeriodos);
+        eventBus.suscribir(TipoEvento.PERIODOS, this);
     }
 
     private void configurarComboEstado() {
@@ -122,7 +133,7 @@ public class PeriodosController implements Initializable {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionPeriodos.eliminarPeriodo(p);
-            SistemaEventBus.notificar(TipoEvento.PERIODOS);
+            eventBus.notificar(TipoEvento.PERIODOS);
         } catch (Exception e) {
             logger.error("Error al eliminar periodo: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -149,7 +160,7 @@ public class PeriodosController implements Initializable {
         try {
             if (periodoEditando == null) gestionPeriodos.crearPeriodo(nombre, inicio.toString(), fin.toString(), estado);
             else gestionPeriodos.actualizarPeriodo(periodoEditando, nombre, inicio.toString(), fin.toString(), estado);
-            SistemaEventBus.notificar(TipoEvento.PERIODOS);
+            eventBus.notificar(TipoEvento.PERIODOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

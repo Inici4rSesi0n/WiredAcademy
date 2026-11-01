@@ -1,4 +1,6 @@
 package presentacion.controlador.portaldeingreso;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAsignaturas;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
@@ -7,7 +9,6 @@ import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.G
 import dominio.modelo.Usuario;
 import infraestructura.configuracion.SpringFxmlLoader;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 
 import java.io.IOException;
@@ -35,13 +36,14 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class DashboardController implements Initializable {
+public class DashboardController implements Initializable, EventBusListener {
 
     private final GestionEstudiantes gestionEstudiantes;
     private final GestionDocentes gestionDocentes;
     private final GestionGrupos gestionGrupos;
     private final GestionAsignaturas gestionAsignaturas;
     private final SpringFxmlLoader fxmlLoader;
+    private final EventBus eventBus;
 
     @FXML private Label lblUsuarioHeader;
     @FXML private Label lblNumEstudiantes;
@@ -59,21 +61,33 @@ public class DashboardController implements Initializable {
                                GestionDocentes gestionDocentes,
                                GestionGrupos gestionGrupos,
                                GestionAsignaturas gestionAsignaturas,
-                               SpringFxmlLoader fxmlLoader) {
+                               SpringFxmlLoader fxmlLoader, EventBus eventBus) {
         this.gestionEstudiantes = gestionEstudiantes;
         this.gestionDocentes = gestionDocentes;
         this.gestionGrupos = gestionGrupos;
         this.gestionAsignaturas = gestionAsignaturas;
         this.fxmlLoader = fxmlLoader;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case ESTUDIANTES -> actualizarTarjetas();
+            case DOCENTES -> actualizarTarjetas();
+            case GRUPOS -> actualizarTarjetas();
+            case ASIGNATURAS -> actualizarTarjetas();
+            default -> {}
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         precargarRutas();
-        SistemaEventBus.suscribir(TipoEvento.ESTUDIANTES, this::actualizarTarjetas);
-        SistemaEventBus.suscribir(TipoEvento.DOCENTES, this::actualizarTarjetas);
-        SistemaEventBus.suscribir(TipoEvento.GRUPOS, this::actualizarTarjetas);
-        SistemaEventBus.suscribir(TipoEvento.ASIGNATURAS, this::actualizarTarjetas);
+        eventBus.suscribir(TipoEvento.ESTUDIANTES, this);
+        eventBus.suscribir(TipoEvento.DOCENTES, this);
+        eventBus.suscribir(TipoEvento.GRUPOS, this);
+        eventBus.suscribir(TipoEvento.ASIGNATURAS, this);
     }
 
     private void precargarRutas() {

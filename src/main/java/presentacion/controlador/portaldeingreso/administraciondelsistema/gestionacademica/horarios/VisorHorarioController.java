@@ -1,4 +1,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.horarios;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
 import aplicacion.casosdeuso.portaldeingreso.miareapersonal.GestionHorario;
@@ -8,7 +10,6 @@ import dominio.modelo.Evento;
 import dominio.modelo.Grupo;
 import dominio.modelo.PeriodoAcademico;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 
 import java.net.URL;
@@ -35,11 +36,12 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class VisorHorarioController implements Initializable {
+public class VisorHorarioController implements Initializable, EventBusListener {
 
     private final GestionGrupos gestionGrupos;
     private final GestionPeriodos gestionPeriodos;
     private final GestionHorario gestionHorario;
+    private final EventBus eventBus;
 
     @FXML private ComboBox<String> cmbGrupoVisor;
     @FXML private ComboBox<String> cmbPeriodoVisor;
@@ -61,10 +63,20 @@ public class VisorHorarioController implements Initializable {
 
     public VisorHorarioController(GestionGrupos gestionGrupos,
                                    GestionPeriodos gestionPeriodos,
-                                   GestionHorario gestionHorario) {
+                                   GestionHorario gestionHorario, EventBus eventBus) {
         this.gestionGrupos = gestionGrupos;
         this.gestionPeriodos = gestionPeriodos;
         this.gestionHorario = gestionHorario;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case CLASES -> refrescarSiVisible();
+            case RECREOS -> refrescarSiVisible();
+            default -> {}
+        }
     }
 
     @Override
@@ -72,8 +84,8 @@ public class VisorHorarioController implements Initializable {
         configurarCombos();
         configurarTabla();
 
-        SistemaEventBus.suscribir(TipoEvento.CLASES, this::refrescarSiVisible);
-        SistemaEventBus.suscribir(TipoEvento.RECREOS, this::refrescarSiVisible);
+        eventBus.suscribir(TipoEvento.CLASES, this);
+        eventBus.suscribir(TipoEvento.RECREOS, this);
     }
 
     private void configurarCombos() {

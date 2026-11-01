@@ -1,9 +1,10 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionTurnos;
 import dominio.modelo.Turno;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -24,9 +25,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class TurnosController implements Initializable {
+public class TurnosController implements Initializable, EventBusListener {
     private final GestionTurnos gestionTurnos;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private TableView<Turno> tablaTurnos;
     @FXML private TableColumn<Turno, Integer> colNumTurno;
@@ -40,16 +42,25 @@ public class TurnosController implements Initializable {
     private ObservableList<Turno> listaTurnos;
     private Turno turnoEditando;
 
-    public TurnosController(GestionTurnos gestionTurnos, LoggerPort logger) {
+    public TurnosController(GestionTurnos gestionTurnos, LoggerPort logger, EventBus eventBus) {
         this.gestionTurnos = gestionTurnos;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case TURNOS -> cargarTurnos();
+            default -> {}
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
         cargarTurnos();
-        SistemaEventBus.suscribir(TipoEvento.TURNOS, this::cargarTurnos);
+        eventBus.suscribir(TipoEvento.TURNOS, this);
     }
 
     private void configurarTabla() {
@@ -105,7 +116,7 @@ public class TurnosController implements Initializable {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionTurnos.eliminarTurno(t);
-            SistemaEventBus.notificar(TipoEvento.TURNOS);
+            eventBus.notificar(TipoEvento.TURNOS);
         } catch (Exception e) {
             logger.error("Error al eliminar turno: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -127,7 +138,7 @@ public class TurnosController implements Initializable {
         try {
             if (turnoEditando == null) gestionTurnos.crearTurno(nombre);
             else gestionTurnos.actualizarTurno(turnoEditando, nombre);
-            SistemaEventBus.notificar(TipoEvento.TURNOS);
+            eventBus.notificar(TipoEvento.TURNOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

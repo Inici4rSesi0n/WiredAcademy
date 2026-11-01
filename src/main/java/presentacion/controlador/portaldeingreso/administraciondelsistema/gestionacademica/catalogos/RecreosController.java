@@ -1,4 +1,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionPeriodos;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionRecreos;
@@ -7,7 +9,6 @@ import dominio.modelo.PeriodoAcademico;
 import dominio.modelo.Recreo;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 
 import java.net.URL;
@@ -35,10 +36,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class RecreosController implements Initializable {
+public class RecreosController implements Initializable, EventBusListener {
     private final GestionRecreos gestionRecreos;
     private final GestionPeriodos gestionPeriodos;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private TableView<Recreo> tablaRecreos;
     @FXML private TableColumn<Recreo, Integer> colNumRecreo;
@@ -55,10 +57,20 @@ public class RecreosController implements Initializable {
     private ObservableList<PeriodoAcademico> periodosRecreoTemporal;
     private Recreo recreoEditando;
 
-    public RecreosController(GestionRecreos gestionRecreos, GestionPeriodos gestionPeriodos, LoggerPort logger) {
+    public RecreosController(GestionRecreos gestionRecreos, GestionPeriodos gestionPeriodos, LoggerPort logger, EventBus eventBus) {
         this.gestionRecreos = gestionRecreos;
         this.gestionPeriodos = gestionPeriodos;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case RECREOS -> cargarRecreos();
+            case PERIODOS -> recargarComboPeriodosRecreo();
+            default -> {}
+        }
     }
 
     @Override
@@ -68,8 +80,8 @@ public class RecreosController implements Initializable {
         configurarListaPeriodos();
         cargarRecreos();
         recargarComboPeriodosRecreo();
-        SistemaEventBus.suscribir(TipoEvento.RECREOS, this::cargarRecreos);
-        SistemaEventBus.suscribir(TipoEvento.PERIODOS, this::recargarComboPeriodosRecreo);
+        eventBus.suscribir(TipoEvento.RECREOS, this);
+        eventBus.suscribir(TipoEvento.PERIODOS, this);
     }
 
     private void configurarComboDia() {
@@ -191,7 +203,7 @@ public class RecreosController implements Initializable {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionRecreos.eliminarRecreo(r);
-            SistemaEventBus.notificar(TipoEvento.RECREOS);
+            eventBus.notificar(TipoEvento.RECREOS);
         } catch (Exception e) {
             logger.error("Error al eliminar recreo: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -233,7 +245,7 @@ public class RecreosController implements Initializable {
             } else {
                 gestionRecreos.actualizarRecreo(recreoEditando, franja, desc.isBlank() ? "Recreo" : desc, periodos);
             }
-            SistemaEventBus.notificar(TipoEvento.RECREOS);
+            eventBus.notificar(TipoEvento.RECREOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

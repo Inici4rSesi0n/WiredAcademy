@@ -1,9 +1,10 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos;
+import presentacion.eventos.EventBus;
+import presentacion.eventos.EventBusListener;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrados;
 import dominio.modelo.Grado;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.SistemaEventBus;
 import presentacion.eventos.TipoEvento;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -24,9 +25,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Scope("prototype")
-public class GradosController implements Initializable {
+public class GradosController implements Initializable, EventBusListener {
     private final GestionGrados gestionGrados;
     private final LoggerPort logger;
+    private final EventBus eventBus;
 
     @FXML private TableView<Grado> tablaGrados;
     @FXML private TableColumn<Grado, Integer> colNumGrado;
@@ -40,16 +42,25 @@ public class GradosController implements Initializable {
     private ObservableList<Grado> listaGrados;
     private Grado gradoEditando;
 
-    public GradosController(GestionGrados gestionGrados, LoggerPort logger) {
+    public GradosController(GestionGrados gestionGrados, LoggerPort logger, EventBus eventBus) {
         this.gestionGrados = gestionGrados;
         this.logger = logger;
+        this.eventBus = eventBus;
+    }
+
+    
+    public void onEvent(TipoEvento evento) {
+        switch (evento) {
+            case GRADOS -> cargarGrados();
+            default -> {}
+        }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
         cargarGrados();
-        SistemaEventBus.suscribir(TipoEvento.GRADOS, this::cargarGrados);
+        eventBus.suscribir(TipoEvento.GRADOS, this);
     }
 
     private void configurarTabla() {
@@ -107,7 +118,7 @@ public class GradosController implements Initializable {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionGrados.eliminarGrado(g);
-            SistemaEventBus.notificar(TipoEvento.GRADOS);
+            eventBus.notificar(TipoEvento.GRADOS);
         } catch (Exception e) {
             logger.error("Error al eliminar grado: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -130,7 +141,7 @@ public class GradosController implements Initializable {
         try {
             if (gradoEditando == null) gestionGrados.crearGrado(nombre, nivel);
             else gestionGrados.actualizarGrado(gradoEditando, nombre, nivel);
-            SistemaEventBus.notificar(TipoEvento.GRADOS);
+            eventBus.notificar(TipoEvento.GRADOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {
