@@ -21,6 +21,7 @@ class GestionClasesTest {
 
     private RepositorioClases repoMock;
     private LoggerPort loggerMock;
+    private dominio.puerto.externo.EventPublisher publisherMock;
     private GestionClases casoUso;
 
     private Asignatura asignatura;
@@ -33,7 +34,8 @@ class GestionClasesTest {
     void setUp() {
         repoMock = mock(RepositorioClases.class);
         loggerMock = mock(LoggerPort.class);
-        casoUso = new GestionClases(repoMock, loggerMock);
+        publisherMock = mock(dominio.puerto.externo.EventPublisher.class);
+        casoUso = new GestionClases(repoMock, loggerMock, publisherMock);
 
         asignatura = new Asignatura("Matemáticas");
         docente = new Docente("D001", "hash", "123", "Juan", "Perez", 30, "Mat", new ArrayList<>());

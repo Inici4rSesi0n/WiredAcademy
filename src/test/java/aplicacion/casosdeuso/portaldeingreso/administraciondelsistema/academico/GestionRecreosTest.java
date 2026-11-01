@@ -21,6 +21,7 @@ class GestionRecreosTest {
 
     private RepositorioRecreos repoMock;
     private LoggerPort loggerMock;
+    private dominio.puerto.externo.EventPublisher publisherMock;
     private GestionRecreos casoUso;
     private FranjaHoraria franja;
     private PeriodoAcademico periodoA;
@@ -30,7 +31,8 @@ class GestionRecreosTest {
     void setUp() {
         repoMock = mock(RepositorioRecreos.class);
         loggerMock = mock(LoggerPort.class);
-        casoUso = new GestionRecreos(repoMock, loggerMock);
+        publisherMock = mock(dominio.puerto.externo.EventPublisher.class);
+        casoUso = new GestionRecreos(repoMock, loggerMock, publisherMock);
         franja = new FranjaHoraria("Lunes", "10:00", "10:30");
         periodoA = new PeriodoAcademico("2026-I", "2026-01-01", "2026-06-30", "Activo");
         periodoB = new PeriodoAcademico("2026-II", "2026-07-01", "2026-12-31", "Activo");

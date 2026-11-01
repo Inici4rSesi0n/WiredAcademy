@@ -2,6 +2,8 @@ package aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico
 
 import dominio.modelo.*;
 import dominio.puerto.externo.LoggerPort;
+import dominio.puerto.externo.EventPublisher;
+import dominio.modelo.TipoEvento;
 import dominio.puerto.repositorio.RepositorioClases;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +18,12 @@ public class GestionClases {
 
     private final RepositorioClases repo;
     private final LoggerPort logger;
+    private final EventPublisher publisher;
 
-    public GestionClases(RepositorioClases repo, LoggerPort logger) {
+    public GestionClases(RepositorioClases repo, LoggerPort logger, EventPublisher publisher) {
         this.repo = repo;
         this.logger = logger;
+        this.publisher = publisher;
     }
 
     public void crearClase(String diaSemana, String horaInicio, String horaFin,
@@ -37,6 +41,7 @@ public class GestionClases {
                 diaSemana, horaInicio, asignatura.getNombre(),
                 docente.getCodigo(), grupo.getNombre(),
                 aula.getNombre(), periodo.getNombre()));
+        publisher.notificar(TipoEvento.CLASES);
     }
 
     public List<Clase> listarClases() {
@@ -65,6 +70,7 @@ public class GestionClases {
         logger.audit(String.format(
                 "op=UPDATE entity=CLASE id=%s-%s | before=%s after=%s",
                 diaSemana, horaInicio, antes, actualizada));
+        publisher.notificar(TipoEvento.CLASES);
     }
 
     public void eliminarClase(Clase clase) {
@@ -74,6 +80,7 @@ public class GestionClases {
         logger.audit(String.format(
                 "op=DELETE entity=CLASE id=%s-%s | snapshot=%s",
                 clase.getDiaSemana(), clase.getHoraInicio(), snapshot));
+        publisher.notificar(TipoEvento.CLASES);
     }
 
     // ============= Validaciones privadas =============

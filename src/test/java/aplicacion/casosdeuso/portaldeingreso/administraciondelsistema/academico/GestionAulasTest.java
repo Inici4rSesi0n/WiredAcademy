@@ -21,13 +21,15 @@ class GestionAulasTest {
 
     private RepositorioAulas repoMock;
     private LoggerPort loggerMock;
+    private dominio.puerto.externo.EventPublisher publisherMock;
     private GestionAulas casoUso;
 
     @BeforeEach
     void setUp() {
         repoMock = mock(RepositorioAulas.class);
         loggerMock = mock(LoggerPort.class);
-        casoUso = new GestionAulas(repoMock, loggerMock);
+        publisherMock = mock(dominio.puerto.externo.EventPublisher.class);
+        casoUso = new GestionAulas(repoMock, loggerMock, publisherMock);
     }
 
 

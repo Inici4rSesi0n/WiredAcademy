@@ -2,6 +2,8 @@ package aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico
 import dominio.modelo.Aula;
 import dominio.modelo.ModalidadAula;
 import dominio.puerto.externo.LoggerPort;
+import dominio.puerto.externo.EventPublisher;
+import dominio.modelo.TipoEvento;
 import dominio.puerto.repositorio.RepositorioAulas;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -13,9 +15,11 @@ import java.util.List;
 public class GestionAulas {
     private final RepositorioAulas repo;
     private final LoggerPort logger;
-    public GestionAulas(RepositorioAulas repo, LoggerPort logger) {
+    private final EventPublisher publisher;
+    public GestionAulas(RepositorioAulas repo, LoggerPort logger, EventPublisher publisher) {
         this.repo = repo;
         this.logger = logger;
+        this.publisher = publisher;
     }
     public void crearAula(String nombre, int capacidad, String ubicacion, String tipo, ModalidadAula modalidad) {
         if (nombre == null || nombre.isBlank()) throw new IllegalArgumentException("El nombre no puede estar vacío.");
@@ -23,6 +27,7 @@ public class GestionAulas {
         if (repo.buscarPorNombre(nombre).isPresent()) throw new IllegalArgumentException("Ya existe un aula con ese nombre.");
         repo.agregar(new Aula(nombre, capacidad, ubicacion, tipo, modalidad));
         logger.audit(String.format("op=CREATE entity=AULA id=%s | capacidad=%d modalidad=%s", nombre, capacidad, modalidad));
+        publisher.notificar(TipoEvento.AULAS);
     }
     public List<Aula> listarTodos() { return repo.listarTodos(); }
     public Aula buscarAula(String nombre) { return repo.buscarPorNombre(nombre).orElse(null); }
@@ -33,11 +38,13 @@ public class GestionAulas {
         Aula actualizada = new Aula(nuevoNombre, nuevaCapacidad, nuevaUbicacion, nuevoTipo, nuevaModalidad);
         repo.actualizar(original, actualizada);
         logger.audit(String.format("op=UPDATE entity=AULA id=%s | before=%s after=%s", nuevoNombre, antes, actualizada));
+        publisher.notificar(TipoEvento.AULAS);
     }
     public void eliminarAula(Aula aula) {
         if (aula == null) throw new IllegalArgumentException("El aula no puede ser nula");
         String snapshot = aula.toString();
         repo.eliminar(aula);
         logger.audit(String.format("op=DELETE entity=AULA id=%s | snapshot=%s", aula.getNombre(), snapshot));
+        publisher.notificar(TipoEvento.AULAS);
     }
 }
