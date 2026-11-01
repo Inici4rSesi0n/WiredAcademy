@@ -1,5 +1,7 @@
 package presentacion.portaldeingreso.administraciondelsistema.gestionacademica.catalogos.pages;
+import javafx.scene.control.ComboBox;
 import org.testfx.api.FxRobot;
+import org.testfx.util.WaitForAsyncUtils;
 /**
  *
  * @author inici4rsesi0n
@@ -17,6 +19,24 @@ public class AulasPage {
     }
     public AulasPage escribirNombre(String nombre) {
         robot.clickOn("#txtNombreAula").write(nombre);
+        return this;
+    }
+    public AulasPage escribirCapacidad(String capacidad) {
+        robot.clickOn("#txtCapacidadAula").write(capacidad);
+        return this;
+    }
+    public AulasPage escribirUbicacion(String ubicacion) {
+        robot.clickOn("#txtUbicacionAula").write(ubicacion);
+        return this;
+    }
+    public AulasPage escribirTipo(String tipo) {
+        robot.clickOn("#txtTipoAula").write(tipo);
+        return this;
+    }
+    @SuppressWarnings("unchecked")
+    public AulasPage seleccionarModalidad(String modalidad) {
+        ComboBox<String> cmb = robot.lookup("#cmbModalidadAula").queryComboBox();
+        WaitForAsyncUtils.waitForAsyncFx(1000, () -> cmb.getSelectionModel().select(modalidad));
         return this;
     }
     public AulasPage clickGuardar() {

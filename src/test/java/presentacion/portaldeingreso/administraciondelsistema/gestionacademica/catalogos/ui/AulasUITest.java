@@ -1,12 +1,14 @@
 package presentacion.portaldeingreso.administraciondelsistema.gestionacademica.catalogos.ui;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
+import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAulas;
+import dominio.modelo.Aula;
+import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testfx.matcher.control.TableViewMatchers;
-import static org.testfx.api.FxAssert.verifyThat;
+import org.testfx.util.WaitForAsyncUtils;
 import presentacion.BaseUITest;
 import presentacion.portaldeingreso.administraciondelsistema.gestionacademica.catalogos.pages.AulasPage;
+import java.util.concurrent.TimeUnit;
 /**
  *
  * @author inici4rsesi0n
@@ -14,19 +16,30 @@ import presentacion.portaldeingreso.administraciondelsistema.gestionacademica.ca
 public class AulasUITest extends BaseUITest {
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = fxmlLoader.cargar("/fxml/portaldeingreso/administraciondelsistema/gestionacademica/seccion_gestion_academica.fxml");
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/css/app.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
+        loadAndShow(stage, "/fxml/portaldeingreso/administraciondelsistema/gestionacademica/seccion_gestion_academica.fxml");
+    }
+    @BeforeEach
+    public void cleanUp() {
+        GestionAulas ga = springContext.getBean(GestionAulas.class);
+        ga.listarTodos().stream()
+                .filter(a -> a.getNombre().startsWith("UITest-"))
+                .forEach(ga::eliminarAula);
     }
     @Test
-    public void testCrearAula() {
+    public void testCrearAula() throws Exception {
         AulasPage page = new AulasPage(this);
         page.clickTabAulas()
             .clickNuevaAula()
-            .escribirNombre("Aula 999")
+            .escribirNombre("UITest-Aula-1")
+            .escribirCapacidad("25")
+            .escribirUbicacion("Piso Test")
+            .escribirTipo("Teoría")
+            .seleccionarModalidad("PRESENCIAL")
             .clickGuardar();
-        verifyThat("#tablaAulas", TableViewMatchers.hasNumRows(1));
+        WaitForAsyncUtils.waitFor(10, TimeUnit.SECONDS, () -> {
+            TableView<?> tabla = lookup("#tablaAulas").queryTableView();
+            return tabla.getItems().stream()
+                .anyMatch(o -> ((Aula) o).getNombre().equals("UITest-Aula-1"));
+        });
     }
 }
