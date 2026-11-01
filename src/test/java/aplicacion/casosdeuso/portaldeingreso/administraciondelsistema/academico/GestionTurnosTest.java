@@ -20,13 +20,15 @@ class GestionTurnosTest {
 
     private RepositorioTurnos repoMock;
     private LoggerPort loggerMock;
+    private dominio.puerto.externo.EventPublisher publisherMock;
     private GestionTurnos casoUso;
 
     @BeforeEach
     void setUp() {
         repoMock = mock(RepositorioTurnos.class);
         loggerMock = mock(LoggerPort.class);
-        casoUso = new GestionTurnos(repoMock, loggerMock);
+        publisherMock = mock(dominio.puerto.externo.EventPublisher.class);
+        casoUso = new GestionTurnos(repoMock, loggerMock, publisherMock);
     }
 
 

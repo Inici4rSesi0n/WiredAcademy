@@ -41,7 +41,7 @@ public class EventBus implements EventPublisher {
         if (evento == null) return;
         List<WeakReference<EventBusListener>> lista = suscriptores.get(evento);
         if (lista == null || lista.isEmpty()) {
-            log.warn("[EVENT] publicar evento={} SIN SUSCRIPTORES", evento);
+            log.debug("[EVENT] publicar evento={} SIN SUSCRIPTORES", evento);
             return;
         }
         List<EventBusListener> activos = new ArrayList<>();

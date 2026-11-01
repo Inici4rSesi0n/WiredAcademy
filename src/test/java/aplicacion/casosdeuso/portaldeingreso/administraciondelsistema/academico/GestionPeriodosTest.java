@@ -20,13 +20,15 @@ class GestionPeriodosTest {
 
     private RepositorioPeriodos repoMock;
     private LoggerPort loggerMock;
+    private dominio.puerto.externo.EventPublisher publisherMock;
     private GestionPeriodos casoUso;
 
     @BeforeEach
     void setUp() {
         repoMock = mock(RepositorioPeriodos.class);
         loggerMock = mock(LoggerPort.class);
-        casoUso = new GestionPeriodos(repoMock, loggerMock);
+        publisherMock = mock(dominio.puerto.externo.EventPublisher.class);
+        casoUso = new GestionPeriodos(repoMock, loggerMock, publisherMock);
     }
 
 

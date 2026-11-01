@@ -20,13 +20,15 @@ class GestionGradosTest {
 
     private RepositorioGrados repoMock;
     private LoggerPort loggerMock;
+    private dominio.puerto.externo.EventPublisher publisherMock;
     private GestionGrados casoUso;
 
     @BeforeEach
     void setUp() {
         repoMock = mock(RepositorioGrados.class);
         loggerMock = mock(LoggerPort.class);
-        casoUso = new GestionGrados(repoMock, loggerMock);
+        publisherMock = mock(dominio.puerto.externo.EventPublisher.class);
+        casoUso = new GestionGrados(repoMock, loggerMock, publisherMock);
     }
 
 
