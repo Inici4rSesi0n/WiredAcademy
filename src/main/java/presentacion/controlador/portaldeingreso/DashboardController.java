@@ -1,6 +1,6 @@
 package presentacion.controlador.portaldeingreso;
-import presentacion.eventos.EventBus;
-import presentacion.eventos.EventBusListener;
+import infraestructura.eventos.EventBus;
+import dominio.puerto.externo.EventBusListener;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAsignaturas;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
@@ -9,7 +9,7 @@ import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.G
 import dominio.modelo.Usuario;
 import infraestructura.configuracion.SpringFxmlLoader;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.TipoEvento;
+import dominio.modelo.TipoEvento;
 
 import java.io.IOException;
 import java.net.URL;

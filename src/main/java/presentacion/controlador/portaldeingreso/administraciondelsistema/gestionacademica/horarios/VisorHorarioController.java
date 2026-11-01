@@ -1,6 +1,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.horarios;
-import presentacion.eventos.EventBus;
-import presentacion.eventos.EventBusListener;
+import infraestructura.eventos.EventBus;
+import dominio.puerto.externo.EventBusListener;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
 import aplicacion.casosdeuso.portaldeingreso.miareapersonal.GestionHorario;
@@ -10,7 +10,7 @@ import dominio.modelo.Evento;
 import dominio.modelo.Grupo;
 import dominio.modelo.PeriodoAcademico;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.TipoEvento;
+import dominio.modelo.TipoEvento;
 
 import java.net.URL;
 import java.util.List;

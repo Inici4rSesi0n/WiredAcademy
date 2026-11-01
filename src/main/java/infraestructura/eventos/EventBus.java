@@ -1,4 +1,6 @@
-package presentacion.eventos;
+package infraestructura.eventos;
+import dominio.modelo.TipoEvento;
+import dominio.puerto.externo.EventBusListener;
 import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
 import org.slf4j.Logger;

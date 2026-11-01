@@ -1,6 +1,6 @@
 package presentacion.controlador.portaldeingreso.gestiondetramites.matricula;
-import presentacion.eventos.EventBus;
-import presentacion.eventos.EventBusListener;
+import infraestructura.eventos.EventBus;
+import dominio.puerto.externo.EventBusListener;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionEstudiantes;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
@@ -13,7 +13,7 @@ import dominio.modelo.Matricula;
 import dominio.modelo.PeriodoAcademico;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.TipoEvento;
+import dominio.modelo.TipoEvento;
 
 import java.net.URL;
 import java.util.List;

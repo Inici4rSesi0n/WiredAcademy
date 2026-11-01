@@ -1,4 +1,4 @@
-package presentacion.eventos;
+package dominio.modelo;
 
 /**
  * Tipos de eventos de dominio que disparan actualizaciones de UI.

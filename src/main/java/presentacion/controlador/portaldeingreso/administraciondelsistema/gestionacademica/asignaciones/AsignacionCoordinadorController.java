@@ -1,6 +1,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.asignaciones;
-import presentacion.eventos.EventBus;
-import presentacion.eventos.EventBusListener;
+import infraestructura.eventos.EventBus;
+import dominio.puerto.externo.EventBusListener;
 import presentacion.dto.CoordinacionItem;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrados;
@@ -18,7 +18,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.TipoEvento;
+import dominio.modelo.TipoEvento;
 
 import java.net.URL;
 import java.util.ArrayList;

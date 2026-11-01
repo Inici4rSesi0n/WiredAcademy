@@ -1,6 +1,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.horarios;
-import presentacion.eventos.EventBus;
-import presentacion.eventos.EventBusListener;
+import infraestructura.eventos.EventBus;
+import dominio.puerto.externo.EventBusListener;
 
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAsignaturas;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAulas;
@@ -17,7 +17,7 @@ import dominio.modelo.PeriodoAcademico;
 import dominio.puerto.externo.LoggerPort;
 import infraestructura.configuracion.SpringFxmlLoader;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.TipoEvento;
+import dominio.modelo.TipoEvento;
 
 import java.io.IOException;
 import java.net.URL;

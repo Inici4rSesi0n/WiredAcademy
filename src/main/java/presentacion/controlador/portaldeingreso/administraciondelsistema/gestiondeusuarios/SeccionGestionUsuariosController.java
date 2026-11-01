@@ -1,13 +1,13 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestiondeusuarios;
-import presentacion.eventos.EventBus;
-import presentacion.eventos.EventBusListener;
+import infraestructura.eventos.EventBus;
+import dominio.puerto.externo.EventBusListener;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionUsuarios;
 import aplicacion.dto.CrearUsuarioCommand;
 import dominio.modelo.Usuario;
 import dominio.puerto.externo.HashProvider;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
-import presentacion.eventos.TipoEvento;
+import dominio.modelo.TipoEvento;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
