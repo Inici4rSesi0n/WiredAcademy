@@ -9,6 +9,7 @@ import dominio.modelo.TipoEvento;
 import dominio.puerto.repositorio.RepositorioDocentes;
 import dominio.puerto.repositorio.RepositorioGrupos;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -95,6 +96,7 @@ public class GestionDocentes {
      * Asigna una tutoría a un docente sobre un grupo.
      * Persiste tanto el grupo (con su nuevo tutor) como el docente (con su nueva tutoría).
      */
+    @Transactional
     public void asignarTutoria(Docente docente, Grupo grupo) {
         if (docente == null || grupo == null) throw new IllegalArgumentException("Docente y grupo son obligatorios");
 

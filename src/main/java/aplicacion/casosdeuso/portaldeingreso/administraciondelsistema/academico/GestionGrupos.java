@@ -8,6 +8,7 @@ import dominio.modelo.TipoEvento;
 import dominio.puerto.repositorio.RepositorioDocentes;
 import dominio.puerto.repositorio.RepositorioGrupos;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 /**
  *
@@ -53,6 +54,7 @@ public class GestionGrupos {
         logger.audit(String.format("op=DELETE entity=GRUPO id=%s | snapshot=%s", grupo.getNombre(), snapshot));
         publisher.notificar(TipoEvento.GRUPOS);
     }
+    @Transactional
     public void asignarTutor(Grupo grupo, Docente tutor) {
         if (grupo == null || tutor == null) throw new IllegalArgumentException("Grupo y tutor son obligatorios.");
         Docente tutorAnterior = grupo.getTutor();
@@ -64,6 +66,7 @@ public class GestionGrupos {
         publisher.notificar(TipoEvento.DOCENTES);
         publisher.notificar(TipoEvento.GRUPOS);
     }
+    @Transactional
     public void removerTutor(Grupo grupo) {
         if (grupo == null) throw new IllegalArgumentException("El grupo no puede ser nulo.");
         Docente tutorAnterior = grupo.getTutor();

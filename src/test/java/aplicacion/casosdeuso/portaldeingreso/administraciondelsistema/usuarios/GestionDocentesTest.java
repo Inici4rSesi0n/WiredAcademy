@@ -16,6 +16,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import java.lang.reflect.Method;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -101,5 +103,12 @@ class GestionDocentesTest {
         assertEquals(grupo, docente.getTutoria());
         verify(repoGrupos).actualizar(grupo, grupo);
         verify(repoDocentes).actualizar(docente, docente);
+    }
+
+    @Test
+    void asignarTutoria_debeSerTransactional() throws NoSuchMethodException {
+        Method m = GestionDocentes.class.getMethod("asignarTutoria", dominio.modelo.Docente.class, dominio.modelo.Grupo.class);
+        assertTrue(m.isAnnotationPresent(Transactional.class),
+                "asignarTutoria debe ser @Transactional para garantizar atomicidad (B3)");
     }
 }

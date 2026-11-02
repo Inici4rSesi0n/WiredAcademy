@@ -17,6 +17,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import java.lang.reflect.Method;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -156,5 +158,19 @@ class GestionGruposTest {
         casoUso.removerTutor(grupo);
         verify(repoMock, never()).actualizar(any(), any());
         verify(repoDocentesMock, never()).actualizar(any(), any());
+    }
+
+    @Test
+    void asignarTutor_debeSerTransactional() throws NoSuchMethodException {
+        Method m = GestionGrupos.class.getMethod("asignarTutor", dominio.modelo.Grupo.class, dominio.modelo.Docente.class);
+        assertTrue(m.isAnnotationPresent(Transactional.class),
+                "asignarTutor debe ser @Transactional para garantizar atomicidad (B3)");
+    }
+
+    @Test
+    void removerTutor_debeSerTransactional() throws NoSuchMethodException {
+        Method m = GestionGrupos.class.getMethod("removerTutor", dominio.modelo.Grupo.class);
+        assertTrue(m.isAnnotationPresent(Transactional.class),
+                "removerTutor debe ser @Transactional para garantizar atomicidad (B3)");
     }
 }
