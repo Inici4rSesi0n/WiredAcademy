@@ -59,7 +59,7 @@ public class Aula implements Serializable {
 }
     public ModalidadAula getModalidad() { return modalidad; 
 }
-    public void setModalidad(ModalidadAula modalidad) { this.modalidad = modalidad; 
+    public void setModalidad(ModalidadAula modalidad) { this.modalidad = (modalidad != null) ? modalidad : ModalidadAula.PRESENCIAL; 
 }
     @Override
     public boolean equals(Object o) {

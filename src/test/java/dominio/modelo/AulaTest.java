@@ -147,4 +147,13 @@ class AulaTest {
         assertEquals("Auditorio", aula.getTipo());
         assertEquals(ModalidadAula.REMOTO, aula.getModalidad());
     }
+
+    @Test
+    void setModalidad_conNull_asignaPresencial() {
+        Aula aula = new Aula("Aula 101", 40, "Pabellón 1", "Teoría");
+        aula.setModalidad(ModalidadAula.VIRTUAL);
+        aula.setModalidad(null);
+        assertEquals(ModalidadAula.PRESENCIAL, aula.getModalidad(),
+                "setModalidad(null) debe fallback a PRESENCIAL para evitar NPE en AulaMapper.toEntity");
+    }
 }

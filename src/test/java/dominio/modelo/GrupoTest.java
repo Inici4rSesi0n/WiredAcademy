@@ -149,4 +149,23 @@ class GrupoTest {
         Grupo g2 = new Grupo("1A", otroGrado);
         assertNotEquals(grupo, g2);
     }
+
+    @Test
+    void equals_debeIgnorarCapitalizacion() {
+        Grado grado = new Grado("1er Grado", "Primaria");
+        Grupo g1 = new Grupo("1a", grado);
+        Grupo g2 = new Grupo("1A", grado);
+        assertEquals(g1, g2, "equals debe ser case-insensitive (ADR-002)");
+        assertEquals(g2, g1);
+    }
+
+    @Test
+    void hashCode_debeSerConsistenteConEquals() {
+        Grado grado = new Grado("1er Grado", "Primaria");
+        Grupo g1 = new Grupo("1a", grado);
+        Grupo g2 = new Grupo("1A", grado);
+        assertEquals(g1, g2);
+        assertEquals(g1.hashCode(), g2.hashCode(),
+                "Objetos iguales deben tener el mismo hashCode (contrato Object)");
+    }
 }

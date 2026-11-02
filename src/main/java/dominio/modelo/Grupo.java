@@ -61,11 +61,13 @@ public class Grupo implements Serializable {
         if (this == o) return true;
         if (!(o instanceof Grupo)) return false;
         Grupo grupo = (Grupo) o;
-        return Objects.equals(nombre, grupo.nombre) && Objects.equals(grado, grupo.grado);
+        return nombre != null && grado != null
+                && nombre.equalsIgnoreCase(grupo.nombre)
+                && Objects.equals(grado, grupo.grado);
     }
     @Override
     public int hashCode() {
-        return Objects.hash(nombre, grado);
+        return Objects.hash(nombre != null ? nombre.toLowerCase() : null, grado);
     }
     @Override
     public String toString() {
