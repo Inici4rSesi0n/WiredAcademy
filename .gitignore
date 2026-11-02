@@ -81,3 +81,8 @@ Thumbs.db
 .backup-unit-tests-*
 *.bak
 .github/workflows/*.bak
+
+# ==========================================
+# Volcados locales y herramientas de diagnóstico
+# ==========================================
+/tmp/
