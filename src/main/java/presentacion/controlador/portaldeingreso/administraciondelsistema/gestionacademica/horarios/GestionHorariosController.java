@@ -252,7 +252,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar esta clase?")) return;
         try {
             gestionClases.eliminarClase(c);
-            eventBus.notificar(TipoEvento.CLASES);
         } catch (Exception e) {
             logger.error("Error al eliminar clase: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -309,7 +308,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
             } else {
                 gestionClases.actualizarClase(claseEditando, dia, inicio, fin, asig, doc, grupo, aula, periodo);
             }
-            eventBus.notificar(TipoEvento.CLASES);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {
