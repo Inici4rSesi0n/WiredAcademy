@@ -137,7 +137,6 @@ public class GruposController implements Initializable, EventBusListener {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionGrupos.eliminarGrupo(g);
-            eventBus.notificar(TipoEvento.GRUPOS);
         } catch (Exception e) {
             logger.error("Error al eliminar grupo: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -165,7 +164,6 @@ public class GruposController implements Initializable, EventBusListener {
         try {
             if (grupoEditando == null) gestionGrupos.crearGrupo(nombre, grado);
             else gestionGrupos.actualizarGrupo(grupoEditando, nombre, grado);
-            eventBus.notificar(TipoEvento.GRUPOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

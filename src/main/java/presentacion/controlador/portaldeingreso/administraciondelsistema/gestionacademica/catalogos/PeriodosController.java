@@ -133,7 +133,6 @@ public class PeriodosController implements Initializable, EventBusListener {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionPeriodos.eliminarPeriodo(p);
-            eventBus.notificar(TipoEvento.PERIODOS);
         } catch (Exception e) {
             logger.error("Error al eliminar periodo: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -160,7 +159,6 @@ public class PeriodosController implements Initializable, EventBusListener {
         try {
             if (periodoEditando == null) gestionPeriodos.crearPeriodo(nombre, inicio.toString(), fin.toString(), estado);
             else gestionPeriodos.actualizarPeriodo(periodoEditando, nombre, inicio.toString(), fin.toString(), estado);
-            eventBus.notificar(TipoEvento.PERIODOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

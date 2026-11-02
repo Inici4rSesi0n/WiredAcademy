@@ -118,7 +118,6 @@ public class GradosController implements Initializable, EventBusListener {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionGrados.eliminarGrado(g);
-            eventBus.notificar(TipoEvento.GRADOS);
         } catch (Exception e) {
             logger.error("Error al eliminar grado: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -141,7 +140,6 @@ public class GradosController implements Initializable, EventBusListener {
         try {
             if (gradoEditando == null) gestionGrados.crearGrado(nombre, nivel);
             else gestionGrados.actualizarGrado(gradoEditando, nombre, nivel);
-            eventBus.notificar(TipoEvento.GRADOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

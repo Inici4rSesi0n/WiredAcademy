@@ -127,7 +127,6 @@ public class AulasController implements Initializable, EventBusListener {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionAulas.eliminarAula(a);
-            eventBus.notificar(TipoEvento.AULAS);
         } catch (Exception e) {
             logger.error("Error al eliminar aula: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -163,7 +162,6 @@ public class AulasController implements Initializable, EventBusListener {
             } else {
                 gestionAulas.actualizarAula(aulaEditando, nombre, capacidad, ubicacion, tipo, modalidad);
             }
-            eventBus.notificar(TipoEvento.AULAS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

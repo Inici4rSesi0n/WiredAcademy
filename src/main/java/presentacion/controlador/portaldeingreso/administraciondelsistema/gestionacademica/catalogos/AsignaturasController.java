@@ -116,7 +116,6 @@ public class AsignaturasController implements Initializable, EventBusListener {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionAsignaturas.eliminarAsignatura(a);
-            eventBus.notificar(TipoEvento.ASIGNATURAS);
         } catch (Exception e) {
             logger.error("Error al eliminar asignatura: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -138,7 +137,6 @@ public class AsignaturasController implements Initializable, EventBusListener {
         try {
             if (asignaturaEditando == null) gestionAsignaturas.crearAsignatura(nombre);
             else gestionAsignaturas.actualizarAsignatura(asignaturaEditando, nombre);
-            eventBus.notificar(TipoEvento.ASIGNATURAS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

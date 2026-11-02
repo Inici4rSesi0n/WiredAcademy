@@ -203,7 +203,6 @@ public class RecreosController implements Initializable, EventBusListener {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionRecreos.eliminarRecreo(r);
-            eventBus.notificar(TipoEvento.RECREOS);
         } catch (Exception e) {
             logger.error("Error al eliminar recreo: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -245,7 +244,6 @@ public class RecreosController implements Initializable, EventBusListener {
             } else {
                 gestionRecreos.actualizarRecreo(recreoEditando, franja, desc.isBlank() ? "Recreo" : desc, periodos);
             }
-            eventBus.notificar(TipoEvento.RECREOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {

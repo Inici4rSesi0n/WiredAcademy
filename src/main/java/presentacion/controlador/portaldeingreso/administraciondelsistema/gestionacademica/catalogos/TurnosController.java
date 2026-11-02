@@ -116,7 +116,6 @@ public class TurnosController implements Initializable, EventBusListener {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
             gestionTurnos.eliminarTurno(t);
-            eventBus.notificar(TipoEvento.TURNOS);
         } catch (Exception e) {
             logger.error("Error al eliminar turno: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -138,7 +137,6 @@ public class TurnosController implements Initializable, EventBusListener {
         try {
             if (turnoEditando == null) gestionTurnos.crearTurno(nombre);
             else gestionTurnos.actualizarTurno(turnoEditando, nombre);
-            eventBus.notificar(TipoEvento.TURNOS);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {
