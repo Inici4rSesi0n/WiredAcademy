@@ -76,4 +76,20 @@ public class GestionRecreosIT extends BaseIntegrationTest {
         em.flush(); em.clear();
         assertNull(gestionRecreos.buscarPorDescripcion("RECREO-IT-DEL"));
     }
+
+    @Test
+    public void testActualizarRecreoConMultiplesCandidatosNoDebeFallar() {
+        PeriodoAcademico pA = new PeriodoAcademico("MULTI-PerA", "2026-01-01", "2026-06-30", "Activo");
+        PeriodoAcademico pB = new PeriodoAcademico("MULTI-PerB", "2026-07-01", "2026-12-31", "Activo");
+        repoPeriodos.agregar(pA);
+        repoPeriodos.agregar(pB);
+        FranjaHoraria franja = new FranjaHoraria("Lunes", "10:00", "10:30");
+        gestionRecreos.crearRecreo(franja, "MULTI-Recreo", List.of(pA));
+        gestionRecreos.crearRecreo(franja, "MULTI-Recreo", List.of(pB));
+        em.flush(); em.clear();
+        Recreo original = gestionRecreos.buscarPorDescripcion("MULTI-Recreo");
+        assertNotNull(original, "Debe existir al menos un recreo con esa descripcion");
+        assertDoesNotThrow(() ->
+                gestionRecreos.actualizarRecreo(original, franja, "MULTI-Recreo-UPD", List.of(pA)));
+    }
 }

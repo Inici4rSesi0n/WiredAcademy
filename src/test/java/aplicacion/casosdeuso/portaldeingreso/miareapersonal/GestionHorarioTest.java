@@ -105,4 +105,34 @@ class GestionHorarioTest {
         assertEquals(1, horario.size());
         assertTrue(horario.contains(recreoCorrecto));
     }
+
+    @Test
+    void obtenerHorarioCompleto_debeOrdenarDiasPorOrdenSemanal() {
+        FranjaHoraria franjaVie = new FranjaHoraria("Viernes", "08:00", "10:00");
+        FranjaHoraria franjaLun = new FranjaHoraria("Lunes", "08:00", "10:00");
+        FranjaHoraria franjaMie = new FranjaHoraria("Miércoles", "08:00", "10:00");
+        Clase cVie = new Clase(franjaVie, periodo, asignatura, docente, grupo, aula);
+        Clase cLun = new Clase(franjaLun, periodo, asignatura, docente, grupo, aula);
+        Clase cMie = new Clase(franjaMie, periodo, asignatura, docente, grupo, aula);
+        when(repoClases.listarTodos()).thenReturn(List.of(cVie, cLun, cMie));
+        when(repoRecreos.listarTodos()).thenReturn(List.of());
+        List<Evento> horario = casoUso.obtenerHorarioCompleto(grupo, periodo);
+        assertEquals(3, horario.size());
+        assertEquals("Lunes", horario.get(0).getDiaSemana());
+        assertEquals("Miércoles", horario.get(1).getDiaSemana());
+        assertEquals("Viernes", horario.get(2).getDiaSemana());
+    }
+
+    @Test
+    void obtenerHorarioCompleto_debeColocarDiaDesconocidoAlFinal() {
+        FranjaHoraria franjaLun = new FranjaHoraria("Lunes", "08:00", "10:00");
+        FranjaHoraria franjaRara = new FranjaHoraria("Festivo", "08:00", "10:00");
+        Clase cLun = new Clase(franjaLun, periodo, asignatura, docente, grupo, aula);
+        Clase cRara = new Clase(franjaRara, periodo, asignatura, docente, grupo, aula);
+        when(repoClases.listarTodos()).thenReturn(List.of(cRara, cLun));
+        when(repoRecreos.listarTodos()).thenReturn(List.of());
+        List<Evento> horario = casoUso.obtenerHorarioCompleto(grupo, periodo);
+        assertEquals("Lunes", horario.get(0).getDiaSemana());
+        assertEquals("Festivo", horario.get(1).getDiaSemana());
+    }
 }

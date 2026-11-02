@@ -6,6 +6,8 @@ import infraestructura.persistencia.entidades.RecreoEntity;
 import infraestructura.persistencia.jpa.PeriodoJpaRepository;
 import infraestructura.persistencia.jpa.RecreoJpaRepository;
 import infraestructura.persistencia.mappers.RecreoMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -19,6 +21,7 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
     private final RecreoJpaRepository jpaRepository;
     private final PeriodoJpaRepository periodoJpaRepository;
     private final RecreoMapper mapper;
+    private static final Logger log = LoggerFactory.getLogger(AdaptadorRepositorioRecreos.class);
     
     public AdaptadorRepositorioRecreos(RecreoJpaRepository jpaRepository, PeriodoJpaRepository periodoJpaRepository, RecreoMapper mapper){
         this.jpaRepository=jpaRepository;
@@ -36,7 +39,13 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
     
     @Override
     public Optional<Recreo> buscarPorDescripcion(String descripcion){
-        return jpaRepository.findByDescripcion(descripcion).map(mapper::toDomain);
+        List<RecreoEntity> candidatos = jpaRepository.findByDescripcion(descripcion);
+        if (candidatos.isEmpty()) return Optional.empty();
+        if (candidatos.size() > 1) {
+            log.warn("Multiples recreos con descripcion '{}' ({}), usando el primero (id={})",
+                    descripcion, candidatos.size(), candidatos.get(0).getId());
+        }
+        return Optional.of(mapper.toDomain(candidatos.get(0)));
     }
     
     @Override
@@ -46,8 +55,9 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
     
     @Override @Transactional
     public void actualizar(Recreo original, Recreo actualizada){
-        RecreoEntity entity=jpaRepository.findByDescripcionAndDiaSemanaAndHoraInicioAndHoraFin(
-                original.getDescripcion(), original.getDiaSemana(), original.getHoraInicio(), original.getHoraFin())
+        RecreoEntity entity = buscarUnicoPorCombinacion(
+                original.getDescripcion(), original.getDiaSemana(),
+                original.getHoraInicio(), original.getHoraFin())
                 .orElseThrow(()->new IllegalArgumentException("El recreo no existe"));
         entity.setDiaSemana(actualizada.getDiaSemana());
         entity.setHoraInicio(actualizada.getHoraInicio());
@@ -56,11 +66,23 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
         entity.setPeriodos(resolverPeriodos(actualizada));
         jpaRepository.saveAndFlush(entity);
     }
+
+    private Optional<RecreoEntity> buscarUnicoPorCombinacion(String descripcion, String diaSemana, String horaInicio, String horaFin) {
+        List<RecreoEntity> candidatos = jpaRepository.findByDescripcionAndDiaSemanaAndHoraInicioAndHoraFin(
+                descripcion, diaSemana, horaInicio, horaFin);
+        if (candidatos.isEmpty()) return Optional.empty();
+        if (candidatos.size() > 1) {
+            log.warn("Multiples recreos con misma descripcion+dia+hora ({}), usando el primero (id={})",
+                    candidatos.size(), candidatos.get(0).getId());
+        }
+        return Optional.of(candidatos.get(0));
+    }
     
     @Override @Transactional
     public void eliminar(Recreo recreo){
-        jpaRepository.findByDescripcionAndDiaSemanaAndHoraInicioAndHoraFin(
-                recreo.getDescripcion(), recreo.getDiaSemana(), recreo.getHoraInicio(), recreo.getHoraFin())
+        buscarUnicoPorCombinacion(
+                recreo.getDescripcion(), recreo.getDiaSemana(),
+                recreo.getHoraInicio(), recreo.getHoraFin())
                 .ifPresent(jpaRepository::delete);
     }
     
