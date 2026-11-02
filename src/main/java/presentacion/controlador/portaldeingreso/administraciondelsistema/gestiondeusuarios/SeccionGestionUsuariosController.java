@@ -164,7 +164,6 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
             limpiarFormulario();
             panelFormulario.setManaged(false);
             panelFormulario.setVisible(false);
-            eventBus.notificar(TipoEvento.USUARIOS);
         } catch (Exception e) {
             logger.error("Error al guardar usuario: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -187,7 +186,6 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
         if (Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar al usuario " + usuario.getCodigo() + "?")) {
             try {
                 gestionUsuarios.eliminarUsuario(usuario);
-                eventBus.notificar(TipoEvento.USUARIOS);
             } catch (Exception e) {
                 logger.error("Error al eliminar usuario: " + e.getMessage());
                 Dialogos.info(e.getMessage());
