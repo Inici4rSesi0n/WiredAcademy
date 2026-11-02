@@ -232,7 +232,6 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
                 matriculaEditando.setFecha(fecha);
                 gestionMatriculas.actualizar(matriculaEditando);
             }
-            eventBus.notificar(TipoEvento.MATRICULAS);
             limpiarFormulario();
         } catch (Exception e) {
             logger.error("Error al guardar matrícula: " + e.getMessage());
@@ -269,7 +268,6 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         if (Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar la matricula de " + matricula.getEstudiante().getCodigo() + "?")) {
             try {
                 gestionMatriculas.eliminarMatricula(matricula);
-                eventBus.notificar(TipoEvento.MATRICULAS);
             } catch (Exception e) {
                 logger.error("Error al eliminar matrícula: " + e.getMessage());
                 Dialogos.info(e.getMessage());
