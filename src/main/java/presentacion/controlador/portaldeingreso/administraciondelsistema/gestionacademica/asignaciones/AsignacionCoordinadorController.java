@@ -92,7 +92,6 @@ public class AsignacionCoordinadorController implements Initializable, EventBusL
                     CoordinacionItem item = getTableView().getItems().get(getIndex());
                     try {
                         gestionCoordinadores.removerGrado(item.getCoordinador().getCodigo(), item.getGrado());
-                        eventBus.notificar(TipoEvento.USUARIOS, TipoEvento.GRADOS);
                     } catch (Exception ex) {
                         logger.error("Error al remover coordinación: " + ex.getMessage());
                         Dialogos.info(ex.getMessage());
@@ -134,7 +133,6 @@ public class AsignacionCoordinadorController implements Initializable, EventBusL
         if (g == null) { Dialogos.info("Grado no encontrado."); return; }
         try {
             gestionCoordinadores.agregarGrado(coord.getCodigo(), g);
-            eventBus.notificar(TipoEvento.USUARIOS, TipoEvento.GRADOS);
         } catch (Exception e) {
             logger.error("Error al asignar coordinación: " + e.getMessage());
             Dialogos.info(e.getMessage());

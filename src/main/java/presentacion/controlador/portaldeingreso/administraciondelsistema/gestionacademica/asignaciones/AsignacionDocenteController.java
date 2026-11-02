@@ -103,7 +103,6 @@ public class AsignacionDocenteController implements Initializable, EventBusListe
                     if (docente != null) {
                         try {
                             gestionDocentes.removerAsignatura(docente, item.getAsignatura());
-                            eventBus.notificar(TipoEvento.DOCENTES);
                         } catch (Exception ex) {
                             logger.error("Error al remover asignatura: " + ex.getMessage());
                             Dialogos.info(ex.getMessage());
@@ -146,7 +145,6 @@ public class AsignacionDocenteController implements Initializable, EventBusListe
         if (a == null) { Dialogos.info("Asignatura no encontrada."); return; }
         try {
             gestionDocentes.agregarAsignatura(docente, a);
-            eventBus.notificar(TipoEvento.DOCENTES);
         } catch (Exception e) {
             logger.error("Error al agregar asignatura a docente: " + e.getMessage());
             Dialogos.info(e.getMessage());

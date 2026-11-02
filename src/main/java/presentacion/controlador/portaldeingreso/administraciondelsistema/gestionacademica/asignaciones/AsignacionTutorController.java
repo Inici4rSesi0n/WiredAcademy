@@ -93,7 +93,6 @@ public class AsignacionTutorController implements Initializable, EventBusListene
                     TutorItem item = getTableView().getItems().get(getIndex());
                     try {
                         gestionGrupos.removerTutor(item.getGrupo());
-                        eventBus.notificar(TipoEvento.GRUPOS, TipoEvento.DOCENTES);
                     } catch (Exception ex) {
                         logger.error("Error al remover tutor: " + ex.getMessage());
                         Dialogos.info(ex.getMessage());
@@ -136,7 +135,6 @@ public class AsignacionTutorController implements Initializable, EventBusListene
         if (grupo == null) { Dialogos.info("Grupo no encontrado."); return; }
         try {
             gestionGrupos.asignarTutor(grupo, docente);
-            eventBus.notificar(TipoEvento.GRUPOS, TipoEvento.DOCENTES);
         } catch (Exception e) {
             logger.error("Error al asignar tutor: " + e.getMessage());
             Dialogos.info(e.getMessage());
