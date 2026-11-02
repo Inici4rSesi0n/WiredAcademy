@@ -27,6 +27,7 @@ class GestionGruposTest {
     private RepositorioGrupos repoMock;
     private RepositorioDocentes repoDocentesMock;
     private LoggerPort loggerMock;
+    private dominio.puerto.externo.EventPublisher publisherMock;
     private GestionGrupos casoUso;
     private Grado grado;
 
@@ -35,7 +36,8 @@ class GestionGruposTest {
         repoMock = mock(RepositorioGrupos.class);
         repoDocentesMock = mock(RepositorioDocentes.class);
         loggerMock = mock(LoggerPort.class);
-        casoUso = new GestionGrupos(repoMock, repoDocentesMock, loggerMock);
+        publisherMock = mock(dominio.puerto.externo.EventPublisher.class);
+        casoUso = new GestionGrupos(repoMock, repoDocentesMock, loggerMock, publisherMock);
         grado = new Grado("1er Grado", "Primaria");
     }
 

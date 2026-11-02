@@ -4,6 +4,8 @@ import dominio.modelo.Asignatura;
 import dominio.modelo.Docente;
 import dominio.modelo.Grupo;
 import dominio.puerto.externo.LoggerPort;
+import dominio.puerto.externo.EventPublisher;
+import dominio.modelo.TipoEvento;
 import dominio.puerto.repositorio.RepositorioDocentes;
 import dominio.puerto.repositorio.RepositorioGrupos;
 import org.springframework.stereotype.Service;
@@ -20,11 +22,13 @@ public class GestionDocentes {
     private final RepositorioDocentes repo;
     private final RepositorioGrupos repoGrupos;
     private final LoggerPort logger;
+    private final EventPublisher publisher;
 
-    public GestionDocentes(RepositorioDocentes repo, RepositorioGrupos repoGrupos, LoggerPort logger) {
+    public GestionDocentes(RepositorioDocentes repo, RepositorioGrupos repoGrupos, LoggerPort logger, EventPublisher publisher) {
         this.repo = repo;
         this.repoGrupos = repoGrupos;
         this.logger = logger;
+        this.publisher = publisher;
     }
 
     public void agregar(Docente docente) {
@@ -38,6 +42,7 @@ public class GestionDocentes {
                 "op=CREATE entity=DOCENTE id=%s | nombre=%s %s dni=%s",
                 docente.getCodigo(), docente.getNombre(),
                 docente.getApellido(), docente.getDni()));
+        publisher.notificar(TipoEvento.DOCENTES);
     }
 
     public Docente buscarPorCodigo(String codigo) { return repo.buscarPorCodigo(codigo).orElse(null); }
@@ -53,6 +58,7 @@ public class GestionDocentes {
         logger.audit(String.format(
                 "op=UPDATE entity=DOCENTE id=%s | before=%s after=%s",
                 original.getCodigo(), antes, actualizado));
+        publisher.notificar(TipoEvento.DOCENTES);
     }
 
     public void eliminar(Docente docente) {
@@ -62,6 +68,7 @@ public class GestionDocentes {
         logger.audit(String.format(
                 "op=DELETE entity=DOCENTE id=%s | snapshot=%s",
                 docente.getCodigo(), snapshot));
+        publisher.notificar(TipoEvento.DOCENTES);
     }
 
     public void agregarAsignatura(Docente docente, Asignatura asignatura) {
@@ -71,6 +78,7 @@ public class GestionDocentes {
         logger.audit(String.format(
                 "op=LINK entity=DOCENTE id=%s -> ASIGNATURA id=%s",
                 docente.getCodigo(), asignatura.getNombre()));
+        publisher.notificar(TipoEvento.DOCENTES);
     }
 
     public void removerAsignatura(Docente docente, Asignatura asignatura) {
@@ -80,6 +88,7 @@ public class GestionDocentes {
         logger.audit(String.format(
                 "op=UNLINK entity=DOCENTE id=%s -> ASIGNATURA id=%s",
                 docente.getCodigo(), asignatura.getNombre()));
+        publisher.notificar(TipoEvento.DOCENTES);
     }
 
     /**
@@ -104,5 +113,7 @@ public class GestionDocentes {
         logger.audit(String.format(
                 "op=LINK entity=DOCENTE id=%s -> GRUPO id=%s | role=TUTOR%s",
                 docente.getCodigo(), grupo.getNombre(), detalleAnterior));
+        publisher.notificar(TipoEvento.GRUPOS);
+        publisher.notificar(TipoEvento.DOCENTES);
     }
 }

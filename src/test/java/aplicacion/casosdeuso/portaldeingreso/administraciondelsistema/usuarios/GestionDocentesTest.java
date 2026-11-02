@@ -26,6 +26,7 @@ class GestionDocentesTest {
     private RepositorioDocentes repoDocentes;
     private RepositorioGrupos repoGrupos;
     private LoggerPort loggerMock;
+    private dominio.puerto.externo.EventPublisher publisherMock;
     private GestionDocentes casoUso;
 
     @BeforeEach
@@ -33,7 +34,8 @@ class GestionDocentesTest {
         repoDocentes = mock(RepositorioDocentes.class);
         repoGrupos = mock(RepositorioGrupos.class);
         loggerMock = mock(LoggerPort.class);
-        casoUso = new GestionDocentes(repoDocentes, repoGrupos, loggerMock);
+        publisherMock = mock(dominio.puerto.externo.EventPublisher.class);
+        casoUso = new GestionDocentes(repoDocentes, repoGrupos, loggerMock, publisherMock);
     }
 
 
