@@ -2,11 +2,12 @@ package presentacion.controlador.portaldeingreso.administraciondelsistema.gestio
 import infraestructura.eventos.EventBus;
 import dominio.puerto.externo.EventBusListener;
 import presentacion.dto.CoordinacionItem;
-
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrados;
+import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionCoordinadores;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionUsuarios;
 import dominio.modelo.CoordinadorAcademico;
 import dominio.modelo.Grado;
+import dominio.modelo.TipoEvento;
 import dominio.modelo.Usuario;
 import dominio.puerto.externo.LoggerPort;
 import javafx.collections.FXCollections;
@@ -18,39 +19,39 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import presentacion.dialogos.Dialogos;
-import dominio.modelo.TipoEvento;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
+/**
+ *
+ * @author inici4rsesi0n
+ */
 @Component
 @Scope("prototype")
 public class AsignacionCoordinadorController implements Initializable, EventBusListener {
     private final GestionUsuarios gestionUsuarios;
     private final GestionGrados gestionGrados;
+    private final GestionCoordinadores gestionCoordinadores;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private BorderPane root;
     public BorderPane getRoot() { return root; }
-
     @FXML private ComboBox<String> cmbCoordinador, cmbGradoCoordinacion;
     @FXML private TableView<CoordinacionItem> tablaCoordinaciones;
     @FXML private TableColumn<CoordinacionItem, String> colCoordinadorNombre, colGradoCoordinado;
     @FXML private TableColumn<CoordinacionItem, Void> colAccionesCoordinacion;
-
-    public AsignacionCoordinadorController(GestionUsuarios gestionUsuarios, GestionGrados gestionGrados, LoggerPort logger, EventBus eventBus) {
+    public AsignacionCoordinadorController(GestionUsuarios gestionUsuarios, GestionGrados gestionGrados,
+                                           GestionCoordinadores gestionCoordinadores,
+                                           LoggerPort logger, EventBus eventBus) {
         this.gestionUsuarios = gestionUsuarios;
         this.gestionGrados = gestionGrados;
+        this.gestionCoordinadores = gestionCoordinadores;
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case USUARIOS -> recargarDesdeEvento();
@@ -58,7 +59,6 @@ public class AsignacionCoordinadorController implements Initializable, EventBusL
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
@@ -67,24 +67,20 @@ public class AsignacionCoordinadorController implements Initializable, EventBusL
         eventBus.suscribir(TipoEvento.USUARIOS, this);
         eventBus.suscribir(TipoEvento.GRADOS, this);
     }
-
     private void recargarDesdeEvento() {
         recargarCombos();
         cargarCoordinaciones();
     }
-
     private void recargarCombos() {
         cmbCoordinador.getItems().clear(); cmbCoordinador.getItems().add("Seleccione un coordinador");
         for (Usuario u : gestionUsuarios.listarTodos()) {
             if (u instanceof CoordinadorAcademico) cmbCoordinador.getItems().add(u.getCodigo() + " - " + u.getNombre() + " " + u.getApellido());
         }
         cmbCoordinador.getSelectionModel().selectFirst();
-
         cmbGradoCoordinacion.getItems().clear(); cmbGradoCoordinacion.getItems().add("Seleccione un grado");
         for (Grado g : gestionGrados.listarTodos()) cmbGradoCoordinacion.getItems().add(g.getNombre() + " (" + g.getNivel() + ")");
         cmbGradoCoordinacion.getSelectionModel().selectFirst();
     }
-
     private void configurarTabla() {
         colCoordinadorNombre.setCellValueFactory(new PropertyValueFactory<>("nombreCoordinador"));
         colGradoCoordinado.setCellValueFactory(new PropertyValueFactory<>("nombreGrado"));
@@ -95,8 +91,7 @@ public class AsignacionCoordinadorController implements Initializable, EventBusL
                 btnQuitar.setOnAction(e -> {
                     CoordinacionItem item = getTableView().getItems().get(getIndex());
                     try {
-                        item.getCoordinador().removerGrado(item.getGrado());
-                        gestionUsuarios.actualizarUsuario(item.getCoordinador());
+                        gestionCoordinadores.removerGrado(item.getCoordinador().getCodigo(), item.getGrado());
                         eventBus.notificar(TipoEvento.USUARIOS, TipoEvento.GRADOS);
                     } catch (Exception ex) {
                         logger.error("Error al remover coordinación: " + ex.getMessage());
@@ -110,7 +105,6 @@ public class AsignacionCoordinadorController implements Initializable, EventBusL
             }
         });
     }
-
     private void cargarCoordinaciones() {
         try {
             List<CoordinacionItem> items = new ArrayList<>();
@@ -126,7 +120,6 @@ public class AsignacionCoordinadorController implements Initializable, EventBusL
             logger.error("Error al cargar coordinaciones: " + e.getMessage());
         }
     }
-
     @FXML
     private void handleAsignarCoordinacion() {
         String coordSel = cmbCoordinador.getValue();
@@ -140,15 +133,13 @@ public class AsignacionCoordinadorController implements Initializable, EventBusL
         Grado g = parsearGrado(gradoSel);
         if (g == null) { Dialogos.info("Grado no encontrado."); return; }
         try {
-            coord.agregarGrado(g);
-            gestionUsuarios.actualizarUsuario(coord);
+            gestionCoordinadores.agregarGrado(coord.getCodigo(), g);
             eventBus.notificar(TipoEvento.USUARIOS, TipoEvento.GRADOS);
         } catch (Exception e) {
             logger.error("Error al asignar coordinación: " + e.getMessage());
             Dialogos.info(e.getMessage());
         }
     }
-
     private Grado parsearGrado(String texto) {
         if (texto == null) return null;
         int idx = texto.lastIndexOf(" (");

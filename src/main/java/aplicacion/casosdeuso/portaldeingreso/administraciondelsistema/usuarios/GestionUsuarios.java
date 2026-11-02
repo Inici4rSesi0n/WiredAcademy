@@ -2,6 +2,7 @@ package aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios;
 import aplicacion.dto.CrearUsuarioCommand;
 import aplicacion.servicio.BuscadorUsuario;
 import dominio.modelo.*;
+import dominio.puerto.externo.EventPublisher;
 import dominio.puerto.externo.LoggerPort;
 import dominio.puerto.repositorio.*;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,12 @@ public class GestionUsuarios {
     private final RepositorioPadres repoPad;
     private final LoggerPort logger;
     private final BuscadorUsuario buscadorUsuario;
-
+    private final EventPublisher publisher;
     public GestionUsuarios(RepositorioAdministradores repoAdmin, RepositorioDirectores repoDir,
                            RepositorioDocentes repoDoc, RepositorioEstudiantes repoEst,
                            RepositorioSecretarios repoSec, RepositorioCoordinadores repoCoord,
-                           RepositorioPadres repoPad, LoggerPort logger, BuscadorUsuario buscadorUsuario) {
+                           RepositorioPadres repoPad, LoggerPort logger, BuscadorUsuario buscadorUsuario,
+                           EventPublisher publisher) {
         this.repoAdmin = repoAdmin;
         this.repoDir = repoDir;
         this.repoDoc = repoDoc;
@@ -36,8 +38,8 @@ public class GestionUsuarios {
         this.repoPad = repoPad;
         this.logger = logger;
         this.buscadorUsuario = buscadorUsuario;
+        this.publisher = publisher;
     }
-
     public List<Usuario> listarTodos() {
         logger.debug("Listando todos los usuarios del sistema.");
         List<Usuario> todos = new ArrayList<>();
@@ -51,9 +53,7 @@ public class GestionUsuarios {
         logger.debug("Total de usuarios encontrados: {}", todos.size());
         return todos;
     }
-    public Usuario buscarPorCodigo(String codigo){
-        return buscadorUsuario.buscarPorCodigo(codigo);
-    }
+    public Usuario buscarPorCodigo(String codigo){ return buscadorUsuario.buscarPorCodigo(codigo); }
     public boolean existeDni(String dni, Usuario excluir) {
         return listarTodos().stream().anyMatch(u -> u.getDni().equalsIgnoreCase(dni) && !u.equals(excluir));
     }
@@ -81,16 +81,14 @@ public class GestionUsuarios {
                     cmd.codigo(), cmd.hash(), cmd.dni(), cmd.nombre(), cmd.apellido(),
                     cmd.edad(), new ArrayList<>()));
         }
-        logger.audit(String.format(
-                "op=CREATE entity=%s id=%s | nombre=%s %s dni=%s",
+        logger.audit(String.format("op=CREATE entity=%s id=%s | nombre=%s %s dni=%s",
                 cmd.rol(), cmd.codigo(), cmd.nombre(), cmd.apellido(), cmd.dni()));
+        publisher.notificar(TipoEvento.USUARIOS);
+        notificarEventoDeRol(cmd.rol());
     }
-
     public void actualizarUsuario(Usuario usuario) {
         if (usuario == null) throw new IllegalArgumentException("El usuario no puede ser nulo");
-
         String antes = usuario.toString();
-
         switch (usuario.getRol()) {
             case ADMINISTRADOR -> repoAdmin.actualizar((Administrador) usuario, (Administrador) usuario);
             case DIRECTOR -> repoDir.actualizar((Director) usuario, (Director) usuario);
@@ -100,17 +98,14 @@ public class GestionUsuarios {
             case COORDINADOR -> repoCoord.actualizar((CoordinadorAcademico) usuario, (CoordinadorAcademico) usuario);
             case PADRE -> repoPad.actualizar((Padre) usuario, (Padre) usuario);
         }
-
-        logger.audit(String.format(
-                "op=UPDATE entity=%s id=%s | before=%s after=%s",
+        logger.audit(String.format("op=UPDATE entity=%s id=%s | before=%s after=%s",
                 usuario.getRol(), usuario.getCodigo(), antes, usuario));
+        publisher.notificar(TipoEvento.USUARIOS);
+        notificarEventoDeRol(usuario.getRol());
     }
-
     public void eliminarUsuario(Usuario usuario) {
         if (usuario == null) throw new IllegalArgumentException("El usuario no puede ser nulo");
-
         String snapshot = usuario.toString();
-
         switch (usuario.getRol()) {
             case ADMINISTRADOR -> repoAdmin.eliminar((Administrador) usuario);
             case DIRECTOR -> repoDir.eliminar((Director) usuario);
@@ -120,12 +115,23 @@ public class GestionUsuarios {
             case COORDINADOR -> repoCoord.eliminar((CoordinadorAcademico) usuario);
             case PADRE -> repoPad.eliminar((Padre) usuario);
         }
-
-        logger.audit(String.format(
-                "op=DELETE entity=%s id=%s | snapshot=%s",
+        logger.audit(String.format("op=DELETE entity=%s id=%s | snapshot=%s",
                 usuario.getRol(), usuario.getCodigo(), snapshot));
+        publisher.notificar(TipoEvento.USUARIOS);
+        notificarEventoDeRol(usuario.getRol());
     }
-
+    private void notificarEventoDeRol(Usuario.Rol rol) {
+        TipoEvento evento = switch (rol) {
+            case DOCENTE       -> TipoEvento.DOCENTES;
+            case ESTUDIANTE    -> TipoEvento.ESTUDIANTES;
+            case PADRE         -> TipoEvento.PADRES;
+            case COORDINADOR   -> TipoEvento.COORDINADORES;
+            case ADMINISTRADOR -> TipoEvento.ADMINISTRADORES;
+            case DIRECTOR      -> TipoEvento.DIRECTORES;
+            case SECRETARIO    -> TipoEvento.SECRETARIOS;
+        };
+        publisher.notificar(evento);
+    }
     private void validarUnicidad(String codigo, String dni, Usuario excluir) {
         if (buscarPorCodigo(codigo) != null) {
             throw new IllegalArgumentException("Ya existe un usuario con el código " + codigo);

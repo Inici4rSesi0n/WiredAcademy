@@ -11,7 +11,6 @@ public class Docente extends Usuario {
     private String especialidad;
     private List<Asignatura> asignaturas;
     private Grupo tutoria;
-
     protected Docente() {
         super();
         this.asignaturas = new ArrayList<>();
@@ -36,7 +35,6 @@ public class Docente extends Usuario {
         }
         this.especialidad = especialidad;
     }
-
     public List<Asignatura> getAsignaturas() {
         return Collections.unmodifiableList(asignaturas);
     }
