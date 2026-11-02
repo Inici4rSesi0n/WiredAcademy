@@ -78,4 +78,14 @@ public class GestionGruposIT extends BaseIntegrationTest {
         em.flush(); em.clear();
         assertNull(gestionGrupos.buscarPorNombre("IT-GRP-DEL"));
     }
+    @Test
+    public void testCrearGrupoConCapitalizacionDistintaDebeLanzarIllegalArgumentException() {
+        Grado grado = new Grado("CI-GRP-Grado", "Primaria");
+        repoGrados.agregar(grado);
+        gestionGrupos.crearGrupo("CI-GRP-MiXeD", grado);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> gestionGrupos.crearGrupo("ci-grp-mixed", grado));
+        assertTrue(ex.getMessage().contains("Ya existe"),
+                "Esperaba IllegalArgumentException de negocio, obtuve: " + ex.getMessage());
+    }
 }

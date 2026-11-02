@@ -32,4 +32,12 @@ public class GestionGradosIT extends BaseIntegrationTest {
         em.flush(); em.clear();
         assertNull(gestionGrados.buscarPorNombreYNivel("IT-Grado-DEL", "Primaria"));
     }
+    @Test
+    public void testCrearGradoConCapitalizacionDistintaDebeLanzarIllegalArgumentException() {
+        gestionGrados.crearGrado("CI-Grado-MiXeD", "Primaria");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> gestionGrados.crearGrado("ci-grado-mixed", "primaria"));
+        assertTrue(ex.getMessage().contains("Ya existe"),
+                "Esperaba IllegalArgumentException de negocio, obtuve: " + ex.getMessage());
+    }
 }

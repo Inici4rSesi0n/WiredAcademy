@@ -30,4 +30,12 @@ public class GestionAsignaturasIT extends BaseIntegrationTest {
         em.flush(); em.clear();
         assertNull(gestionAsignaturas.buscarAsignatura("IT-Asig-DEL"));
     }
+    @Test
+    public void testCrearAsignaturaConCapitalizacionDistintaDebeLanzarIllegalArgumentException() {
+        gestionAsignaturas.crearAsignatura("CI-Asig-MiXeD");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> gestionAsignaturas.crearAsignatura("ci-asig-mixed"));
+        assertTrue(ex.getMessage().contains("Ya existe"),
+                "Esperaba IllegalArgumentException de negocio, obtuve: " + ex.getMessage());
+    }
 }

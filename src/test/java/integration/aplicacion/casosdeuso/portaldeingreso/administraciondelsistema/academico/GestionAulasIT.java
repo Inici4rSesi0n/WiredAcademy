@@ -47,4 +47,12 @@ public class GestionAulasIT extends BaseIntegrationTest {
         em.flush(); em.clear();
         assertNull(gestionAulas.buscarAula("IT-Aula-DEL"));
     }
+    @Test
+    public void testCrearAulaConCapitalizacionDistintaDebeLanzarIllegalArgumentException() {
+        gestionAulas.crearAula("CI-Aula-MiXeD", 30, "Piso", "Tipo", ModalidadAula.PRESENCIAL);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> gestionAulas.crearAula("ci-aula-mixed", 30, "Piso", "Tipo", ModalidadAula.PRESENCIAL));
+        assertTrue(ex.getMessage().contains("Ya existe"),
+                "Esperaba IllegalArgumentException de negocio, obtuve: " + ex.getMessage());
+    }
 }

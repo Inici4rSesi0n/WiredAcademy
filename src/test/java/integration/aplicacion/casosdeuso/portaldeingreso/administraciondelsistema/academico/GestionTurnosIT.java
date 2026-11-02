@@ -30,4 +30,12 @@ public class GestionTurnosIT extends BaseIntegrationTest {
         em.flush(); em.clear();
         assertNull(gestionTurnos.buscarPorNombre("IT-Tur-DEL"));
     }
+    @Test
+    public void testCrearTurnoConCapitalizacionDistintaDebeLanzarIllegalArgumentException() {
+        gestionTurnos.crearTurno("CI-Turno-MiXeD");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> gestionTurnos.crearTurno("ci-turno-mixed"));
+        assertTrue(ex.getMessage().contains("Ya existe"),
+                "Esperaba IllegalArgumentException de negocio, obtuve: " + ex.getMessage());
+    }
 }

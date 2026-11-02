@@ -33,4 +33,12 @@ public class GestionPeriodosIT extends BaseIntegrationTest {
         em.flush(); em.clear();
         assertNull(gestionPeriodos.buscarPorNombre("IT-Per-DEL"));
     }
+    @Test
+    public void testCrearPeriodoConCapitalizacionDistintaDebeLanzarIllegalArgumentException() {
+        gestionPeriodos.crearPeriodo("CI-Per-MiXeD", "2026-01-01", "2026-12-31", "Activo");
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> gestionPeriodos.crearPeriodo("ci-per-mixed", "2026-01-01", "2026-12-31", "Activo"));
+        assertTrue(ex.getMessage().contains("Ya existe"),
+                "Esperaba IllegalArgumentException de negocio, obtuve: " + ex.getMessage());
+    }
 }
