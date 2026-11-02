@@ -2,6 +2,7 @@ package presentacion.controlador;
 
 import presentacion.controlador.portaldeingreso.DashboardController;
 import aplicacion.casosdeuso.portaldeingreso.sistema.GestionPermisos;
+import dominio.puerto.externo.LoggerPort;
 import dominio.modelo.Usuario;
 import infraestructura.configuracion.SpringFxmlLoader;
 import presentacion.dialogos.Dialogos;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
 public class MainController implements Initializable {
     private final GestionPermisos gestionPermisos;
     private final SpringFxmlLoader fxmlLoader;
+    private final LoggerPort logger;
 
     @FXML private Button btnPortalIngreso;
     @FXML private Button btnPortalTramites;
@@ -43,9 +45,10 @@ public class MainController implements Initializable {
 
     private final Map<String, String> rutasVistas = new ConcurrentHashMap<>();
 
-    public MainController(GestionPermisos gestionPermisos, SpringFxmlLoader fxmlLoader) {
+    public MainController(GestionPermisos gestionPermisos, SpringFxmlLoader fxmlLoader, LoggerPort logger) {
         this.gestionPermisos = gestionPermisos;
         this.fxmlLoader = fxmlLoader;
+        this.logger = logger;
     }
 
     @Override
@@ -77,6 +80,7 @@ public class MainController implements Initializable {
     @FXML
     private void handleCerrarSesion() {
         SesionUsuario.cerrarSesion();
+        logger.setUsuario(null);
         Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
         navegarAVista("main", stage, null);
     }
