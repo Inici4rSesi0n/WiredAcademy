@@ -1,0 +1,21 @@
+# Baseline de errores conocidos (Fase 7)
+#
+# Cada línea es un patrón literal (grep -F) que se ignorará en el análisis
+# de wiredacademy-error.log.
+#
+# Añadir aquí solo patrones de errores ACEPTADOS (no bugs pendientes).
+# Si el patrón ya no aparece, eliminar la línea (mantiene baseline limpio).
+#
+# ==============================================================================
+# Tracked issues (Fase 7.1)
+# ==============================================================================
+# Flyway binding error en UI tests (JavaFX Application Thread):
+# "Could not bind properties to 'FlywayProperties'". Investigar en Fase 7.1
+# si es bug de spring-boot-starter-parent 3.2.0 + SpringApplicationBuilder
+# en BaseUITest, o config inválida en application.properties.
+Could not bind properties to 'FlywayProperties'
+
+# ==============================================================================
+# Ruido conocido (no errores)
+# ==============================================================================
+# (añadir aquí cuando aparezca nuevo ruido aceptado)

@@ -62,6 +62,7 @@ PAUTAS
 PAUTAS/
 *.txt
 !README.txt
+!scripts/dev/log-baseline.txt
 
 # ==========================================
 # Logs
