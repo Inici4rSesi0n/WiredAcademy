@@ -10,9 +10,12 @@ import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionUsuarios;
 import aplicacion.casosdeuso.portaldeingreso.gestiondetramites.GestionMatriculas;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+import javax.sql.DataSource;
 /**
  * Helper centralizado para limpiar datos de UI tests por prefijo.
- * Orden FK: hoja -> raiz para evitar DataIntegrityViolationException.
+ * Orden FK: hoja -> raiz. Rompe ciclos (grupos <-> usuarios) via JdbcTemplate
+ * (auto-commit, sin @Transactional) para no depender de proxy de Spring.
  * Uso: new CatalogCleanupHelper(springContext).limpiarTodo();
  *      new CatalogCleanupHelper(springContext, "IT-").limpiarTodo();
  *
@@ -29,16 +32,26 @@ public class CatalogCleanupHelper {
         this.prefijo = prefijo;
     }
     public void limpiarTodo() {
+        romperCiclosFK();
         limpiarMatriculas();
         limpiarClases();
         limpiarRecreos();
         limpiarGrupos();
+        limpiarUsuarios();
         limpiarGrados();
         limpiarPeriodos();
-        limpiarUsuarios();
         limpiarAulas();
         limpiarAsignaturas();
         limpiarTurnos();
+    }
+    private void romperCiclosFK() {
+        try {
+            JdbcTemplate jdbc = new JdbcTemplate(ctx.getBean(DataSource.class));
+            jdbc.update("UPDATE grupos SET tutor_id = NULL WHERE tutor_id IS NOT NULL AND nombre LIKE ?", prefijo + "%");
+            jdbc.update("UPDATE usuarios SET grupo_tutoria_id = NULL WHERE grupo_tutoria_id IS NOT NULL AND codigo LIKE ?", prefijo + "%");
+        } catch (Exception e) {
+            System.err.println("[cleanup] romperCiclosFK fallo: " + e.getMessage());
+        }
     }
     private boolean coincide(String valor) {
         return valor != null && valor.startsWith(prefijo);
@@ -81,6 +94,14 @@ public class CatalogCleanupHelper {
                 .forEach(ggr::eliminarGrupo);
         } catch (Exception ignored) {}
     }
+    private void limpiarUsuarios() {
+        try {
+            GestionUsuarios gu = ctx.getBean(GestionUsuarios.class);
+            gu.listarTodos().stream()
+                .filter(u -> coincide(u.getCodigo()) || coincide(u.getNombre()))
+                .forEach(gu::eliminarUsuario);
+        } catch (Exception ignored) {}
+    }
     private void limpiarGrados() {
         try {
             GestionGrados gg = ctx.getBean(GestionGrados.class);
@@ -95,14 +116,6 @@ public class CatalogCleanupHelper {
             gp.listarTodos().stream()
                 .filter(p -> coincide(p.getNombre()))
                 .forEach(gp::eliminarPeriodo);
-        } catch (Exception ignored) {}
-    }
-    private void limpiarUsuarios() {
-        try {
-            GestionUsuarios gu = ctx.getBean(GestionUsuarios.class);
-            gu.listarTodos().stream()
-                .filter(u -> coincide(u.getCodigo()) || coincide(u.getNombre()))
-                .forEach(gu::eliminarUsuario);
         } catch (Exception ignored) {}
     }
     private void limpiarAulas() {
