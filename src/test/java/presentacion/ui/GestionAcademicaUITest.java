@@ -1,8 +1,11 @@
 package presentacion.ui;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testfx.util.WaitForAsyncUtils;
 import presentacion.BaseUITest;
+import presentacion.cleanup.CatalogCleanupHelper;
 import presentacion.pages.GestionAcademicaPage;
 import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,6 +17,14 @@ public class GestionAcademicaUITest extends BaseUITest {
     @Override
     public void start(Stage stage) throws Exception {
         loadAndShow(stage, "/fxml/portaldeingreso/administraciondelsistema/gestionacademica/seccion_gestion_academica.fxml");
+    }
+    @BeforeEach
+    public void setUp() {
+        new CatalogCleanupHelper(springContext).limpiarTodo();
+    }
+    @AfterEach
+    public void tearDown() {
+        new CatalogCleanupHelper(springContext).limpiarTodo();
     }
     @Test
     public void testNavegacionEntreCategorias() throws Exception {

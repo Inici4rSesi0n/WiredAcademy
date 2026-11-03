@@ -1,12 +1,13 @@
 package presentacion.portaldeingreso.administraciondelsistema.gestionacademica.catalogos.ui;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAulas;
 import dominio.modelo.Aula;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testfx.util.WaitForAsyncUtils;
 import presentacion.BaseUITest;
+import presentacion.cleanup.CatalogCleanupHelper;
 import presentacion.portaldeingreso.administraciondelsistema.gestionacademica.catalogos.pages.AulasPage;
 import java.util.concurrent.TimeUnit;
 /**
@@ -19,11 +20,12 @@ public class AulasUITest extends BaseUITest {
         loadAndShow(stage, "/fxml/portaldeingreso/administraciondelsistema/gestionacademica/seccion_gestion_academica.fxml");
     }
     @BeforeEach
-    public void cleanUp() {
-        GestionAulas ga = springContext.getBean(GestionAulas.class);
-        ga.listarTodos().stream()
-                .filter(a -> a.getNombre().startsWith("UITest-"))
-                .forEach(ga::eliminarAula);
+    public void setUp() {
+        new CatalogCleanupHelper(springContext).limpiarTodo();
+    }
+    @AfterEach
+    public void tearDown() {
+        new CatalogCleanupHelper(springContext).limpiarTodo();
     }
     @Test
     public void testCrearAula() throws Exception {

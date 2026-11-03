@@ -30,7 +30,7 @@
                 <Label text="Periodo:" styleClass="formulario-label" />
                 <VBox spacing="10.0">
                     <ComboBox fx:id="cmbPeriodoRecreo" promptText="Seleccione un periodo" styleClass="formulario-input" maxWidth="1.0E8"/>
-                    <Button text="+ Añadir Periodo" styleClass="boton-secundario" onAction="#handleAgregarPeriodoRecreo" maxWidth="1.0E8" />
+                    <Button fx:id="btnAgregarPeriodo" text="+ Añadir Periodo" styleClass="boton-secundario" onAction="#handleAgregarPeriodoRecreo" maxWidth="1.0E8" />
                 </VBox>
                 <Label text="Periodos asociados:" styleClass="formulario-label" />
                 <ListView fx:id="listViewPeriodosRecreo" prefHeight="150.0" styleClass="formulario-input" />

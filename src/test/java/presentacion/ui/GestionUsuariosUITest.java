@@ -1,12 +1,13 @@
 package presentacion.ui;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionUsuarios;
 import dominio.modelo.Usuario;
 import javafx.scene.control.TableView;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testfx.util.WaitForAsyncUtils;
 import presentacion.BaseUITest;
+import presentacion.cleanup.CatalogCleanupHelper;
 import presentacion.pages.GestionUsuariosPage;
 import java.util.concurrent.TimeUnit;
 /**
@@ -19,11 +20,12 @@ public class GestionUsuariosUITest extends BaseUITest {
         loadAndShow(stage, "/fxml/portaldeingreso/administraciondelsistema/gestiondeusuarios/seccion_gestion_usuarios.fxml");
     }
     @BeforeEach
-    public void cleanUp() {
-        GestionUsuarios gu = springContext.getBean(GestionUsuarios.class);
-        gu.listarTodos().stream()
-                .filter(u -> u.getNombre().startsWith("UITest"))
-                .forEach(gu::eliminarUsuario);
+    public void setUp() {
+        new CatalogCleanupHelper(springContext).limpiarTodo();
+    }
+    @AfterEach
+    public void tearDown() {
+        new CatalogCleanupHelper(springContext).limpiarTodo();
     }
     @Test
     public void testCrearUsuarioDesdeUI() throws Exception {

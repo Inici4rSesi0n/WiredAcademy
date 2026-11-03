@@ -4,14 +4,14 @@ import aplicacion.dto.CrearUsuarioCommand;
 import dominio.modelo.Usuario;
 import dominio.puerto.externo.HashProvider;
 import javafx.stage.Stage;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testfx.util.WaitForAsyncUtils;
 import presentacion.BaseUITest;
-import presentacion.controlador.LoginController;
+import presentacion.cleanup.CatalogCleanupHelper;
 import presentacion.pages.LoginPage;
 import java.util.concurrent.TimeUnit;
-import static org.junit.jupiter.api.Assertions.*;
 /**
  *
  * @author inici4rsesi0n
@@ -22,11 +22,12 @@ public class LoginUITest extends BaseUITest {
         loadAndShow(stage, "/fxml/login.fxml");
     }
     @BeforeEach
-    public void cleanUp() {
-        GestionUsuarios gu = springContext.getBean(GestionUsuarios.class);
-        gu.listarTodos().stream()
-                .filter(u -> u.getCodigo().startsWith("IT-"))
-                .forEach(gu::eliminarUsuario);
+    public void setUp() {
+        new CatalogCleanupHelper(springContext, "IT-").limpiarTodo();
+    }
+    @AfterEach
+    public void tearDown() {
+        new CatalogCleanupHelper(springContext, "IT-").limpiarTodo();
     }
     @Test
     public void testLoginExitoso() throws Exception {
@@ -36,7 +37,6 @@ public class LoginUITest extends BaseUITest {
                 new CrearUsuarioCommand("IT-LOGIN-001", hash, "90000001", "Login", "IT", 30, Usuario.Rol.ADMINISTRADOR, null));
         LoginPage page = new LoginPage(this);
         page.escribirCodigo("IT-LOGIN-001").escribirPassword(password).clickLogin();
-        LoginController controller = springContext.getBean(LoginController.class);
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> true);
     }
 }
