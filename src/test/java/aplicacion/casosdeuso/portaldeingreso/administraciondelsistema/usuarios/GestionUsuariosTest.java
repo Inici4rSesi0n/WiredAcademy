@@ -96,7 +96,7 @@ class GestionUsuariosTest {
     @Test
     void agregarUsuario_docente_notificaUsuariosYDocentes() {
         CrearUsuarioCommand cmd = new CrearUsuarioCommand(
-                "D100", "hash", "555", "Nuevo", "Docente", 30, Usuario.Rol.DOCENTE, "Mat");
+                "D100", "hash", "55555555", "Nuevo", "Docente", 30, Usuario.Rol.DOCENTE, "Mat");
         casoUso.agregarUsuario(cmd);
         verify(publisherMock, times(1)).notificar(TipoEvento.USUARIOS);
         verify(publisherMock, times(1)).notificar(TipoEvento.DOCENTES);
@@ -105,7 +105,7 @@ class GestionUsuariosTest {
     @Test
     void agregarUsuario_estudiante_notificaUsuariosYEstudiantes() {
         CrearUsuarioCommand cmd = new CrearUsuarioCommand(
-                "E100", "hash", "666", "Nuevo", "Estudiante", 15, Usuario.Rol.ESTUDIANTE, null);
+                "E100", "hash", "66666666", "Nuevo", "Estudiante", 15, Usuario.Rol.ESTUDIANTE, null);
         casoUso.agregarUsuario(cmd);
         verify(publisherMock, times(1)).notificar(TipoEvento.USUARIOS);
         verify(publisherMock, times(1)).notificar(TipoEvento.ESTUDIANTES);
@@ -114,7 +114,7 @@ class GestionUsuariosTest {
     @Test
     void agregarUsuario_administrador_notificaUsuariosYAdministradores() {
         CrearUsuarioCommand cmd = new CrearUsuarioCommand(
-                "A100", "hash", "777", "Nuevo", "Admin", 30, Usuario.Rol.ADMINISTRADOR, null);
+                "A100", "hash", "77777777", "Nuevo", "Admin", 30, Usuario.Rol.ADMINISTRADOR, null);
         casoUso.agregarUsuario(cmd);
         verify(publisherMock, times(1)).notificar(TipoEvento.USUARIOS);
         verify(publisherMock, times(1)).notificar(TipoEvento.ADMINISTRADORES);

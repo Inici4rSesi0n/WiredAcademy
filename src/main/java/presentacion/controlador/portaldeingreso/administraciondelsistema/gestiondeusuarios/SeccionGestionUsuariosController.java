@@ -131,6 +131,9 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
         if (rolSeleccionado == null || rolSeleccionado.startsWith("Seleccione") || codigo.isBlank() || nombre.isBlank() || apellido.isBlank() || dni.isBlank() || edadTexto.isBlank()) {
             Dialogos.info("Todos los campos obligatorios deben estar completos."); return;
         }
+        if (!dni.matches("[A-Za-z0-9]{4,20}")) {
+            Dialogos.info("DNI debe ser alfanumérico de 4 a 20 caracteres"); return;
+        }
         int edad;
         try { edad = Integer.parseInt(edadTexto); }
         catch (NumberFormatException e) { Dialogos.info("La edad debe ser un número válido."); return; }

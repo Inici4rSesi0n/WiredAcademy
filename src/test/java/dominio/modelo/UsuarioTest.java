@@ -162,4 +162,40 @@ class UsuarioTest {
         assertTrue(texto.contains("Test"));
         assertTrue(texto.contains("ESTUDIANTE"));
     }
+
+    @Test
+    void constructor_dniVacioDebeLanzarExcepcion() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new UsuarioConcreto("U001", "hash", "", "Test", "User", 25, Usuario.Rol.ESTUDIANTE));
+    }
+
+    @Test
+    void constructor_dniConEspaciosDebeLanzarExcepcion() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new UsuarioConcreto("U001", "hash", "123 456", "Test", "User", 25, Usuario.Rol.ESTUDIANTE));
+    }
+
+    @Test
+    void constructor_dniConGuionesDebeLanzarExcepcion() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new UsuarioConcreto("U001", "hash", "12-345", "Test", "User", 25, Usuario.Rol.ESTUDIANTE));
+    }
+
+    @Test
+    void constructor_dni9DigitosDebeSerAceptado() {
+        Usuario usuario = new UsuarioConcreto("U001", "hash", "123456789", "Test", "User", 25, Usuario.Rol.ESTUDIANTE);
+        assertEquals("123456789", usuario.getDni());
+    }
+
+    @Test
+    void constructor_dniConKChilenoDebeSerAceptado() {
+        Usuario usuario = new UsuarioConcreto("U001", "hash", "12345678K", "Test", "User", 25, Usuario.Rol.ESTUDIANTE);
+        assertEquals("12345678K", usuario.getDni());
+    }
+
+    @Test
+    void constructor_dni21CaracteresDebeLanzarExcepcion() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new UsuarioConcreto("U001", "hash", "123456789012345678901", "Test", "User", 25, Usuario.Rol.ESTUDIANTE));
+    }
 }

@@ -5,6 +5,7 @@ import aplicacion.puerto.ProveedorDatosIniciales;
 import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import presentacion.dialogos.Dialogos;
 
 /**
  *
@@ -41,6 +42,10 @@ public class BootstrapController implements ProveedorDatosIniciales {
                 || apellidoTexto == null || apellidoTexto.isBlank()
                 || dniTexto == null || dniTexto.isBlank()
                 || contrasenaTexto == null || contrasenaTexto.isBlank()) {
+            return;
+        }
+        if (!dniTexto.trim().matches("[A-Za-z0-9]{4,20}")) {
+            Dialogos.info("DNI debe ser alfanumérico de 4 a 20 caracteres");
             return;
         }
         this.codigo = codigoTexto.trim();

@@ -29,7 +29,7 @@ public abstract class Usuario implements Serializable {
                    String nombre, String apellido, int edad, Rol rol) {
         if (codigo == null || codigo.isBlank()) throw new IllegalArgumentException("Código no puede ser nulo/vacío");
         if (hashContrasena == null || hashContrasena.isBlank()) throw new IllegalArgumentException("Hash no puede ser nulo/vacío");
-        if (dni == null || dni.isBlank()) throw new IllegalArgumentException("DNI no puede ser nulo/vacío");
+        if (dni == null || !dni.matches("[A-Za-z0-9]{1,20}")) throw new IllegalArgumentException("DNI debe ser alfanumérico de 1 a 20 caracteres");
         if (nombre == null || nombre.isBlank()) throw new IllegalArgumentException("Nombre no puede ser nulo/vacío");
         if (apellido == null || apellido.isBlank()) throw new IllegalArgumentException("Apellido no puede ser nulo/vacío");
         if (edad <= 0) throw new IllegalArgumentException("Edad debe ser positiva");
