@@ -95,10 +95,6 @@
         <logger name="WiredAcademy.EVENTBUS" level="DEBUG" additivity="false">
             <appender-ref ref="EVENTBUS_FILE"/>
         </logger>
-        <logger name="WiredAcademy.UI" level="TRACE" additivity="false">
-            <appender-ref ref="CONSOLE"/>
-            <appender-ref ref="APP_FILE"/>
-        </logger>
     </springProfile>
 
     <!-- =========================================================
@@ -114,7 +110,6 @@
         <logger name="WiredAcademy.EVENTBUS" level="INFO" additivity="false">
             <appender-ref ref="EVENTBUS_FILE"/>
         </logger>
-        <logger name="WiredAcademy.UI" level="OFF"/>
 
         <root level="INFO">
             <appender-ref ref="ERROR_FILE"/>

@@ -16,7 +16,5 @@ public interface LoggerPort {
     void trace(String mensaje);
     void audit(String mensaje);
     void audit(String formato, Object... argumentos);
-    void eventBus(String mensaje);
-    void ui(String mensaje);
     void setUsuario(String codigoUsuario);
 }
