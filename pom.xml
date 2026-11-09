@@ -174,12 +174,14 @@
                             <exclude>**/*UITest.java</exclude>
                         </excludes>
                     <argLine>
-                        -Xshare:off
+                        -Xshare:off -XX:+EnableDynamicAgentLoading
                     </argLine>
                     <systemPropertyVariables>
                         <mockito.mock.maker.class>mock-maker-subclass</mockito.mock.maker.class>
                         <testfx.robot>glass</testfx.robot>
                         <testfx.headless>true</testfx.headless>
+                        <glass.platform>Monocle</glass.platform>
+                        <monocle.platform>Headless</monocle.platform>
                         <monocle.screen.width>1280</monocle.screen.width>
                         <monocle.screen.height>800</monocle.screen.height>
                         <prism.order>sw</prism.order>

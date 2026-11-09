@@ -98,6 +98,31 @@
     </springProfile>
 
     <!-- =========================================================
+         PERFIL TEST — Escribe a ./logs/ (mismo LOG_DIR global).
+         El bot post-ejecución (analyze-logs.sh) tendrá datos que
+         analizar en CI y en local. EVENTBUS en WARN para no inundar.
+         ========================================================= -->
+    <springProfile name="test">
+        <logger name="org.hibernate" level="WARN"/>
+        <logger name="org.springframework" level="WARN"/>
+
+        <logger name="WiredAcademy.AUDIT" level="INFO" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="AUDIT_FILE"/>
+        </logger>
+
+        <logger name="WiredAcademy.EVENTBUS" level="WARN" additivity="false">
+            <appender-ref ref="EVENTBUS_FILE"/>
+        </logger>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ERROR_FILE"/>
+            <appender-ref ref="APP_FILE"/>
+        </root>
+    </springProfile>
+
+    <!-- =========================================================
          PERFIL PROD — Solo archivos (sin consola)
          ========================================================= -->
     <springProfile name="prod">
