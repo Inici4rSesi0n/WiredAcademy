@@ -33,7 +33,6 @@ public class AsignaturasController implements Initializable, EventBusListener {
     private final GestionAsignaturas gestionAsignaturas;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private TableView<Asignatura> tablaAsignaturas;
     @FXML private TableColumn<Asignatura, Integer> colNumAsignatura;
     @FXML private TableColumn<Asignatura, String> colNombreAsignatura;
@@ -42,31 +41,25 @@ public class AsignaturasController implements Initializable, EventBusListener {
     @FXML private javafx.scene.control.ScrollPane scrollPaneFormulario;
     @FXML private TextField txtNombreAsignatura;
     @FXML private Button btnNuevaAsignatura, btnGuardarAsignatura, btnCancelarAsignatura;
-
     private ObservableList<Asignatura> listaAsignaturas;
     private Asignatura asignaturaEditando;
-
     public AsignaturasController(GestionAsignaturas gestionAsignaturas, LoggerPort logger, EventBus eventBus) {
         this.gestionAsignaturas = gestionAsignaturas;
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case ASIGNATURAS -> cargarAsignaturas();
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
         cargarAsignaturas();
         eventBus.suscribir(TipoEvento.ASIGNATURAS, this);
     }
-
     private void configurarTabla() {
         colNumAsignatura.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Integer item, boolean empty) {
@@ -77,7 +70,6 @@ public class AsignaturasController implements Initializable, EventBusListener {
         colNombreAsignatura.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         configurarAcciones();
     }
-
     private void configurarAcciones() {
         colAccionesAsignatura.setCellFactory(param -> new TableCell<>() {
             private final Button btnEditar = new Button("Editar");
@@ -95,7 +87,6 @@ public class AsignaturasController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarAsignaturas() {
         Platform.runLater(() -> {
             try {
@@ -108,14 +99,12 @@ public class AsignaturasController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarEnFormulario(Asignatura a) {
         asignaturaEditando = a;
         txtNombreAsignatura.setText(a.getNombre());
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     private void eliminar(Asignatura a) {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
@@ -125,14 +114,12 @@ public class AsignaturasController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     public void handleNuevaAsignatura() {
         asignaturaEditando = null;
         txtNombreAsignatura.clear();
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     @FXML private void handleGuardarAsignatura() {
         String nombre = txtNombreAsignatura.getText().trim();
         if (nombre.isBlank()) {
@@ -148,7 +135,6 @@ public class AsignaturasController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     @FXML private void handleCancelarAsignatura() {
         scrollPaneFormulario.setVisible(false);
         scrollPaneFormulario.setManaged(false);

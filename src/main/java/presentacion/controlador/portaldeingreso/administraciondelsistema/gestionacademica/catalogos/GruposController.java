@@ -36,7 +36,6 @@ public class GruposController implements Initializable, EventBusListener {
     private final GestionGrados gestionGrados;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private TableView<Grupo> tablaGrupos;
     @FXML private TableColumn<Grupo, Integer> colNumGrupo;
     @FXML private TableColumn<Grupo, String> colNombreGrupo, colGradoGrupo;
@@ -46,18 +45,14 @@ public class GruposController implements Initializable, EventBusListener {
     @FXML private TextField txtNombreGrupo;
     @FXML private ComboBox<String> cmbGradoGrupo;
     @FXML private Button btnNuevoGrupo, btnGuardarGrupo, btnCancelarGrupo;
-
     private ObservableList<Grupo> listaGrupos;
     private Grupo grupoEditando;
-
     public GruposController(GestionGrupos gestionGrupos, GestionGrados gestionGrados, LoggerPort logger, EventBus eventBus) {
         this.gestionGrupos = gestionGrupos;
         this.gestionGrados = gestionGrados;
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case GRUPOS -> cargarGrupos();
@@ -65,7 +60,6 @@ public class GruposController implements Initializable, EventBusListener {
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
@@ -74,7 +68,6 @@ public class GruposController implements Initializable, EventBusListener {
         eventBus.suscribir(TipoEvento.GRUPOS, this);
         eventBus.suscribir(TipoEvento.GRADOS, this);
     }
-
     private void configurarTabla() {
         colNumGrupo.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Integer item, boolean empty) {
@@ -87,7 +80,6 @@ public class GruposController implements Initializable, EventBusListener {
                 cell.getValue().getGrado() != null ? cell.getValue().getGrado().getNombre() : ""));
         configurarAcciones();
     }
-
     private void configurarAcciones() {
         colAccionesGrupo.setCellFactory(param -> new TableCell<>() {
             private final Button btnEditar = new Button("Editar");
@@ -105,7 +97,6 @@ public class GruposController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarGrupos() {
         Platform.runLater(() -> {
             try {
@@ -118,7 +109,6 @@ public class GruposController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void recargarComboGrados() {
         cmbGradoGrupo.getItems().clear();
         cmbGradoGrupo.getItems().add("Seleccione un grado");
@@ -127,7 +117,6 @@ public class GruposController implements Initializable, EventBusListener {
         }
         cmbGradoGrupo.getSelectionModel().selectFirst();
     }
-
     private void cargarEnFormulario(Grupo g) {
         grupoEditando = g;
         recargarComboGrados();
@@ -136,7 +125,6 @@ public class GruposController implements Initializable, EventBusListener {
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     private void eliminar(Grupo g) {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
@@ -146,7 +134,6 @@ public class GruposController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     public void handleNuevoGrupo() {
         grupoEditando = null;
         recargarComboGrados();
@@ -154,7 +141,6 @@ public class GruposController implements Initializable, EventBusListener {
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     @FXML private void handleGuardarGrupo() {
         String nombre = txtNombreGrupo.getText().trim();
         String gradoNombre = cmbGradoGrupo.getValue();
@@ -175,18 +161,15 @@ public class GruposController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     @FXML private void handleCancelarGrupo() {
         scrollPaneFormulario.setVisible(false);
         scrollPaneFormulario.setManaged(false);
     }
-
     private String formatearGrado(Grado g) {
         if (g == null) return "";
         String nivel = (g.getNivel() != null) ? g.getNivel() : "Sin nivel";
         return g.getNombre() + " (" + nivel + ")";
     }
-
     private Grado parsearGrado(String texto) {
         if (texto == null) return null;
         int idx = texto.lastIndexOf(" (");

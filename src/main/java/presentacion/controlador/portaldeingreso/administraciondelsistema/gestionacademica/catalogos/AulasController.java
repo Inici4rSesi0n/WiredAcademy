@@ -52,14 +52,12 @@ public class AulasController implements Initializable, EventBusListener {
         this.logger = logger;
         this.eventBus = eventBus;
     }
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case AULAS -> cargarAulas();
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarComboModalidad();
@@ -149,7 +147,7 @@ public class AulasController implements Initializable, EventBusListener {
         String ubicacion = txtUbicacionAula.getText().trim();
         String tipo = txtTipoAula.getText().trim();
         String modalidadStr = cmbModalidadAula.getValue();
-        if (nombre.isBlank() || capacidadStr.isBlank() || ubicacion.isBlank() || tipo.isBlank() 
+        if (nombre.isBlank() || capacidadStr.isBlank() || ubicacion.isBlank() || tipo.isBlank()
                 || modalidadStr == null || modalidadStr.startsWith("Seleccione")) {
             Dialogos.info("Todos los campos son obligatorios."); return;
         }

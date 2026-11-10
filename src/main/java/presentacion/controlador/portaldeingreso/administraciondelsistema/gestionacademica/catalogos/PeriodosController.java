@@ -34,7 +34,6 @@ public class PeriodosController implements Initializable, EventBusListener {
     private final GestionPeriodos gestionPeriodos;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private TableView<PeriodoAcademico> tablaPeriodos;
     @FXML private TableColumn<PeriodoAcademico, Integer> colNumPeriodo;
     @FXML private TableColumn<PeriodoAcademico, String> colNombrePeriodo, colFechaInicio, colFechaFin, colEstadoPeriodo;
@@ -45,24 +44,19 @@ public class PeriodosController implements Initializable, EventBusListener {
     @FXML private DatePicker dateFechaInicio, dateFechaFin;
     @FXML private ComboBox<String> cmbEstadoPeriodo;
     @FXML private Button btnNuevoPeriodo, btnGuardarPeriodo, btnCancelarPeriodo;
-
     private ObservableList<PeriodoAcademico> listaPeriodos;
     private PeriodoAcademico periodoEditando;
-
     public PeriodosController(GestionPeriodos gestionPeriodos, LoggerPort logger, EventBus eventBus) {
         this.gestionPeriodos = gestionPeriodos;
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case PERIODOS -> cargarPeriodos();
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarComboEstado();
@@ -70,14 +64,12 @@ public class PeriodosController implements Initializable, EventBusListener {
         cargarPeriodos();
         eventBus.suscribir(TipoEvento.PERIODOS, this);
     }
-
     private void configurarComboEstado() {
         cmbEstadoPeriodo.getItems().clear();
         cmbEstadoPeriodo.getItems().add("Seleccione un estado");
         cmbEstadoPeriodo.getItems().addAll("Activo", "Inactivo", "Culminado", "Prorrogado");
         cmbEstadoPeriodo.getSelectionModel().selectFirst();
     }
-
     private void configurarTabla() {
         colNumPeriodo.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Integer item, boolean empty) {
@@ -91,7 +83,6 @@ public class PeriodosController implements Initializable, EventBusListener {
         colEstadoPeriodo.setCellValueFactory(new PropertyValueFactory<>("estado"));
         configurarAcciones();
     }
-
     private void configurarAcciones() {
         colAccionesPeriodo.setCellFactory(param -> new TableCell<>() {
             private final Button btnEditar = new Button("Editar");
@@ -109,7 +100,6 @@ public class PeriodosController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarPeriodos() {
         Platform.runLater(() -> {
             try {
@@ -122,7 +112,6 @@ public class PeriodosController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarEnFormulario(PeriodoAcademico p) {
         periodoEditando = p;
         txtNombrePeriodo.setText(p.getNombre());
@@ -132,7 +121,6 @@ public class PeriodosController implements Initializable, EventBusListener {
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     private void eliminar(PeriodoAcademico p) {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
@@ -142,7 +130,6 @@ public class PeriodosController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     public void handleNuevoPeriodo() {
         periodoEditando = null;
         txtNombrePeriodo.clear();
@@ -151,7 +138,6 @@ public class PeriodosController implements Initializable, EventBusListener {
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     @FXML private void handleGuardarPeriodo() {
         String nombre = txtNombrePeriodo.getText().trim();
         LocalDate inicio = dateFechaInicio.getValue();
@@ -170,7 +156,6 @@ public class PeriodosController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     @FXML private void handleCancelarPeriodo() {
         scrollPaneFormulario.setVisible(false);
         scrollPaneFormulario.setManaged(false);

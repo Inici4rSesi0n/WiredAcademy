@@ -5,7 +5,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos;
 import infraestructura.eventos.EventBus;
 import dominio.puerto.externo.EventBusListener;
-
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionPeriodos;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionRecreos;
 import dominio.modelo.FranjaHoraria;
@@ -14,7 +13,6 @@ import dominio.modelo.Recreo;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
 import dominio.modelo.TipoEvento;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,10 +28,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 /**
  *
  * @author inici4rsesi0n
@@ -45,7 +41,6 @@ public class RecreosController implements Initializable, EventBusListener {
     private final GestionPeriodos gestionPeriodos;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private TableView<Recreo> tablaRecreos;
     @FXML private TableColumn<Recreo, Integer> colNumRecreo;
     @FXML private TableColumn<Recreo, String> colDiaRecreo, colInicioRecreo, colFinRecreo, colDescripcionRecreo;
@@ -56,19 +51,15 @@ public class RecreosController implements Initializable, EventBusListener {
     @FXML private ListView<PeriodoAcademico> listViewPeriodosRecreo;
     @FXML private TextField txtInicioRecreo, txtFinRecreo, txtDescripcionRecreo;
     @FXML private Button btnNuevoRecreo, btnGuardarRecreo, btnCancelarRecreo;
-
     private ObservableList<Recreo> listaRecreos;
     private ObservableList<PeriodoAcademico> periodosRecreoTemporal;
     private Recreo recreoEditando;
-
     public RecreosController(GestionRecreos gestionRecreos, GestionPeriodos gestionPeriodos, LoggerPort logger, EventBus eventBus) {
         this.gestionRecreos = gestionRecreos;
         this.gestionPeriodos = gestionPeriodos;
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case RECREOS -> cargarRecreos();
@@ -76,7 +67,6 @@ public class RecreosController implements Initializable, EventBusListener {
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarComboDia();
@@ -87,14 +77,12 @@ public class RecreosController implements Initializable, EventBusListener {
         eventBus.suscribir(TipoEvento.RECREOS, this);
         eventBus.suscribir(TipoEvento.PERIODOS, this);
     }
-
     private void configurarComboDia() {
         cmbDiaRecreo.getItems().clear();
         cmbDiaRecreo.getItems().add("Seleccione un día");
         cmbDiaRecreo.getItems().addAll("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo");
         cmbDiaRecreo.getSelectionModel().selectFirst();
     }
-
     private void configurarTabla() {
         colNumRecreo.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Integer item, boolean empty) {
@@ -108,7 +96,6 @@ public class RecreosController implements Initializable, EventBusListener {
         colDescripcionRecreo.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getDescripcion()));
         configurarAcciones();
     }
-
     private void configurarAcciones() {
         colAccionesRecreo.setCellFactory(param -> new TableCell<>() {
             private final Button btnEditar = new Button("Editar");
@@ -126,16 +113,13 @@ public class RecreosController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void configurarListaPeriodos() {
         periodosRecreoTemporal = FXCollections.observableArrayList();
         listViewPeriodosRecreo.setItems(periodosRecreoTemporal);
-        
         // Placeholder bonito para cuando no hay periodos
         Label placeholder = new Label("Sin periodos asociados. Use '+ Añadir'.");
         placeholder.setStyle("-fx-text-fill: #64748B; -fx-font-style: italic; -fx-font-size: 12px;");
         listViewPeriodosRecreo.setPlaceholder(placeholder);
-
         listViewPeriodosRecreo.setCellFactory(lv -> new ListCell<>() {
             @Override
             protected void updateItem(PeriodoAcademico item, boolean empty) {
@@ -146,29 +130,23 @@ public class RecreosController implements Initializable, EventBusListener {
                 } else {
                     Label lbl = new Label(item.getNombre());
                     lbl.setStyle("-fx-font-size: 13px; -fx-text-fill: #F8FAFC;");
-
                     Button btnQuitar = new Button("✕");
                     btnQuitar.getStyleClass().add("boton-tabla-eliminar");
                     btnQuitar.setStyle("-fx-font-size: 10px; -fx-padding: 2px 8px; -fx-cursor: hand;");
                     btnQuitar.setOnAction(e -> periodosRecreoTemporal.remove(item));
-
                     HBox hbox = new HBox(10);
                     hbox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
                     hbox.setMaxWidth(Double.MAX_VALUE);
-
                     Region spacer = new Region();
                     HBox.setHgrow(spacer, Priority.ALWAYS);
-
                     hbox.getChildren().addAll(lbl, spacer, btnQuitar);
                     hbox.prefWidthProperty().bind(listViewPeriodosRecreo.widthProperty().subtract(35));
-
                     setGraphic(hbox);
                     setStyle("-fx-padding: 4px 8px;");
                 }
             }
         });
     }
-
     private void recargarComboPeriodosRecreo() {
         cmbPeriodoRecreo.getItems().clear();
         cmbPeriodoRecreo.getItems().add("Seleccione un periodo");
@@ -177,7 +155,6 @@ public class RecreosController implements Initializable, EventBusListener {
         }
         cmbPeriodoRecreo.getSelectionModel().selectFirst();
     }
-
     private void cargarRecreos() {
         Platform.runLater(() -> {
             try {
@@ -190,7 +167,6 @@ public class RecreosController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarEnFormulario(Recreo r) {
         recreoEditando = r;
         recargarComboPeriodosRecreo();
@@ -202,7 +178,6 @@ public class RecreosController implements Initializable, EventBusListener {
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     private void eliminar(Recreo r) {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
@@ -212,7 +187,6 @@ public class RecreosController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     public void handleNuevoRecreo() {
         recreoEditando = null;
         periodosRecreoTemporal.clear();
@@ -224,13 +198,11 @@ public class RecreosController implements Initializable, EventBusListener {
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     @FXML private void handleGuardarRecreo() {
         String dia = cmbDiaRecreo.getValue();
         String inicio = txtInicioRecreo.getText().trim();
         String fin = txtFinRecreo.getText().trim();
         String desc = txtDescripcionRecreo.getText().trim();
-
         if (dia == null || inicio.isBlank() || fin.isBlank()) {
             Dialogos.info("Todos los campos son obligatorios."); return;
         }
@@ -255,16 +227,13 @@ public class RecreosController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     @FXML private void handleCancelarRecreo() {
         scrollPaneFormulario.setVisible(false);
         scrollPaneFormulario.setManaged(false);
     }
-
     @FXML private void handleAgregarPeriodoRecreo() {
         String nombrePeriodo = cmbPeriodoRecreo.getValue();
         if (nombrePeriodo == null || nombrePeriodo.startsWith("Seleccione")) return;
-
         PeriodoAcademico periodo = gestionPeriodos.buscarPorNombre(nombrePeriodo);
         if (periodo == null) {
             Dialogos.info("Periodo no encontrado.");

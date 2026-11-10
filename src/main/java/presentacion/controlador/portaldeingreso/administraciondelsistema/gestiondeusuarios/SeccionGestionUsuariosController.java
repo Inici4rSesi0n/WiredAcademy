@@ -51,14 +51,12 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
         this.logger = logger;
         this.eventBus = eventBus;
     }
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case USUARIOS -> cargarUsuarios();
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();

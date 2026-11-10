@@ -6,7 +6,6 @@ package presentacion.controlador.portaldeingreso.administraciondelsistema.gestio
 import infraestructura.eventos.EventBus;
 import dominio.puerto.externo.EventBusListener;
 import presentacion.dto.AsignacionItem;
-
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAsignaturas;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionDocentes;
 import dominio.modelo.Asignatura;
@@ -23,14 +22,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import presentacion.dialogos.Dialogos;
 import dominio.modelo.TipoEvento;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 @Component
 @Scope("prototype")
 public class AsignacionDocenteController implements Initializable, EventBusListener {
@@ -38,25 +35,19 @@ public class AsignacionDocenteController implements Initializable, EventBusListe
     private final GestionAsignaturas gestionAsignaturas;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private BorderPane root;
     public BorderPane getRoot() { return root; }
-
     @FXML private TableView<AsignacionItem> tablaAsignaturasDocente;
     @FXML private TableColumn<AsignacionItem, String> colCodigoDocenteAsignatura, colNombreDocenteAsignatura, colAsignaturaDocente;
     @FXML private TableColumn<AsignacionItem, Void> colAccionesAsignaturaDocente;
     @FXML private ComboBox<String> cmbDocenteAsignatura, cmbAsignaturaDocente;
-
     private ObservableList<AsignacionItem> listaAsignacionesDocente;
-
     public AsignacionDocenteController(GestionDocentes gestionDocentes, GestionAsignaturas gestionAsignaturas, LoggerPort logger, EventBus eventBus) {
         this.gestionDocentes = gestionDocentes;
         this.gestionAsignaturas = gestionAsignaturas;
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case DOCENTES -> recargarDesdeEvento();
@@ -64,7 +55,6 @@ public class AsignacionDocenteController implements Initializable, EventBusListe
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTablaAsignacionesDocente();
@@ -73,29 +63,24 @@ public class AsignacionDocenteController implements Initializable, EventBusListe
         eventBus.suscribir(TipoEvento.DOCENTES, this);
         eventBus.suscribir(TipoEvento.ASIGNATURAS, this);
     }
-
     private void recargarDesdeEvento() {
         recargarCombosAsignaciones();
         cargarAsignacionesDocente();
     }
-
     private void recargarCombosAsignaciones() {
         cmbDocenteAsignatura.getItems().clear(); cmbDocenteAsignatura.getItems().add("Seleccione un docente");
         for (Docente d : gestionDocentes.listarTodos()) cmbDocenteAsignatura.getItems().add(d.getCodigo() + " - " + d.getNombreCompleto());
         cmbDocenteAsignatura.getSelectionModel().selectFirst();
-
         cmbAsignaturaDocente.getItems().clear(); cmbAsignaturaDocente.getItems().add("Seleccione una asignatura");
         for (Asignatura a : gestionAsignaturas.listarTodos()) cmbAsignaturaDocente.getItems().add(a.getNombre());
         cmbAsignaturaDocente.getSelectionModel().selectFirst();
     }
-
     private void configurarTablaAsignacionesDocente() {
         colCodigoDocenteAsignatura.setCellValueFactory(new PropertyValueFactory<>("codigoDocente"));
         colNombreDocenteAsignatura.setCellValueFactory(new PropertyValueFactory<>("nombreDocente"));
         colAsignaturaDocente.setCellValueFactory(new PropertyValueFactory<>("nombreAsignatura"));
         configurarAccionesAsignaturaDocente();
     }
-
     private void configurarAccionesAsignaturaDocente() {
         colAccionesAsignaturaDocente.setCellFactory(param -> new TableCell<>() {
             private final Button btnQuitar = new Button("Quitar");
@@ -120,7 +105,6 @@ public class AsignacionDocenteController implements Initializable, EventBusListe
             }
         });
     }
-
     private void cargarAsignacionesDocente() {
         try {
             List<AsignacionItem> items = new ArrayList<>();
@@ -134,8 +118,7 @@ public class AsignacionDocenteController implements Initializable, EventBusListe
             logger.error("Error al cargar asignaciones docente: " + e.getMessage());
         }
     }
-
-    @FXML 
+    @FXML
     private void handleAgregarAsignaturaDocente() {
         String docenteSel = cmbDocenteAsignatura.getValue();
         String asigSel = cmbAsignaturaDocente.getValue();

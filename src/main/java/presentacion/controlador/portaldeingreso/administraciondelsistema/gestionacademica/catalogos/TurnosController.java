@@ -33,7 +33,6 @@ public class TurnosController implements Initializable, EventBusListener {
     private final GestionTurnos gestionTurnos;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private TableView<Turno> tablaTurnos;
     @FXML private TableColumn<Turno, Integer> colNumTurno;
     @FXML private TableColumn<Turno, String> colNombreTurno;
@@ -42,31 +41,25 @@ public class TurnosController implements Initializable, EventBusListener {
     @FXML private javafx.scene.control.ScrollPane scrollPaneFormulario;
     @FXML private TextField txtNombreTurno;
     @FXML private Button btnNuevoTurno, btnGuardarTurno, btnCancelarTurno;
-
     private ObservableList<Turno> listaTurnos;
     private Turno turnoEditando;
-
     public TurnosController(GestionTurnos gestionTurnos, LoggerPort logger, EventBus eventBus) {
         this.gestionTurnos = gestionTurnos;
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case TURNOS -> cargarTurnos();
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
         cargarTurnos();
         eventBus.suscribir(TipoEvento.TURNOS, this);
     }
-
     private void configurarTabla() {
         colNumTurno.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Integer item, boolean empty) {
@@ -77,7 +70,6 @@ public class TurnosController implements Initializable, EventBusListener {
         colNombreTurno.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         configurarAcciones();
     }
-
     private void configurarAcciones() {
         colAccionesTurno.setCellFactory(param -> new TableCell<>() {
             private final Button btnEditar = new Button("Editar");
@@ -95,7 +87,6 @@ public class TurnosController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarTurnos() {
         Platform.runLater(() -> {
             try {
@@ -108,14 +99,12 @@ public class TurnosController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarEnFormulario(Turno t) {
         turnoEditando = t;
         txtNombreTurno.setText(t.getNombre());
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     private void eliminar(Turno t) {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
@@ -125,14 +114,12 @@ public class TurnosController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     public void handleNuevoTurno() {
         turnoEditando = null;
         txtNombreTurno.clear();
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     @FXML private void handleGuardarTurno() {
         String nombre = txtNombreTurno.getText().trim();
         if (nombre.isBlank()) {
@@ -148,7 +135,6 @@ public class TurnosController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     @FXML private void handleCancelarTurno() {
         scrollPaneFormulario.setVisible(false);
         scrollPaneFormulario.setManaged(false);

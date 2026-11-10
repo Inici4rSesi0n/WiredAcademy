@@ -6,7 +6,6 @@ package presentacion.controlador.portaldeingreso.administraciondelsistema.gestio
 import infraestructura.eventos.EventBus;
 import dominio.puerto.externo.EventBusListener;
 import presentacion.dto.TutorItem;
-
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionDocentes;
 import dominio.modelo.Docente;
@@ -22,14 +21,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import presentacion.dialogos.Dialogos;
 import dominio.modelo.TipoEvento;
-
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 @Component
 @Scope("prototype")
 public class AsignacionTutorController implements Initializable, EventBusListener {
@@ -37,23 +34,18 @@ public class AsignacionTutorController implements Initializable, EventBusListene
     private final GestionGrupos gestionGrupos;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private BorderPane root;
     public BorderPane getRoot() { return root; }
-
     @FXML private ComboBox<String> cmbDocenteTutor, cmbGrupoTutor;
     @FXML private TableView<TutorItem> tablaTutores;
     @FXML private TableColumn<TutorItem, String> colGrupoTutor, colDocenteTutor;
     @FXML private TableColumn<TutorItem, Void> colAccionesTutor;
-
     public AsignacionTutorController(GestionDocentes gestionDocentes, GestionGrupos gestionGrupos, LoggerPort logger, EventBus eventBus) {
         this.gestionDocentes = gestionDocentes;
         this.gestionGrupos = gestionGrupos;
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case GRUPOS -> recargarDesdeEvento();
@@ -61,7 +53,6 @@ public class AsignacionTutorController implements Initializable, EventBusListene
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
@@ -70,22 +61,18 @@ public class AsignacionTutorController implements Initializable, EventBusListene
         eventBus.suscribir(TipoEvento.GRUPOS, this);
         eventBus.suscribir(TipoEvento.DOCENTES, this);
     }
-
     private void recargarDesdeEvento() {
         recargarCombos();
         cargarTutores();
     }
-
     private void recargarCombos() {
         cmbDocenteTutor.getItems().clear(); cmbDocenteTutor.getItems().add("Seleccione un docente");
         for (Docente d : gestionDocentes.listarTodos()) cmbDocenteTutor.getItems().add(d.getCodigo() + " - " + d.getNombreCompleto());
         cmbDocenteTutor.getSelectionModel().selectFirst();
-
         cmbGrupoTutor.getItems().clear(); cmbGrupoTutor.getItems().add("Seleccione un grupo");
         for (Grupo g : gestionGrupos.listarTodos()) cmbGrupoTutor.getItems().add(g.getNombre() + " (" + g.getGrado().getNombre() + ")");
         cmbGrupoTutor.getSelectionModel().selectFirst();
     }
-
     private void configurarTabla() {
         colGrupoTutor.setCellValueFactory(new PropertyValueFactory<>("nombreGrupo"));
         colDocenteTutor.setCellValueFactory(new PropertyValueFactory<>("nombreTutor"));
@@ -109,7 +96,6 @@ public class AsignacionTutorController implements Initializable, EventBusListene
             }
         });
     }
-
     private void cargarTutores() {
         try {
             List<TutorItem> items = new ArrayList<>();
@@ -123,7 +109,6 @@ public class AsignacionTutorController implements Initializable, EventBusListene
             logger.error("Error al cargar tutores: " + e.getMessage());
         }
     }
-
     @FXML
     private void handleAsignarTutor() {
         String docenteSel = cmbDocenteTutor.getValue();

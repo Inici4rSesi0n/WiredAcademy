@@ -33,7 +33,6 @@ public class GradosController implements Initializable, EventBusListener {
     private final GestionGrados gestionGrados;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private TableView<Grado> tablaGrados;
     @FXML private TableColumn<Grado, Integer> colNumGrado;
     @FXML private TableColumn<Grado, String> colNombreGrado, colNivelGrado;
@@ -42,31 +41,25 @@ public class GradosController implements Initializable, EventBusListener {
     @FXML private javafx.scene.control.ScrollPane scrollPaneFormulario;
     @FXML private TextField txtNombreGrado, txtNivelGrado;
     @FXML private Button btnNuevoGrado, btnGuardarGrado, btnCancelarGrado;
-
     private ObservableList<Grado> listaGrados;
     private Grado gradoEditando;
-
     public GradosController(GestionGrados gestionGrados, LoggerPort logger, EventBus eventBus) {
         this.gestionGrados = gestionGrados;
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case GRADOS -> cargarGrados();
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
         cargarGrados();
         eventBus.suscribir(TipoEvento.GRADOS, this);
     }
-
     private void configurarTabla() {
         colNumGrado.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Integer item, boolean empty) {
@@ -78,7 +71,6 @@ public class GradosController implements Initializable, EventBusListener {
         colNivelGrado.setCellValueFactory(new PropertyValueFactory<>("nivel"));
         configurarAcciones();
     }
-
     private void configurarAcciones() {
         colAccionesGrado.setCellFactory(param -> new TableCell<>() {
             private final Button btnEditar = new Button("Editar");
@@ -96,7 +88,6 @@ public class GradosController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarGrados() {
         Platform.runLater(() -> {
             try {
@@ -109,7 +100,6 @@ public class GradosController implements Initializable, EventBusListener {
             }
         });
     }
-
     private void cargarEnFormulario(Grado g) {
         gradoEditando = g;
         txtNombreGrado.setText(g.getNombre());
@@ -117,7 +107,6 @@ public class GradosController implements Initializable, EventBusListener {
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     private void eliminar(Grado g) {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar este registro?")) return;
         try {
@@ -127,14 +116,12 @@ public class GradosController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     public void handleNuevoGrado() {
         gradoEditando = null;
         txtNombreGrado.clear(); txtNivelGrado.clear();
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     @FXML private void handleGuardarGrado() {
         String nombre = txtNombreGrado.getText().trim();
         String nivel = txtNivelGrado.getText().trim();
@@ -151,7 +138,6 @@ public class GradosController implements Initializable, EventBusListener {
             Dialogos.info(e.getMessage());
         }
     }
-
     @FXML private void handleCancelarGrado() {
         scrollPaneFormulario.setVisible(false);
         scrollPaneFormulario.setManaged(false);
