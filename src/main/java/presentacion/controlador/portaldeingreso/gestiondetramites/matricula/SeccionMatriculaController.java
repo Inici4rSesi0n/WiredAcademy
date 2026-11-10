@@ -5,7 +5,6 @@
 package presentacion.controlador.portaldeingreso.gestiondetramites.matricula;
 import infraestructura.eventos.EventBus;
 import dominio.puerto.externo.EventBusListener;
-
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionEstudiantes;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
 import aplicacion.casosdeuso.portaldeingreso.gestiondetramites.GestionMatriculas;
@@ -18,7 +17,6 @@ import dominio.modelo.PeriodoAcademico;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
 import dominio.modelo.TipoEvento;
-
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -31,10 +29,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 /**
  *
  * @author inici4rsesi0n
@@ -48,25 +44,19 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
     private final GestionGrupos gestionGrupos;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private TableView<Matricula> tablaMatriculas;
     @FXML private TableColumn<Matricula, Integer> colNumMatricula;
     @FXML private TableColumn<Matricula, String> colEstudiante, colPeriodo, colGrupo, colFecha;
     @FXML private TableColumn<Matricula, EstadoMatricula> colEstado;
     @FXML private TableColumn<Matricula, Void> colAccionesMatricula;
-
     @FXML private VBox panelFormularioMatricula;
     @FXML private ComboBox<String> cmbEstudianteMatricula, cmbPeriodoMatricula, cmbGrupoMatricula;
-    
     // Cambiado a String para igualar a los otros ComboBox
     @FXML private ComboBox<String> cmbEstadoMatricula;
-    
     @FXML private TextField txtFechaMatricula;
     @FXML private Button btnNuevaMatricula, btnGuardarMatricula, btnCancelarMatricula;
-
     private ObservableList<Matricula> listaMatriculas;
     private Matricula matriculaEditando;
-
     public SeccionMatriculaController(GestionMatriculas gestionMatriculas,
                                  GestionEstudiantes gestionEstudiantes,
                                  GestionPeriodos gestionPeriodos,
@@ -78,8 +68,6 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case MATRICULAS -> cargarMatriculas();
@@ -89,7 +77,6 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
@@ -101,14 +88,12 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         eventBus.suscribir(TipoEvento.ESTUDIANTES, this);
         eventBus.suscribir(TipoEvento.PERIODOS, this);
     }
-
     private void recargarDesdeEvento() {
         if (panelFormularioMatricula.isVisible()) {
             recargarCombos();
         }
         cargarMatriculas();
     }
-
     private void configurarTabla() {
         colNumMatricula.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Integer item, boolean empty) {
@@ -124,13 +109,11 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         colFecha.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         colEstado.setCellValueFactory(new PropertyValueFactory<>("estado"));
     }
-
     private String formatearGrupo(Grupo g) {
         if (g == null) return "";
         String grado = (g.getGrado() != null) ? g.getGrado().getNombre() : "Sin grado";
         return g.getNombre() + " (" + grado + ")";
     }
-
     private void configurarColumnaAcciones() {
         colAccionesMatricula.setCellFactory(param -> new TableCell<>() {
             private final Button btnEditar = new Button("Editar");
@@ -148,12 +131,10 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
             }
         });
     }
-
     private void cargarDatosIniciales() {
         configurarComboEstado();
         cargarMatriculas();
     }
-
     private void configurarComboEstado() {
         cmbEstadoMatricula.getItems().clear();
         cmbEstadoMatricula.getItems().add("Seleccione un estado");
@@ -162,27 +143,23 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
                 }
         cmbEstadoMatricula.getSelectionModel().selectFirst();
     }
-
     private void recargarCombos() {
         cmbEstudianteMatricula.getItems().clear();
         cmbEstudianteMatricula.getItems().add("Seleccione un estudiante");
         for (Estudiante e : gestionEstudiantes.listarTodos()) {
             cmbEstudianteMatricula.getItems().add(e.getCodigo() + " - " + e.getNombreCompleto());
         }
-        
         cmbPeriodoMatricula.getItems().clear();
         cmbPeriodoMatricula.getItems().add("Seleccione un periodo");
         for (PeriodoAcademico p : gestionPeriodos.listarTodos()) {
             cmbPeriodoMatricula.getItems().add(p.getNombre());
         }
-        
         cmbGrupoMatricula.getItems().clear();
         cmbGrupoMatricula.getItems().add("Seleccione un grupo");
         for (Grupo g : gestionGrupos.listarTodos()) {
             cmbGrupoMatricula.getItems().add(formatearGrupo(g));
         }
     }
-
     private void cargarMatriculas() {
         Platform.runLater(() -> {
             try {
@@ -195,7 +172,6 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
             }
         });
     }
-
     @FXML private void handleNuevaMatricula() {
         matriculaEditando = null;
         recargarCombos();
@@ -203,32 +179,27 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         panelFormularioMatricula.setVisible(true);
         panelFormularioMatricula.setManaged(true);
     }
-
     @FXML private void handleGuardarMatricula() {
         String estudianteSeleccionado = cmbEstudianteMatricula.getValue();
         String periodoSeleccionado = cmbPeriodoMatricula.getValue();
         String grupoSeleccionado = cmbGrupoMatricula.getValue();
         String fecha = txtFechaMatricula.getText().trim();
         String estadoSeleccionado = cmbEstadoMatricula.getValue();
-
         if (estudianteSeleccionado == null || estudianteSeleccionado.startsWith("Seleccione")
                 || periodoSeleccionado == null || periodoSeleccionado.startsWith("Seleccione")
                 || grupoSeleccionado == null || grupoSeleccionado.startsWith("Seleccione")
                 || estadoSeleccionado == null || estadoSeleccionado.startsWith("Seleccione")) {
             Dialogos.info("Todos los campos son obligatorios."); return;
         }
-        
         try {
             String codigoEstudiante = estudianteSeleccionado.split(" - ")[0];
             Estudiante estudiante = gestionEstudiantes.buscarPorCodigo(codigoEstudiante);
             PeriodoAcademico periodo = gestionPeriodos.buscarPorNombre(periodoSeleccionado);
             Grupo grupo = parsearGrupo(grupoSeleccionado);
             EstadoMatricula estado = EstadoMatricula.valueOf(estadoSeleccionado); // Parseo de String a Enum
-            
             if (estudiante == null || periodo == null || grupo == null) {
                 Dialogos.info("Los datos seleccionados no son válidos."); return;
             }
-            
             if (matriculaEditando == null) {
                 gestionMatriculas.matricularEstudiante(estudiante, periodo, grupo, null, fecha, estado);
             } else {
@@ -242,7 +213,6 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
             Dialogos.info(e.getMessage());
         }
     }
-
     private Grupo parsearGrupo(String texto) {
         int idx = texto.lastIndexOf(" (");
         if (idx < 0) return null;
@@ -251,11 +221,9 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         List<Grupo> encontrados = gestionGrupos.buscarPorNombreYGrado(nombreGrupo, nombreGrado);
         return encontrados.isEmpty() ? null : encontrados.get(0);
     }
-
     @FXML private void handleCancelarMatricula() {
         limpiarFormulario();
     }
-
     private void cargarEnFormulario(Matricula matricula) {
         matriculaEditando = matricula;
         recargarCombos();
@@ -267,7 +235,6 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         panelFormularioMatricula.setVisible(true);
         panelFormularioMatricula.setManaged(true);
     }
-
     private void eliminarMatricula(Matricula matricula) {
         if (Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar la matricula de " + matricula.getEstudiante().getCodigo() + "?")) {
             try {
@@ -278,7 +245,6 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
             }
         }
     }
-
     private void limpiarFormulario() {
         matriculaEditando = null;
         cmbEstudianteMatricula.getSelectionModel().selectFirst();

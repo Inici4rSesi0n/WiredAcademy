@@ -5,7 +5,6 @@
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.horarios;
 import infraestructura.eventos.EventBus;
 import dominio.puerto.externo.EventBusListener;
-
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAsignaturas;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAulas;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionClases;
@@ -22,12 +21,10 @@ import dominio.puerto.externo.LoggerPort;
 import infraestructura.configuracion.SpringFxmlLoader;
 import presentacion.dialogos.Dialogos;
 import dominio.modelo.TipoEvento;
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -50,10 +47,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 /**
  * Controlador de la pestaña "Horarios" dentro de Gestión Académica.
  *
@@ -66,10 +61,8 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("prototype")
 public class GestionHorariosController implements Initializable, EventBusListener {
-
     @FXML private BorderPane root;
     public BorderPane getRoot() { return root; }
-
     private final GestionClases gestionClases;
     private final GestionAsignaturas gestionAsignaturas;
     private final GestionDocentes gestionDocentes;
@@ -79,7 +72,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
     private final SpringFxmlLoader fxmlLoader;
     private final LoggerPort logger;
     private final EventBus eventBus;
-
     @FXML private TableView<Clase> tablaClases;
     @FXML private TableColumn<Clase, Integer> colNumClase;
     @FXML private TableColumn<Clase, String> colDiaClase, colInicioClase, colFinClase, colAsignaturaClase,
@@ -91,10 +83,8 @@ public class GestionHorariosController implements Initializable, EventBusListene
             cmbGrupoClase, cmbAulaClase, cmbPeriodoClase;
     @FXML private TextField txtInicioClase, txtFinClase;
     @FXML private Button btnNuevaClase, btnGuardarClase, btnCancelarClase;
-
     private ObservableList<Clase> listaClases;
     private Clase claseEditando;
-
     public GestionHorariosController(GestionClases gestionClases,
                                  GestionAsignaturas gestionAsignaturas,
                                  GestionDocentes gestionDocentes,
@@ -113,8 +103,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
         this.logger = logger;
         this.eventBus = eventBus;
     }
-
-    
     public void onEvent(TipoEvento evento) {
         switch (evento) {
             case CLASES -> cargarClases();
@@ -126,7 +114,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
             default -> {}
         }
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         configurarTablaClases();
@@ -138,12 +125,10 @@ public class GestionHorariosController implements Initializable, EventBusListene
         eventBus.suscribir(TipoEvento.PERIODOS, this);
         eventBus.suscribir(TipoEvento.ASIGNATURAS, this);
     }
-
     private void recargarDesdeEvento() {
         if (panelFormularioClase.isVisible()) recargarComboClases();
         cargarClases();
     }
-
     private void configurarTablaClases() {
         colNumClase.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(Integer item, boolean empty) {
@@ -166,7 +151,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
                 cell.getValue().getPeriodo() != null ? cell.getValue().getPeriodo().getNombre() : ""));
         configurarAcciones();
     }
-
     private void configurarAcciones() {
         colAccionesClase.setCellFactory(param -> new TableCell<>() {
             private final Button btnEditar = new Button("Editar");
@@ -184,7 +168,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
             }
         });
     }
-
     private void cargarClases() {
         Platform.runLater(() -> {
             try {
@@ -197,44 +180,37 @@ public class GestionHorariosController implements Initializable, EventBusListene
             }
         });
     }
-
     private void recargarComboClases() {
         cmbDiaClase.getItems().clear();
         cmbDiaClase.getItems().add("Seleccione un día");
         cmbDiaClase.getItems().addAll("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo");
         cmbDiaClase.getSelectionModel().selectFirst();
-
         cmbAsignaturaClase.getItems().clear();
         cmbAsignaturaClase.getItems().add("Seleccione una asignatura");
         for (Asignatura a : gestionAsignaturas.listarTodos()) {
             cmbAsignaturaClase.getItems().add(a.getNombre());
         }
-
         cmbDocenteClase.getItems().clear();
         cmbDocenteClase.getItems().add("Seleccione un docente");
         for (Docente d : gestionDocentes.listarTodos()) {
             cmbDocenteClase.getItems().add(d.getCodigo() + " - " + d.getNombreCompleto());
         }
-
         cmbGrupoClase.getItems().clear();
         cmbGrupoClase.getItems().add("Seleccione un grupo");
         for (Grupo g : gestionGrupos.listarTodos()) {
             cmbGrupoClase.getItems().add(formatearGrupo(g));
         }
-
         cmbAulaClase.getItems().clear();
         cmbAulaClase.getItems().add("Seleccione un aula");
         for (Aula a : gestionAulas.listarTodos()) {
             cmbAulaClase.getItems().add(a.getNombre());
         }
-
         cmbPeriodoClase.getItems().clear();
         cmbPeriodoClase.getItems().add("Seleccione un periodo");
         for (PeriodoAcademico p : gestionPeriodos.listarTodos()) {
             cmbPeriodoClase.getItems().add(p.getNombre());
         }
     }
-
     private void cargarEnFormulario(Clase c) {
         claseEditando = c;
         recargarComboClases();
@@ -251,7 +227,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     private void eliminar(Clase c) {
         if (!Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar esta clase?")) return;
         try {
@@ -261,7 +236,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
             Dialogos.info(e.getMessage());
         }
     }
-
     public void handleNuevaClase() {
         claseEditando = null;
         recargarComboClases();
@@ -269,7 +243,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
-
     @FXML private void handleGuardarClase() {
         String dia = cmbDiaClase.getValue();
         String inicio = txtInicioClase.getText().trim();
@@ -279,7 +252,6 @@ public class GestionHorariosController implements Initializable, EventBusListene
         String grupoNombre = cmbGrupoClase.getValue();
         String aulaNombre = cmbAulaClase.getValue();
         String periodoNombre = cmbPeriodoClase.getValue();
-
         if (dia == null || inicio.isBlank() || fin.isBlank()
                 || asignaturaNombre == null || asignaturaNombre.startsWith("Seleccione")
                 || docenteSel == null || docenteSel.startsWith("Seleccione")
@@ -294,18 +266,15 @@ public class GestionHorariosController implements Initializable, EventBusListene
             Dialogos.info("Formato de hora inválido. Use HH:mm (ej. 08:00, 14:30).");
             return;
         }
-
         Asignatura asig = gestionAsignaturas.buscarAsignatura(asignaturaNombre);
         Docente doc = gestionDocentes.buscarPorCodigo(docenteSel.split(" - ")[0]);
         Grupo grupo = parsearGrupo(grupoNombre);
         Aula aula = gestionAulas.buscarAula(aulaNombre);
         PeriodoAcademico periodo = gestionPeriodos.buscarPorNombre(periodoNombre);
-
         if (asig == null || doc == null || grupo == null || aula == null || periodo == null) {
             Dialogos.info("Datos inválidos.");
             return;
         }
-
         try {
             if (claseEditando == null) {
                 gestionClases.crearClase(dia, inicio, fin, asig, doc, grupo, aula, periodo);
@@ -319,30 +288,24 @@ public class GestionHorariosController implements Initializable, EventBusListene
             Dialogos.info(e.getMessage());
         }
     }
-
     @FXML private void handleCancelarClase() {
         scrollPaneFormulario.setVisible(false);
         scrollPaneFormulario.setManaged(false);
     }
-
     public void handleVerHorario() {
         try {
             FXMLLoader loader = fxmlLoader.crearLoader("/fxml/portaldeingreso/administraciondelsistema/gestionacademica/horarios/visor_horario.fxml");
             Parent visorRoot = loader.load();
-
             Stage stage = new Stage();
             stage.initStyle(StageStyle.UNDECORATED);
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.initOwner(root.getScene().getWindow());
-
             Scene scene = new Scene(visorRoot);
             URL css = getClass().getResource("/css/app.css");
             if (css != null) {
                 scene.getStylesheets().add(css.toExternalForm());
             }
-
             stage.setScene(scene);
-
             Stage owner = (Stage) root.getScene().getWindow();
             double width = owner.getWidth() * 0.8;
             double height = owner.getHeight() * 0.8;
@@ -350,14 +313,12 @@ public class GestionHorariosController implements Initializable, EventBusListene
             stage.setHeight(height);
             stage.setX(owner.getX() + (owner.getWidth() - width) / 2);
             stage.setY(owner.getY() + (owner.getHeight() - height) / 2);
-
             stage.showAndWait();
         } catch (IOException e) {
             logger.error("Error al abrir visor de horario: " + e.getMessage());
             Dialogos.info("No se pudo abrir el visor de horario.");
         }
     }
-
     private void limpiarFormularioClase() {
         cmbDiaClase.getSelectionModel().selectFirst();
         txtInicioClase.clear();
@@ -368,13 +329,11 @@ public class GestionHorariosController implements Initializable, EventBusListene
         cmbAulaClase.getSelectionModel().selectFirst();
         cmbPeriodoClase.getSelectionModel().selectFirst();
     }
-
     private String formatearGrupo(Grupo g) {
         if (g == null) return "";
         String grado = (g.getGrado() != null) ? g.getGrado().getNombre() : "Sin grado";
         return g.getNombre() + " (" + grado + ")";
     }
-
     private Grupo parsearGrupo(String texto) {
         if (texto == null) return null;
         int idx = texto.lastIndexOf(" (");

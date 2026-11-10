@@ -10,7 +10,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import presentacion.dialogos.Dialogos;
-
 /**
  *
  * @author inici4rsesi0n
@@ -29,10 +28,8 @@ public class BootstrapController implements ProveedorDatosIniciales {
     private String apellido;
     private String dni;
     private char[] contrasena;
-
     @FXML
     private void initialize() {}
-
     @FXML
     private void confirmar() {
         String codigoTexto = campoCodigo.getText();
@@ -40,7 +37,6 @@ public class BootstrapController implements ProveedorDatosIniciales {
         String apellidoTexto = campoApellido.getText();
         String dniTexto = campoDni.getText();
         String contrasenaTexto = campoContrasena.getText();
-
         if (codigoTexto == null || codigoTexto.isBlank()
                 || nombreTexto == null || nombreTexto.isBlank()
                 || apellidoTexto == null || apellidoTexto.isBlank()
@@ -58,16 +54,13 @@ public class BootstrapController implements ProveedorDatosIniciales {
         this.dni = dniTexto.trim();
         this.contrasena = contrasenaTexto.toCharArray();
         this.confirmado = true;
-
         campoCodigo.getScene().getWindow().hide();
     }
-
     @FXML
     private void cancelar() {
         this.confirmado = false;
         campoCodigo.getScene().getWindow().hide();
     }
-
     @Override public String getCodigo() { return codigo; }
     @Override public String getNombre() { return nombre; }
     @Override public String getApellido() { return apellido; }

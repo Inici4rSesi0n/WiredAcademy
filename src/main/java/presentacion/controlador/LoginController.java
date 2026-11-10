@@ -34,15 +34,12 @@ public class LoginController implements Initializable {
     @FXML private Button btnRegresar;
     @FXML private CheckBox chkMantenerSesion;
     @FXML private ImageView imgLogo;
-
     private String modo;
     private Usuario usuarioAutenticado;
     private boolean regresando = false;
-
     public LoginController(AutenticarUsuario autenticarUsuario) {
         this.autenticarUsuario = autenticarUsuario;
     }
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         sincronizarPasswordFields();
@@ -54,7 +51,6 @@ public class LoginController implements Initializable {
             if (!txtPasswordRevealed.isVisible()) txtPasswordRevealed.setText(newVal);
         });
     }
-
     public void limpiarCampos() {
         txtCodigo.clear();
         txtPassword.clear();
@@ -63,12 +59,10 @@ public class LoginController implements Initializable {
         usuarioAutenticado = null;
         regresando = false;
     }
-
     public void setModo(String modo) { this.modo = modo; }
     public boolean isLoginExitoso() { return usuarioAutenticado != null; }
     public Usuario getUsuarioAutenticado() { return usuarioAutenticado; }
     public boolean isRegresando() { return regresando; }
-
     @FXML
     private void handleLogin() {
         String codigo = txtCodigo.getText();
@@ -91,14 +85,12 @@ public class LoginController implements Initializable {
             UtilLimpieza.limpiarContraseña(contraseña);
         }
     }
-
     @FXML
     private void handleRegresar() {
         regresando = true;
         Stage stage = (Stage) btnRegresar.getScene().getWindow();
         stage.close();
     }
-
     private char[] obtenerContrasena() {
         if (txtPasswordRevealed.isVisible()) {
             String pwd = txtPasswordRevealed.getText();
@@ -108,18 +100,14 @@ public class LoginController implements Initializable {
             return (pwd != null) ? pwd.toCharArray() : null;
         }
     }
-
     private void togglePasswordVisibility(MouseEvent event) {
         boolean revelado = txtPasswordRevealed.isVisible();
-        
         // Alternar visibilidad
         txtPasswordRevealed.setVisible(!revelado);
         txtPassword.setVisible(revelado);
-        
         // Alternar ocupación de espacio (esto evita el salto visual)
         txtPasswordRevealed.setManaged(!revelado);
         txtPassword.setManaged(revelado);
-
         if (!revelado) {
             txtPasswordRevealed.setText(txtPassword.getText());
             txtPasswordRevealed.requestFocus();
@@ -131,7 +119,6 @@ public class LoginController implements Initializable {
         }
         btnTogglePassword.setText(revelado ? "👁" : "🙈");
     }
-
     private void sincronizarPasswordFields() {
         txtPasswordRevealed.setVisible(false);
         txtPasswordRevealed.setManaged(false);
