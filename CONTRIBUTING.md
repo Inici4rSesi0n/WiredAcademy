@@ -24,8 +24,8 @@ Ver [`README.md`](README.md) sección "Quickstart".
 Resumen:
 
 ```bash
-git clone https://github.com/inici4rsesi0n/ProyectoJava.git
-cd ProyectoJava
+git clone https://github.com/Inici4rSesi0n/WiredAcademy.git
+cd WiredAcademy
 cp .env.example .env
 # Configurar credenciales en .env
 podman start wiredacademy-postgres

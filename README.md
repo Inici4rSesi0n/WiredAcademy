@@ -8,7 +8,7 @@ Diseñada para **academias, colegios y universidades** — con especial atenció
 
 **Stack:** Java 21 · JavaFX 23 · Spring Boot 3.2 · PostgreSQL 16 · Maven · Flyway · MapStruct · JUnit 5 · TestFX · Podman.
 
-[![CI](https://github.com/inici4rsesi0n/ProyectoJava/actions/workflows/ci.yml/badge.svg)](https://github.com/inici4rsesi0n/ProyectoJava/actions/workflows/ci.yml)
+[![CI](https://github.com/Inici4rSesi0n/WiredAcademy/actions/workflows/ci.yml/badge.svg)](https://github.com/Inici4rSesi0n/WiredAcademy/actions/workflows/ci.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg)
@@ -57,8 +57,8 @@ El sistema está diseñado con **arquitectura hexagonal**, lo que permite adapta
 ### 1. Clonar y configurar
 
 ```bash
-git clone https://github.com/inici4rsesi0n/ProyectoJava.git
-cd ProyectoJava
+git clone https://github.com/Inici4rSesi0n/WiredAcademy.git
+cd WiredAcademy
 cp .env.example .env
 # Editar .env con tus credenciales
 ```
