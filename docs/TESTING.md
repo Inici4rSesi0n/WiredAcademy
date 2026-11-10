@@ -2,9 +2,9 @@
 
 > Documento maestro de la estrategia de tests del proyecto.
 
-**Versión:** 1.0  
+**Versión:** 1.1  
 **Estado:** Activo  
-**Última revisión:** 2026-11-08  
+**Última revisión:** 2026-11-09  
 **Mantenedor:** inici4rsesi0n
 
 ---
@@ -21,7 +21,7 @@ El proyecto usa **5 categorías** organizadas por alcance y propósito.
 | **Contract tests (EventBus)** | `src/test/java/integration/eventos/` | `*ContractIT.java` | 12 archivos / 51 tests | End-to-end: use case → EventBus → `TestEventRecorder` |
 | **UI tests (TestFX)** | `src/test/java/presentacion/` | `*UITest.java` | 15 | TestFX + Monocle headless |
 
-**Total:** ~495 tests sin UI + 15 UI = **~510 tests** en suite completa.
+**Total:** ~498 tests sin UI + 15 UI = **~513 tests** en suite completa (incluye los 3 tests de `MonoclePropertiesTest`).
 
 ### ¿Cuándo usar cada uno?
 
@@ -91,9 +91,9 @@ Configuración en `.github/workflows/ci.yml`.
 
 ### Servicios en CI
 
-- **PostgreSQL 16** (efímero, puerto 5433) con healthcheck `pg_isready`.
+- **PostgreSQL 16** (efímero, puerto 5433) con healthcheck `pg_isready -U wiredacademy_app -d wiredacademy_test`.
 - **Xvfb** para los UI tests (TestFX + Monocle headless).
-- **JDK 21** (Temurin).
+- **JDK 21** (Temurin, vía `actions/setup-java@v5`).
 
 ### Duración esperada en CI
 
@@ -164,6 +164,16 @@ Si añades un use case que notifica eventos:
 - **UI tests:** `CatalogCleanupHelper` (borrado explícito por prefijo + orden FK correcto).
 - **Nunca** confíes en el orden de ejecución entre tests.
 
+### Configuración headless del toolkit JavaFX
+
+Los tests que ejecutan `Platform.startup()` directo (contract tests) deben configurar:
+
+- `glass.platform=Monocle`
+- `monocle.platform=Headless`
+- `testfx.headless=true`
+
+Esta configuración está en `BaseContractTest` (bloque `static`) y en `pom.xml` (`<systemPropertyVariables>`). Ver §6 Troubleshooting y §9 Lecciones aprendidas.
+
 ---
 
 ## 6. Troubleshooting
@@ -189,6 +199,31 @@ mvn test -Dtest=GestionUsuariosIT
 ### Error: UI tests fallan con "Toolkit not initialized"
 
 El FX toolkit no está headless. `BaseUITest` configura Monocle. En CI se requiere Xvfb.
+
+### Error: contract tests fallan con "Unable to open DISPLAY" en CI
+
+**Síntoma:** los `*ContractIT` fallan en cascada con `ExceptionInInitializerError` → `NoClassDefFoundError`. Un `clinit` fallido "envenena" la clase para toda la JVM, por eso 1 error se convierte en 51.
+
+**Causa:** `BaseContractTest` ejecuta `Platform.startup()` en un bloque `static`. Sin `glass.platform=Monocle` + `monocle.platform=Headless`, JavaFX arranca Glass/GTK que requiere X11 (`DISPLAY`).
+
+**Fix:** ver bloque `static` de `BaseContractTest.java` + `pom.xml` `<systemPropertyVariables>`. Configuración requerida:
+
+- `glass.platform=Monocle`
+- `monocle.platform=Headless`
+- `testfx.headless=true`
+
+**Prevención:** `MonoclePropertiesTest` (3 tests) verifica que las properties están configuradas. Falla si alguien las borra.
+
+**Verificar localmente simulando CI:**
+
+```bash
+unset DISPLAY
+mvn test -Dtest='*ContractIT'
+```
+
+Debe dar 51/51 verde. Si falla → config rota.
+
+> **Distinto de** "UI tests fallan con Toolkit not initialized" (entrada anterior): esa es para `ApplicationTest` de TestFX; esta es para `Platform.startup()` directo.
 
 ### Error: "DNI already exists" en tests
 
@@ -237,15 +272,39 @@ Para añadir: `mvn jacoco:report` después de configurar el plugin en `pom.xml`.
 4. `@BeforeEach setUp()` con `CatalogCleanupHelper`.
 5. Verificar en tabla con `WaitForAsyncUtils.waitFor`.
 
+### Test con `Platform.startup()`
+
+Si tu test llama `Platform.startup()` directamente (no vía `ApplicationTest` de TestFX), debes heredar de `BaseContractTest` o replicar la config Monocle. Ver §9 Lecciones aprendidas (L-001).
+
 ---
 
-## 9. Ver también
+## 9. Lecciones aprendidas
 
-- **`ARCHITECTURE.md`** — Principios, capas y patrones arquitectónicos.
-- **`EVENTBUS.md`** — Contrato B1 completo.
-- **`DATABASE.md`** — Esquema y migraciones.
-- **`LOGGING.md`** — Convención de logging + ADRs históricos.
-- **`ADR/`** — ADRs nuevos (006+).
+### L-001 — Configurar Monocle explícitamente en `Platform.startup()`
+
+**Contexto:** Fase 5 introdujo `BaseContractTest` con `Platform.startup()` en bloque `static`. En local funcionaba (`DISPLAY` activo). En CI falló con 51 errores en cascada (`ExceptionInInitializerError` → `NoClassDefFoundError`).
+
+**Lección:** `Platform.startup()` **no** respeta `testfx.headless=true` porque TestFX procesa esa property solo cuando corre bajo su framework (`ApplicationTest`). Cuando se llama `Platform.startup()` directamente, hay que configurar `glass.platform=Monocle` + `monocle.platform=Headless` **antes** de la llamada.
+
+**Regla para futuros tests:**
+
+- Si añades un test con `Platform.startup()` directo → config Monocle **obligatoria**.
+- Si usas `ApplicationTest` de TestFX → `testfx.headless=true` es suficiente.
+
+**Prevención:** `MonoclePropertiesTest` verifica que las properties están configuradas. Falla si alguien las borra por accidente, con un mensaje claro de qué property falta y por qué importa.
+
+**Ver:** §6 Troubleshooting, entrada "contract tests fallan con Unable to open DISPLAY".
+
+---
+
+## 10. Ver también
+
+- **`ARCHITECTURE.md`** — Visión general arquitectónica.
+- **`EVENTBUS.md`** — Contrato B1 (los contract tests lo validan).
+- **`DATABASE.md`** — Esquema y migraciones Flyway.
+- **`LOGGING.md`** — Convención de logging (audit log analizado por el bot).
+- **`ADR/`** — Decisiones arquitectónicas.
+- **`CHANGELOG.md`** — Historial de versiones.
 
 ---
 

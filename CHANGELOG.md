@@ -17,6 +17,7 @@ Todos los cambios notables de este proyecto se documentan aquí.
 - `SECURITY.md` con política de reporte de vulnerabilidades.
 - `LICENSE` GPL-3.0-or-later.
 - `CHANGELOG.md` (este documento).
+- Test de prevención `MonoclePropertiesTest` que verifica la configuración headless del toolkit JavaFX (3 tests).
 
 ### Changed
 
@@ -24,7 +25,10 @@ Todos los cambios notables de este proyecto se documentan aquí.
 
 ### Fixed
 
-- CI: nombre del step "Set up JDK 17" corregido a "JDK 21" (2 ocurrencias).
+- **CI headless (Monocle):** los 51 contract tests fallaban en GitHub Actions con `Unable to open DISPLAY` → `ExceptionInInitializerError` → `NoClassDefFoundError` en cascada. Causa: `BaseContractTest` llamaba `Platform.startup()` sin configurar `glass.platform=Monocle` ni `monocle.platform=Headless`. Fix en `BaseContractTest` + `pom.xml`. Añadido test de prevención `MonoclePropertiesTest`.
+- **CI:** healthcheck PostgreSQL con `-U wiredacademy_app -d wiredacademy_test` (evita `role "root" does not exist` cada 10 s).
+- **CI:** `actions/setup-java@v4` → `@v5` (deprecation warning).
+- **CI:** nombre del step "Set up JDK 17" corregido a "JDK 21" (2 ocurrencias; la versión real ya era 21).
 
 ---
 
