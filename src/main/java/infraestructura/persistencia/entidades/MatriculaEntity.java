@@ -16,19 +16,15 @@ public class MatriculaEntity{
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="estudiante_id", nullable=false)
     private EstudianteEntity estudiante;
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="periodo_id", nullable=false)
     private PeriodoAcademicoEntity periodo;
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="grupo_id", nullable=false)
     private GrupoEntity grupo;
-
     @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(
         name="matricula_asignaturas",
@@ -36,12 +32,10 @@ public class MatriculaEntity{
         inverseJoinColumns=@JoinColumn(name="asignatura_id")
     )
     private List<AsignaturaEntity> asignaturas=new ArrayList<>();
-
     @Column(nullable=false)
     private String fecha;
     @Column(nullable=false, length=20)
     private String estado;
-
     public Long getId(){return id;}
     public void setId(Long id){this.id=id;}
     public EstudianteEntity getEstudiante(){return estudiante;}

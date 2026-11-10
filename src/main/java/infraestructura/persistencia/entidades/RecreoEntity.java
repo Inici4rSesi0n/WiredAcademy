@@ -24,7 +24,6 @@ public class RecreoEntity{
     private String horaFin;
     @Column(nullable=false, length=100)
     private String descripcion;
-
     @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(
         name="recreo_periodos",
@@ -32,7 +31,6 @@ public class RecreoEntity{
         inverseJoinColumns=@JoinColumn(name="periodo_id")
     )
     private List<PeriodoAcademicoEntity> periodos=new ArrayList<>();
-
     public Long getId(){return id;}
     public void setId(Long id){this.id=id;}
     public String getDiaSemana(){return diaSemana;}

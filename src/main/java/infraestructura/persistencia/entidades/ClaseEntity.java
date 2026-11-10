@@ -20,27 +20,21 @@ public class ClaseEntity{
     private String horaInicio;
     @Column(name="hora_fin", nullable=false)
     private String horaFin;
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="periodo_id", nullable=false)
     private PeriodoAcademicoEntity periodo;
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="asignatura_id", nullable=false)
     private AsignaturaEntity asignatura;
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="docente_id", nullable=false)
     private DocenteEntity docente;
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="grupo_id", nullable=false)
     private GrupoEntity grupo;
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="aula_id", nullable=false)
     private AulaEntity aula;
-
     public Long getId(){return id;}
     public void setId(Long id){this.id=id;}
     public String getDiaSemana(){return diaSemana;}

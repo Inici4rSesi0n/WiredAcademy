@@ -20,7 +20,6 @@ public class PadreEntity extends UsuarioEntity{
         inverseJoinColumns=@JoinColumn(name="estudiante_id")
     )
     private List<EstudianteEntity> estudiantes = new ArrayList<>();
-    
     public List<EstudianteEntity> getEstudiantes(){return estudiantes;}
     public void setEstudiantes(List<EstudianteEntity> estudiantes){this.estudiantes=estudiantes;}
 }

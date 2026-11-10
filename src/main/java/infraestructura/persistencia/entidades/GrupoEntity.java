@@ -18,15 +18,12 @@ public class GrupoEntity{
     private Long id;
     @Column(nullable=false, length=50)
     private String nombre;
-    
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="grado_id", nullable=false)
     private GradoEntity grado;
-
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="tutor_id")
     private DocenteEntity tutor;
-
     @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(
         name="grupo_estudiantes",
@@ -34,7 +31,6 @@ public class GrupoEntity{
         inverseJoinColumns=@JoinColumn(name="estudiante_id")
     )
     private List<EstudianteEntity> estudiantes=new ArrayList<>();
-
     public Long getId(){return id;}
     public void setId(Long id){this.id=id;}
     public String getNombre(){return nombre;}
