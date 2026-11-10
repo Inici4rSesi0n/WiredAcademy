@@ -16,9 +16,7 @@ import java.util.List;
 @Mapper(componentModel="spring", unmappedTargetPolicy=ReportingPolicy.IGNORE)
 public interface AsignaturaMapper{
     Asignatura toDomain(AsignaturaEntity entity);
-    
     @Mapping(target="id", ignore=true)
     AsignaturaEntity toEntity(Asignatura domain);
-    
     List<Asignatura> toDomainList(List<AsignaturaEntity> entities);
 }

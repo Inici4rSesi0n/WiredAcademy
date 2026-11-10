@@ -25,7 +25,6 @@ public class AdaptadorRepositorioClases implements RepositorioClases{
     private final GrupoJpaRepository grupoJpa;
     private final AulaJpaRepository aulaJpa;
     private final ClaseMapper mapper;
-    
     public AdaptadorRepositorioClases(ClaseJpaRepository jpaRepository, PeriodoJpaRepository periodoJpa,
             AsignaturaJpaRepository asignaturaJpa, DocenteJpaRepository docenteJpa,
             GrupoJpaRepository grupoJpa, AulaJpaRepository aulaJpa, ClaseMapper mapper){
@@ -37,7 +36,6 @@ public class AdaptadorRepositorioClases implements RepositorioClases{
         this.aulaJpa=aulaJpa;
         this.mapper=mapper;
     }
-    
     @Override @Transactional
     public void agregar(Clase clase){
         if(clase==null) throw new IllegalArgumentException("La clase no puede ser nula");
@@ -100,14 +98,12 @@ public class AdaptadorRepositorioClases implements RepositorioClases{
                 clase.getDiaSemana(), clase.getHoraInicio(), clase.getHoraFin())
                 .ifPresent(jpaRepository::delete);
     }
-    
     private Long buscarIdPorClase(Clase clase){
         return jpaRepository.findByGrupoGradoNombreAndGrupoNombreAndDiaSemanaAndHoraInicioAndHoraFin(
                 clase.getGrupo().getGrado().getNombre(), clase.getGrupo().getNombre(),
                 clase.getDiaSemana(), clase.getHoraInicio(), clase.getHoraFin())
                 .map(ClaseEntity::getId).orElse(null);
     }
-    
     private void resolverRelaciones(ClaseEntity entity, Clase domain){
         entity.setPeriodo(periodoJpa.findByNombre(domain.getPeriodo().getNombre())
                 .orElseThrow(()->new IllegalArgumentException("Periodo no existe")));

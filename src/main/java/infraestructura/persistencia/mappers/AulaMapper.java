@@ -26,10 +26,8 @@ public interface AulaMapper{
             ModalidadAula.valueOf(entity.getModalidad())
         );
     }
-    
     @Mapping(target="id", ignore=true)
     @Mapping(target="modalidad", expression="java(domain.getModalidad().name())")
     AulaEntity toEntity(Aula domain);
-    
     List<Aula> toDomainList(List<AulaEntity> entities);
 }

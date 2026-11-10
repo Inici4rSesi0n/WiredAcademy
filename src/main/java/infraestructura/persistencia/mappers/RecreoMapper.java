@@ -26,14 +26,12 @@ public interface RecreoMapper{
                 .toList();
         return new Recreo(franja, entity.getDescripcion(), periodos);
     }
-    
     @Mapping(target="id", ignore=true)
     @Mapping(target="periodos", ignore=true)
     @Mapping(target="diaSemana", source="franja.diaSemana")
     @Mapping(target="horaInicio", source="franja.horaInicio")
     @Mapping(target="horaFin", source="franja.horaFin")
     RecreoEntity toEntity(Recreo domain);
-    
     default List<Recreo> toDomainList(List<RecreoEntity> entities){
         return entities.stream().map(this::toDomain).toList();
     }

@@ -15,9 +15,7 @@ import java.util.List;
 @Mapper(componentModel="spring")
 public interface AdministradorMapper{
     Administrador toDomain(AdministradorEntity entity);
-    
     @Mapping(target="id", ignore=true)
     AdministradorEntity toEntity(Administrador domain);
-    
     List<Administrador> toDomainList(List<AdministradorEntity> entities);
 }

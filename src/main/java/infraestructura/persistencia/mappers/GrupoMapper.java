@@ -18,10 +18,8 @@ import java.util.List;
 public abstract class GrupoMapper{
     @Autowired
     protected GradoMapper gradoMapper;
-    
     @Autowired
     protected DocenteMapper docenteMapper;
-    
     public Grupo toDomain(GrupoEntity entity) {
         if (entity == null) return null;
         Grupo grupo = new Grupo(entity.getNombre(), gradoMapper.toDomain(entity.getGrado()));
@@ -30,13 +28,11 @@ public abstract class GrupoMapper{
         }
         return grupo;
     }
-    
     @Mapping(target="id", ignore=true)
     @Mapping(target="grado", ignore=true)
     @Mapping(target="tutor", ignore=true)
     @Mapping(target="estudiantes", ignore=true)
     public abstract GrupoEntity toEntity(Grupo domain);
-    
     public List<Grupo> toDomainList(List<GrupoEntity> entities) {
         return entities.stream().map(this::toDomain).toList();
     }

@@ -26,13 +26,11 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
     private final PeriodoJpaRepository periodoJpaRepository;
     private final RecreoMapper mapper;
     private static final Logger log = LoggerFactory.getLogger(AdaptadorRepositorioRecreos.class);
-    
     public AdaptadorRepositorioRecreos(RecreoJpaRepository jpaRepository, PeriodoJpaRepository periodoJpaRepository, RecreoMapper mapper){
         this.jpaRepository=jpaRepository;
         this.periodoJpaRepository=periodoJpaRepository;
         this.mapper=mapper;
     }
-    
     @Override @Transactional
     public void agregar(Recreo recreo){
         if(recreo==null) throw new IllegalArgumentException("El recreo no puede ser nulo");
@@ -40,7 +38,6 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
         entity.setPeriodos(resolverPeriodos(recreo));
         jpaRepository.saveAndFlush(entity);
     }
-    
     @Override
     public Optional<Recreo> buscarPorDescripcion(String descripcion){
         List<RecreoEntity> candidatos = jpaRepository.findByDescripcion(descripcion);
@@ -51,12 +48,10 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
         }
         return Optional.of(mapper.toDomain(candidatos.get(0)));
     }
-    
     @Override
     public List<Recreo> listarTodos(){
         return mapper.toDomainList(jpaRepository.findAll());
     }
-    
     @Override @Transactional
     public void actualizar(Recreo original, Recreo actualizada){
         RecreoEntity entity = buscarUnicoPorCombinacion(
@@ -70,7 +65,6 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
         entity.setPeriodos(resolverPeriodos(actualizada));
         jpaRepository.saveAndFlush(entity);
     }
-
     private Optional<RecreoEntity> buscarUnicoPorCombinacion(String descripcion, String diaSemana, String horaInicio, String horaFin) {
         List<RecreoEntity> candidatos = jpaRepository.findByDescripcionAndDiaSemanaAndHoraInicioAndHoraFin(
                 descripcion, diaSemana, horaInicio, horaFin);
@@ -81,7 +75,6 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
         }
         return Optional.of(candidatos.get(0));
     }
-    
     @Override @Transactional
     public void eliminar(Recreo recreo){
         buscarUnicoPorCombinacion(
@@ -89,7 +82,6 @@ public class AdaptadorRepositorioRecreos implements RepositorioRecreos{
                 recreo.getHoraInicio(), recreo.getHoraFin())
                 .ifPresent(jpaRepository::delete);
     }
-    
     private List<PeriodoAcademicoEntity> resolverPeriodos(Recreo recreo){
         return recreo.getPeriodos().stream()
                 .map(p -> periodoJpaRepository.findByNombre(p.getNombre())

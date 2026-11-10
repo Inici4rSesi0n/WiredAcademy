@@ -15,9 +15,7 @@ import java.util.List;
 @Mapper(componentModel="spring")
 public interface PeriodoAcademicoMapper{
     PeriodoAcademico toDomain(PeriodoAcademicoEntity entity);
-    
     @Mapping(target="id", ignore=true)
     PeriodoAcademicoEntity toEntity(PeriodoAcademico domain);
-    
     List<PeriodoAcademico> toDomainList(List<PeriodoAcademicoEntity> entities);
 }

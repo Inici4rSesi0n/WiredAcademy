@@ -18,7 +18,6 @@ import java.util.List;
 public interface ClaseMapper{
     @Mapping(target="franja", expression="java(new dominio.modelo.FranjaHoraria(entity.getDiaSemana(), entity.getHoraInicio(), entity.getHoraFin()))")
     Clase toDomain(ClaseEntity entity);
-    
     @Mapping(target="id", ignore=true)
     @Mapping(target="periodo", ignore=true)
     @Mapping(target="asignatura", ignore=true)
@@ -29,6 +28,5 @@ public interface ClaseMapper{
     @Mapping(target="horaInicio", source="franja.horaInicio")
     @Mapping(target="horaFin", source="franja.horaFin")
     ClaseEntity toEntity(Clase domain);
-    
     List<Clase> toDomainList(List<ClaseEntity> entities);
 }

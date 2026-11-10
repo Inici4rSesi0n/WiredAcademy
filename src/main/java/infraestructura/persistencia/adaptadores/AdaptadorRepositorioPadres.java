@@ -23,13 +23,11 @@ public class AdaptadorRepositorioPadres implements RepositorioPadres{
     private final PadreJpaRepository jpaRepository;
     private final EstudianteJpaRepository estudianteJpa;
     private final PadreMapper mapper;
-    
     public AdaptadorRepositorioPadres(PadreJpaRepository jpaRepository, EstudianteJpaRepository estudianteJpa, PadreMapper mapper){
         this.jpaRepository=jpaRepository;
         this.estudianteJpa=estudianteJpa;
         this.mapper=mapper;
     }
-    
     @Override @Transactional
     public void agregar(Padre padre){
         if(padre==null) throw new IllegalArgumentException("El padre no puede ser nulo");
@@ -61,7 +59,6 @@ public class AdaptadorRepositorioPadres implements RepositorioPadres{
     public void eliminar(Padre padre){
         jpaRepository.findByCodigo(padre.getCodigo()).ifPresent(jpaRepository::delete);
     }
-    
     private List<EstudianteEntity> resolverEstudiantes(Padre padre){
         if(padre.getEstudiantes() == null || padre.getEstudiantes().isEmpty()) return new java.util.ArrayList<>();
         return padre.getEstudiantes().stream()

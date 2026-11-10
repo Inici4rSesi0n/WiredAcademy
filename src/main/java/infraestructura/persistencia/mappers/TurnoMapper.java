@@ -16,9 +16,7 @@ import java.util.List;
 @Mapper(componentModel="spring", unmappedTargetPolicy=ReportingPolicy.IGNORE)
 public interface TurnoMapper{
     Turno toDomain(TurnoEntity entity);
-    
     @Mapping(target="id", ignore=true)
     TurnoEntity toEntity(Turno domain);
-    
     List<Turno> toDomainList(List<TurnoEntity> entities);
 }

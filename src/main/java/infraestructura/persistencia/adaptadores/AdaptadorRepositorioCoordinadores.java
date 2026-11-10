@@ -23,13 +23,11 @@ public class AdaptadorRepositorioCoordinadores implements RepositorioCoordinador
     private final CoordinadorJpaRepository jpaRepository;
     private final GradoJpaRepository gradoJpa;
     private final CoordinadorMapper mapper;
-    
     public AdaptadorRepositorioCoordinadores(CoordinadorJpaRepository jpaRepository, GradoJpaRepository gradoJpa, CoordinadorMapper mapper){
         this.jpaRepository=jpaRepository;
         this.gradoJpa=gradoJpa;
         this.mapper=mapper;
     }
-    
     @Override @Transactional
     public void agregar(CoordinadorAcademico coordinador){
         if(coordinador==null) throw new IllegalArgumentException("El coordinador no puede ser nulo");
@@ -61,7 +59,6 @@ public class AdaptadorRepositorioCoordinadores implements RepositorioCoordinador
     public void eliminar(CoordinadorAcademico coordinador){
         jpaRepository.findByCodigo(coordinador.getCodigo()).ifPresent(jpaRepository::delete);
     }
-    
     private List<GradoEntity> resolverGrados(CoordinadorAcademico coord){
         if(coord.getGradosSupervisados() == null || coord.getGradosSupervisados().isEmpty()) return new java.util.ArrayList<>();
         return coord.getGradosSupervisados().stream()

@@ -15,9 +15,7 @@ import java.util.List;
 @Mapper(componentModel="spring")
 public interface DirectorMapper{
     Director toDomain(DirectorEntity entity);
-    
     @Mapping(target="id", ignore=true)
     DirectorEntity toEntity(Director domain);
-    
     List<Director> toDomainList(List<DirectorEntity> entities);
 }

@@ -16,9 +16,7 @@ import java.util.List;
 @Mapper(componentModel="spring", unmappedTargetPolicy=ReportingPolicy.IGNORE)
 public interface GradoMapper{
     Grado toDomain(GradoEntity entity);
-    
     @Mapping(target="id", ignore=true)
     GradoEntity toEntity(Grado domain);
-    
     List<Grado> toDomainList(List<GradoEntity> entities);
 }

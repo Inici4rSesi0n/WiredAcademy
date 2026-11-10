@@ -24,7 +24,6 @@ public class AdaptadorRepositorioGrupos implements RepositorioGrupos{
     private final GradoJpaRepository gradoJpa;
     private final DocenteJpaRepository docenteJpa;
     private final GrupoMapper mapper;
-    
     public AdaptadorRepositorioGrupos(GrupoJpaRepository jpaRepository, GradoJpaRepository gradoJpa,
                                        DocenteJpaRepository docenteJpa, GrupoMapper mapper){
         this.jpaRepository=jpaRepository;
@@ -32,7 +31,6 @@ public class AdaptadorRepositorioGrupos implements RepositorioGrupos{
         this.docenteJpa=docenteJpa;
         this.mapper=mapper;
     }
-    
     @Override @Transactional
     public void agregar(Grupo grupo){
         if(grupo==null) throw new IllegalArgumentException("El grupo no puede ser nulo");
@@ -45,7 +43,6 @@ public class AdaptadorRepositorioGrupos implements RepositorioGrupos{
         }
         jpaRepository.saveAndFlush(entity);
     }
-    
     @Override
     public Optional<Grupo> buscarPorNombre(String nombre){
         return jpaRepository.findByNombre(nombre).map(mapper::toDomain);
@@ -58,7 +55,6 @@ public class AdaptadorRepositorioGrupos implements RepositorioGrupos{
     public List<Grupo> listarTodos(){
         return mapper.toDomainList(jpaRepository.findAll());
     }
-    
     @Override @Transactional
     public void actualizar(Grupo original, Grupo actualizado){
         GrupoEntity entity=jpaRepository.findByNombre(original.getNombre())
@@ -74,7 +70,6 @@ public class AdaptadorRepositorioGrupos implements RepositorioGrupos{
         }
         jpaRepository.saveAndFlush(entity);
     }
-    
     @Override @Transactional
     public void eliminar(Grupo grupo){
         jpaRepository.findByNombre(grupo.getNombre()).ifPresent(jpaRepository::delete);

@@ -25,7 +25,6 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
     private final GrupoJpaRepository grupoJpa;
     private final AsignaturaJpaRepository asignaturaJpa;
     private final MatriculaMapper mapper;
-    
     public AdaptadorRepositorioMatriculas(MatriculaJpaRepository jpaRepository, EstudianteJpaRepository estudianteJpa,
             PeriodoJpaRepository periodoJpa, GrupoJpaRepository grupoJpa, AsignaturaJpaRepository asignaturaJpa,
             MatriculaMapper mapper){
@@ -36,7 +35,6 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
         this.asignaturaJpa=asignaturaJpa;
         this.mapper=mapper;
     }
-    
     @Override @Transactional
     public void agregar(Matricula matricula){
         if(matricula==null) throw new IllegalArgumentException("La matrícula no puede ser nula");
@@ -44,7 +42,6 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
         resolverRelaciones(entity, matricula);
         jpaRepository.saveAndFlush(entity);
     }
-    
     @Override
     public Optional<Matricula> buscarPorEstudianteYPeriodo(String codigoEstudiante, String nombrePeriodo){
         return jpaRepository.findByEstudianteCodigoAndPeriodoNombre(codigoEstudiante, nombrePeriodo).map(mapper::toDomain);
@@ -57,7 +54,6 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
     public List<Matricula> listarTodos(){
         return mapper.toDomainList(jpaRepository.findAll());
     }
-    
     @Override @Transactional
     public void actualizar(Matricula original, Matricula actualizada){
         MatriculaEntity entity=jpaRepository.findByEstudianteCodigoAndPeriodoNombre(
@@ -67,14 +63,12 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
         entity.setEstado(actualizada.getEstado().name());
         jpaRepository.saveAndFlush(entity);
     }
-    
     @Override @Transactional
     public void eliminar(Matricula matricula){
         jpaRepository.findByEstudianteCodigoAndPeriodoNombre(
                 matricula.getEstudiante().getCodigo(), matricula.getPeriodo().getNombre())
                 .ifPresent(jpaRepository::delete);
     }
-    
     private void resolverRelaciones(MatriculaEntity entity, Matricula domain){
         entity.setEstudiante(estudianteJpa.findByCodigo(domain.getEstudiante().getCodigo())
                 .orElseThrow(()->new IllegalArgumentException("Estudiante no existe")));

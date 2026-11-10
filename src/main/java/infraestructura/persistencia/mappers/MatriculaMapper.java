@@ -18,7 +18,6 @@ public interface MatriculaMapper{
     @Mapping(target="estado", expression="java(dominio.modelo.EstadoMatricula.valueOf(entity.getEstado()))")
     @Mapping(target="grupo.estudiantes", ignore=true)
     Matricula toDomain(MatriculaEntity entity);
-    
     @Mapping(target="id", ignore=true)
     @Mapping(target="estudiante", ignore=true)
     @Mapping(target="periodo", ignore=true)
@@ -26,6 +25,5 @@ public interface MatriculaMapper{
     @Mapping(target="asignaturas", ignore=true)
     @Mapping(target="estado", expression="java(domain.getEstado().name())")
     MatriculaEntity toEntity(Matricula domain);
-    
     List<Matricula> toDomainList(List<MatriculaEntity> entities);
 }
