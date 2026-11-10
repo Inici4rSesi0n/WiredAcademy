@@ -28,6 +28,12 @@ public class WiredAcademyApp extends Application {
     }
     @Override
     public void start(Stage stage) throws Exception {
+        if ("true".equalsIgnoreCase(System.getenv("WIRED_SEED"))) {
+            contextoSpring.getBean(boot.DataSeeder.class).run();
+            contextoSpring.close();
+            System.exit(0);
+        }
+
         contextoSpring.getBean(BootstrapRunner.class).inicializar(stage);
         SpringFxmlLoader fxmlLoader = contextoSpring.getBean(SpringFxmlLoader.class);
         Parent root = fxmlLoader.cargar("/fxml/main.fxml");
