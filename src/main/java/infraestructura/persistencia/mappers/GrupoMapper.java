@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2026 inici4rsesi0n
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 package infraestructura.persistencia.mappers;
 import dominio.modelo.Grupo;
 import infraestructura.persistencia.entidades.GrupoEntity;

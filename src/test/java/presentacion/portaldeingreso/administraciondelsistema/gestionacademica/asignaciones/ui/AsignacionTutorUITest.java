@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2026 inici4rsesi0n
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 package presentacion.portaldeingreso.administraciondelsistema.gestionacademica.asignaciones.ui;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrados;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;

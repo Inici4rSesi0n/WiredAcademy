@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2026 inici4rsesi0n
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.horarios;
 import infraestructura.eventos.EventBus;
 import dominio.puerto.externo.EventBusListener;

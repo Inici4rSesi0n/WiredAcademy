@@ -1,3 +1,7 @@
+/*
+ * SPDX-FileCopyrightText: 2026 inici4rsesi0n
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
 package aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios;
 import aplicacion.dto.CrearUsuarioCommand;
 import aplicacion.servicio.BuscadorUsuario;
