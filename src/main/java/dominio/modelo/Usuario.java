@@ -27,7 +27,6 @@ public abstract class Usuario implements Serializable {
     private String apellido;
     private int edad;
     private Rol rol;
-
     protected Usuario() {}
     public Usuario(String codigo, String hashContrasena, String dni,
                    String nombre, String apellido, int edad, Rol rol) {

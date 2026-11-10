@@ -6,7 +6,6 @@ package dominio.modelo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 /**
  *
  * @author inici4rsesi0n
@@ -14,7 +13,6 @@ import java.util.List;
 public class Padre extends Usuario {
     private static final long serialVersionUID = 1L;
     private List<Estudiante> estudiantes;
-    
     protected Padre() {
         super();
         this.estudiantes = new ArrayList<>();

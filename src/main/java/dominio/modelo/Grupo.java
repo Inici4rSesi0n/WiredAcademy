@@ -18,7 +18,6 @@ public class Grupo implements Serializable {
     private Grado grado;
     private Docente tutor;
     private List<Estudiante> estudiantes;
-
     protected Grupo() {}
     public Grupo(String nombre, Grado grado) {
         if (nombre == null || nombre.isBlank()) {
@@ -37,7 +36,6 @@ public class Grupo implements Serializable {
     public Grado getGrado() { return grado; }
     public void setGrado(Grado grado) { this.grado = grado; }
     public Docente getTutor() { return tutor; }
-
     public void asignarTutor(Docente tutor) {
         if (this.tutor != null) {
             this.tutor.setTutoria(null);
@@ -50,7 +48,6 @@ public class Grupo implements Serializable {
     public List<Estudiante> getEstudiantes() {
         return Collections.unmodifiableList(estudiantes);
     }
-
     public void agregarEstudiante(Estudiante estudiante) {
         if (estudiante == null) throw new IllegalArgumentException("El estudiante no puede ser nulo");
         if (!estudiantes.contains(estudiante)) {

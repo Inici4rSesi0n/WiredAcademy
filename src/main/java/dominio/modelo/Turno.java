@@ -11,7 +11,6 @@ import java.io.Serializable;
 public class Turno implements Serializable {
     private static final long serialVersionUID = 1L;
     private String nombre;
-
     protected Turno() {}
     public Turno(String nombre) {
         if (nombre == null || nombre.isBlank()) {
@@ -21,7 +20,6 @@ public class Turno implements Serializable {
     }
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -33,7 +31,6 @@ public class Turno implements Serializable {
     public int hashCode() {
         return nombre != null ? nombre.toLowerCase().hashCode() : 0;
     }
-
     @Override
     public String toString() {
         return "Turno [nombre=" + nombre + "]";

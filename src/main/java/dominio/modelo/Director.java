@@ -9,7 +9,6 @@ package dominio.modelo;
  */
 public class Director extends Usuario {
     private static final long serialVersionUID = 1L;
-
     protected Director() {
         super();
     }
@@ -17,7 +16,6 @@ public class Director extends Usuario {
                     String nombre, String apellido, int edad) {
         super(codigo, hashContrasena, dni, nombre, apellido, edad, Rol.DIRECTOR);
     }
-
     @Override
     public String toString() {
         return "Director [" + super.toString() + "]";

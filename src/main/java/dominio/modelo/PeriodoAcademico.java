@@ -14,7 +14,6 @@ public class PeriodoAcademico implements Serializable {
     private String fechaInicio;
     private String fechaFin;
     private String estado;
-    
     protected PeriodoAcademico() {}
     public PeriodoAcademico(String nombre, String fechaInicio, String fechaFin, String estado) {
         if (nombre == null || nombre.isBlank()) {

@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package dominio.modelo;
-
 /**
  * Tipos de eventos de dominio que disparan actualizaciones de UI.
  *

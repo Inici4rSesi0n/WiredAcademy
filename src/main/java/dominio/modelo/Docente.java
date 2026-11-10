@@ -57,7 +57,6 @@ public class Docente extends Usuario {
         asignaturas.remove(asignatura);
     }
     public Grupo getTutoria() { return tutoria; }
-
     public void setTutoria(Grupo tutoria) {
         this.tutoria = tutoria;
     }

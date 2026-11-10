@@ -9,7 +9,6 @@ package dominio.modelo;
  */
 public class Administrador extends Usuario {
     private static final long serialVersionUID = 1L;
-
     protected Administrador() {
         super();
     }
