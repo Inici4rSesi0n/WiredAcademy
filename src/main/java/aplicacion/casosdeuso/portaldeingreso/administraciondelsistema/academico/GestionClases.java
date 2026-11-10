@@ -3,43 +3,35 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico;
-
 import dominio.modelo.*;
 import dominio.puerto.externo.LoggerPort;
 import dominio.puerto.externo.EventPublisher;
 import dominio.modelo.TipoEvento;
 import dominio.puerto.repositorio.RepositorioClases;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
-
 /**
  *
  * @author inici4rsesi0n
  */
 @Service
 public class GestionClases {
-
     private final RepositorioClases repo;
     private final LoggerPort logger;
     private final EventPublisher publisher;
-
     public GestionClases(RepositorioClases repo, LoggerPort logger, EventPublisher publisher) {
         this.repo = repo;
         this.logger = logger;
         this.publisher = publisher;
     }
-
     public void crearClase(String diaSemana, String horaInicio, String horaFin,
                            Asignatura asignatura, Docente docente, Grupo grupo,
                            Aula aula, PeriodoAcademico periodo) {
         validarCamposObligatorios(diaSemana, horaInicio, horaFin, asignatura, docente, grupo, aula, periodo);
         validarConflictos(diaSemana, horaInicio, horaFin, docente, grupo, aula, null);
-
         FranjaHoraria franja = new FranjaHoraria(diaSemana, horaInicio, horaFin);
         Clase nueva = new Clase(franja, periodo, asignatura, docente, grupo, aula);
         repo.agregar(nueva);
-
         logger.audit(String.format(
                 "op=CREATE entity=CLASE id=%s-%s | asignatura=%s docente=%s grupo=%s aula=%s periodo=%s",
                 diaSemana, horaInicio, asignatura.getNombre(),
@@ -47,36 +39,29 @@ public class GestionClases {
                 aula.getNombre(), periodo.getNombre()));
         publisher.notificar(TipoEvento.CLASES);
     }
-
     public List<Clase> listarClases() {
         return repo.listarTodos();
     }
-
     public List<Clase> buscarPorGrupoYGrado(String nombreGrupo, String nombreGrado) {
         return repo.buscarPorGrupoYGrado(nombreGrupo, nombreGrado);
     }
-
     public Clase buscarClase(String nombreGrado, String nombreGrupo, String dia, String horaInicio, String horaFin) {
         return repo.buscarClase(nombreGrado, nombreGrupo, dia, horaInicio, horaFin).orElse(null);
     }
-
     public void actualizarClase(Clase original, String diaSemana, String horaInicio, String horaFin,
                                 Asignatura asignatura, Docente docente, Grupo grupo,
                                 Aula aula, PeriodoAcademico periodo) {
         validarCamposObligatorios(diaSemana, horaInicio, horaFin, asignatura, docente, grupo, aula, periodo);
         validarConflictos(diaSemana, horaInicio, horaFin, docente, grupo, aula, original);
-
         String antes = original.toString();
         FranjaHoraria franja = new FranjaHoraria(diaSemana, horaInicio, horaFin);
         Clase actualizada = new Clase(franja, periodo, asignatura, docente, grupo, aula);
         repo.actualizar(original, actualizada);
-
         logger.audit(String.format(
                 "op=UPDATE entity=CLASE id=%s-%s | before=%s after=%s",
                 diaSemana, horaInicio, antes, actualizada));
         publisher.notificar(TipoEvento.CLASES);
     }
-
     public void eliminarClase(Clase clase) {
         if (clase == null) throw new IllegalArgumentException("La clase no puede ser nula");
         String snapshot = clase.toString();
@@ -86,9 +71,7 @@ public class GestionClases {
                 clase.getDiaSemana(), clase.getHoraInicio(), snapshot));
         publisher.notificar(TipoEvento.CLASES);
     }
-
     // ============= Validaciones privadas =============
-
     private void validarCamposObligatorios(String diaSemana, String horaInicio, String horaFin,
                                            Asignatura asignatura, Docente docente, Grupo grupo,
                                            Aula aula, PeriodoAcademico periodo) {
@@ -101,7 +84,6 @@ public class GestionClases {
             throw new IllegalArgumentException("Todos los campos son obligatorios.");
         }
     }
-
     private void validarConflictos(String diaSemana, String horaInicio, String horaFin,
                                    Docente docente, Grupo grupo, Aula aula,
                                    Clase claseExcluida) {

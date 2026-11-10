@@ -11,7 +11,6 @@ import dominio.puerto.repositorio.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-
 /**
  *
  * @author inici4rsesi0n
@@ -25,7 +24,6 @@ public class BootstrapUseCase {
     private final RepositorioGrados repoGrados;
     private final RepositorioPeriodos repoPeriodos;
     private final RepositorioRecreos repoRecreos;
-
     public BootstrapUseCase(HashProvider hashProvider, LoggerPort logger,
                             RepositorioAdministradores repoAdmin, RepositorioTurnos repoTurnos,
                             RepositorioGrados repoGrados, RepositorioPeriodos repoPeriodos,
@@ -38,21 +36,16 @@ public class BootstrapUseCase {
         this.repoPeriodos = repoPeriodos;
         this.repoRecreos = repoRecreos;
     }
-
     @Transactional
     public void inicializarSistema(ProveedorDatosIniciales proveedor) {
         if (proveedor == null) throw new IllegalArgumentException("El proveedor no puede ser nulo");
-        
         String hash = hashProvider.generarHash(proveedor.getContrasena());
         Administrador admin = new Administrador(proveedor.getCodigo(), hash, proveedor.getDni(),
                 proveedor.getNombre(), proveedor.getApellido(), 30);
-        
         repoAdmin.agregar(admin);
         logger.audit("op=CREATE entity=ADMINISTRADOR id=" + admin.getCodigo() + " | Initial setup");
-        
         inicializarCatalogos();
     }
-
     @Transactional
     public void inicializarCatalogos() {
         if (repoTurnos.listarTodos().isEmpty()) {
@@ -60,7 +53,6 @@ public class BootstrapUseCase {
             repoTurnos.agregar(new Turno("Tarde"));
             logger.info("Catálogo de Turnos inicializado.");
         }
-
         if (repoGrados.listarTodos().isEmpty()) {
             String[] nombres = {"1er Grado", "2do Grado", "3er Grado", "4to Grado", "5to Grado", "6to Grado"};
             for (String nombre : nombres) {
@@ -68,12 +60,10 @@ public class BootstrapUseCase {
             }
             logger.info("Catálogo de Grados inicializado.");
         }
-
         if (repoPeriodos.listarTodos().isEmpty()) {
             repoPeriodos.agregar(new PeriodoAcademico("2026-I", "2026-01-01", "2026-12-31", "Activo"));
             logger.info("Catálogo de Periodos inicializado.");
         }
-
         if (repoRecreos.listarTodos().isEmpty()) {
             PeriodoAcademico periodo = repoPeriodos.buscarPorNombre("2026-I").orElse(null);
             if (periodo != null) {

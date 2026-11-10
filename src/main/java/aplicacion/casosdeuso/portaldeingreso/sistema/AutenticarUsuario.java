@@ -14,11 +14,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AutenticarUsuario {
-
     private final BuscadorUsuario buscadorUsuario;
     private final HashProvider hashProvider;
     private final LoggerPort logger;
-
     public AutenticarUsuario(BuscadorUsuario buscadorUsuario,
                              HashProvider hashProvider,
                              LoggerPort logger) {
@@ -26,7 +24,6 @@ public class AutenticarUsuario {
         this.hashProvider = hashProvider;
         this.logger = logger;
     }
-
     public Usuario ejecutar(String codigo, char[] contraseña) {
         if (codigo == null || codigo.isBlank()) {
             logger.warn("Intento de autenticación con código vacío.");
@@ -36,16 +33,13 @@ public class AutenticarUsuario {
             logger.warn("Intento de autenticación con contraseña nula para código: {}", codigo);
             throw new IllegalArgumentException("La contraseña no puede ser nula.");
         }
-
         Usuario usuario = buscadorUsuario.buscarPorCodigo(codigo);
-
         if (usuario != null && hashProvider.verificarHash(usuario.getHashContrasena(), contraseña)) {
             logger.setUsuario(usuario.getCodigo());
             logger.audit("op=LOGIN entity=USER id=" + usuario.getCodigo() + " | role=" + usuario.getRol());
             return usuario;
         }
-
-        logger.setUsuario(null); 
+        logger.setUsuario(null);
         if (usuario != null) {
             logger.warn("Contraseña incorrecta para usuario: {}", codigo);
         } else {
