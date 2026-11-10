@@ -39,7 +39,8 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
     @FXML private TableView<Usuario> tablaUsuarios;
     @FXML private TableColumn<Usuario, String> colCodigo, colNombre, colApellido, colDni, colRol;
     @FXML private TableColumn<Usuario, Void> colAcciones;
-    @FXML private VBox panelFormulario;
+    @FXML private ScrollPane scrollPaneFormulario;
+     private VBox panelFormulario;
     @FXML private ComboBox<String> cmbRol;
     @FXML private TextField txtCodigo, txtNombre, txtApellido, txtDni, txtEdad, txtContrasena;
     @FXML private Button btnNuevoUsuario, btnGuardar, btnCancelar;
@@ -114,13 +115,13 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
         limpiarFormulario();
         txtCodigo.setText(generarCodigoUnico());
         txtCodigo.setEditable(true);
-        panelFormulario.setManaged(true);
-        panelFormulario.setVisible(true);
+        scrollPaneFormulario.setManaged(true);
+        scrollPaneFormulario.setVisible(true);
     }
     @FXML private void handleCancelar() {
         limpiarFormulario();
-        panelFormulario.setManaged(false);
-        panelFormulario.setVisible(false);
+        scrollPaneFormulario.setManaged(false);
+        scrollPaneFormulario.setVisible(false);
     }
     @FXML private void handleGuardar() {
         String rolSeleccionado = cmbRol.getValue();
@@ -167,8 +168,8 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
                 gestionUsuarios.actualizarUsuario(usuarioEditando);
             }
             limpiarFormulario();
-            panelFormulario.setManaged(false);
-            panelFormulario.setVisible(false);
+            scrollPaneFormulario.setManaged(false);
+            scrollPaneFormulario.setVisible(false);
         } catch (Exception e) {
             logger.error("Error al guardar usuario: " + e.getMessage());
             Dialogos.info(e.getMessage());
@@ -176,8 +177,8 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
     }
     private void cargarUsuarioEnFormulario(Usuario usuario) {
         usuarioEditando = usuario;
-        panelFormulario.setManaged(true);
-        panelFormulario.setVisible(true);
+        scrollPaneFormulario.setManaged(true);
+        scrollPaneFormulario.setVisible(true);
         cmbRol.setValue(usuario.getRol().name());
         txtCodigo.setText(usuario.getCodigo());
         txtCodigo.setEditable(false);

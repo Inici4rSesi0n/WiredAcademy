@@ -49,7 +49,8 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
     @FXML private TableColumn<Matricula, String> colEstudiante, colPeriodo, colGrupo, colFecha;
     @FXML private TableColumn<Matricula, EstadoMatricula> colEstado;
     @FXML private TableColumn<Matricula, Void> colAccionesMatricula;
-    @FXML private VBox panelFormularioMatricula;
+    @FXML private ScrollPane scrollPaneFormulario;
+     private VBox panelFormularioMatricula;
     @FXML private ComboBox<String> cmbEstudianteMatricula, cmbPeriodoMatricula, cmbGrupoMatricula;
     // Cambiado a String para igualar a los otros ComboBox
     @FXML private ComboBox<String> cmbEstadoMatricula;
@@ -89,7 +90,7 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         eventBus.suscribir(TipoEvento.PERIODOS, this);
     }
     private void recargarDesdeEvento() {
-        if (panelFormularioMatricula.isVisible()) {
+        if (scrollPaneFormulario.isVisible()) {
             recargarCombos();
         }
         cargarMatriculas();
@@ -176,8 +177,8 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         matriculaEditando = null;
         recargarCombos();
         limpiarFormulario();
-        panelFormularioMatricula.setVisible(true);
-        panelFormularioMatricula.setManaged(true);
+        scrollPaneFormulario.setVisible(true);
+        scrollPaneFormulario.setManaged(true);
     }
     @FXML private void handleGuardarMatricula() {
         String estudianteSeleccionado = cmbEstudianteMatricula.getValue();
@@ -232,8 +233,8 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         cmbGrupoMatricula.setValue(formatearGrupo(matricula.getGrupo()));
         txtFechaMatricula.setText(matricula.getFecha());
         cmbEstadoMatricula.setValue(matricula.getEstado().name()); // Setea el String del Enum
-        panelFormularioMatricula.setVisible(true);
-        panelFormularioMatricula.setManaged(true);
+        scrollPaneFormulario.setVisible(true);
+        scrollPaneFormulario.setManaged(true);
     }
     private void eliminarMatricula(Matricula matricula) {
         if (Dialogos.confirmar("Confirmar eliminación", "¿Está seguro de eliminar la matricula de " + matricula.getEstudiante().getCodigo() + "?")) {
@@ -252,7 +253,7 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         cmbGrupoMatricula.getSelectionModel().selectFirst();
         cmbEstadoMatricula.getSelectionModel().selectFirst();
         txtFechaMatricula.clear();
-        panelFormularioMatricula.setVisible(false);
-        panelFormularioMatricula.setManaged(false);
+        scrollPaneFormulario.setVisible(false);
+        scrollPaneFormulario.setManaged(false);
     }
 }

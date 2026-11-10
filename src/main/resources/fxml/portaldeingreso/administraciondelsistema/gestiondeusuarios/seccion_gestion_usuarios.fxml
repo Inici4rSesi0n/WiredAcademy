@@ -35,8 +35,8 @@
     </center>
     
     <right>
-        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
-            <VBox fx:id="panelFormulario" styleClass="formulario-panel" visible="false" managed="false" spacing="15.0" prefWidth="400.0">
+        <ScrollPane fx:id="scrollPaneFormulario" visible="false" managed="false" fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox fx:id="panelFormulario" styleClass="formulario-panel" spacing="15.0" prefWidth="400.0">
                 <padding><Insets top="30.0" right="30.0" bottom="30.0" left="30.0" /></padding>
                 
                 <Label styleClass="formulario-title" text="Datos del Usuario" style="-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #F8FAFC;"/>
