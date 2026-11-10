@@ -13,7 +13,6 @@ import javafx.util.Duration;
  * @author inici4rsesi0n
  */
 public class AnimacionesMain {
-
     public static Timeline crearTimelinePulso(Label label) {
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.ZERO,

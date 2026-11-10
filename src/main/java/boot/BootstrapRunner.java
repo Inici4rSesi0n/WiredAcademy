@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package boot;
-
 import aplicacion.casosdeuso.portaldeingreso.sistema.BootstrapUseCase;
 import dominio.puerto.repositorio.RepositorioAdministradores;
 import infraestructura.configuracion.SpringFxmlLoader;
@@ -14,31 +13,26 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import presentacion.controlador.BootstrapController;
 import org.springframework.stereotype.Component;
-
 /**
  *
  * @author inici4rsesi0n
  */
 @Component
 public class BootstrapRunner {
-
     private final BootstrapUseCase bootstrapUseCase;
     private final SpringFxmlLoader fxmlLoader;
     private final RepositorioAdministradores repoAdmin;
-
     public BootstrapRunner(BootstrapUseCase bootstrapUseCase, SpringFxmlLoader fxmlLoader, RepositorioAdministradores repoAdmin) {
         this.bootstrapUseCase = bootstrapUseCase;
         this.fxmlLoader = fxmlLoader;
         this.repoAdmin = repoAdmin;
     }
-
     public void inicializar(Stage stage) {
         if (repoAdmin.listarTodos().isEmpty()) {
             try {
                 FXMLLoader loader = fxmlLoader.crearLoader("/fxml/configuracion_inicial.fxml");
                 Parent root = loader.load();
                 BootstrapController controller = loader.getController();
-
                 Stage configStage = new Stage();
                 configStage.setTitle("Configuración Inicial del Sistema");
                 Scene scene = new Scene(root);
@@ -47,7 +41,6 @@ public class BootstrapRunner {
                 configStage.initModality(Modality.APPLICATION_MODAL);
                 configStage.initOwner(stage);
                 configStage.showAndWait();
-
                 if (controller.isConfirmado()) {
                     bootstrapUseCase.inicializarSistema(controller);
                 } else {
