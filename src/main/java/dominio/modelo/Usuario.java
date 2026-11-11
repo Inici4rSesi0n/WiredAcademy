@@ -12,13 +12,16 @@ import java.util.Objects;
 public abstract class Usuario implements Serializable {
     private static final long serialVersionUID = 1L;
     public enum Rol {
+        ADMINISTRADOR,
         DIRECTOR,
+        SUBDIRECTOR,
+        COORDINADOR,
+        SECRETARIO,
+        TESORERO,
+        PSICOLOGO,
         DOCENTE,
         ESTUDIANTE,
-        SECRETARIO,
-        COORDINADOR,
-        PADRE,
-        ADMINISTRADOR
+        PADRE
     }
     private String codigo;
     private String hashContrasena;
