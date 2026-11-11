@@ -44,6 +44,28 @@ public class GestionHorario {
                 .thenComparing(Evento::getHoraInicio));
         return eventos;
     }
+    public List<Evento> obtenerHorarioDocente(String codigoDocente, PeriodoAcademico periodo) {
+        if (codigoDocente == null) throw new IllegalArgumentException("El docente no puede ser nulo.");
+        if (periodo == null) throw new IllegalArgumentException("El periodo académico no puede ser nulo.");
+        List<Evento> eventos = new ArrayList<>();
+        eventos.addAll(repoClases.buscarPorDocente(codigoDocente, periodo.getNombre()));
+        eventos.addAll(obtenerRecreosDelPeriodo(periodo));
+        eventos.sort(Comparator
+                .comparingInt((Evento e) -> ORDEN_DIAS.getOrDefault(e.getDiaSemana(), DIA_DESCONOCIDO))
+                .thenComparing(Evento::getHoraInicio));
+        return eventos;
+    }
+    public List<Evento> obtenerHorarioAula(String nombreAula, PeriodoAcademico periodo) {
+        if (nombreAula == null) throw new IllegalArgumentException("El aula no puede ser nula.");
+        if (periodo == null) throw new IllegalArgumentException("El periodo académico no puede ser nulo.");
+        List<Evento> eventos = new ArrayList<>();
+        eventos.addAll(repoClases.buscarPorAula(nombreAula, periodo.getNombre()));
+        eventos.addAll(obtenerRecreosDelPeriodo(periodo));
+        eventos.sort(Comparator
+                .comparingInt((Evento e) -> ORDEN_DIAS.getOrDefault(e.getDiaSemana(), DIA_DESCONOCIDO))
+                .thenComparing(Evento::getHoraInicio));
+        return eventos;
+    }
     private List<Clase> obtenerClasesDelGrupo(Grupo grupo, PeriodoAcademico periodo) {
         return repoClases.listarTodos().stream()
                 .filter(c -> grupo.equals(c.getGrupo()))

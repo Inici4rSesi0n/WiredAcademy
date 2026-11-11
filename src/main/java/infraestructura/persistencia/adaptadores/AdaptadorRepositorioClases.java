@@ -48,6 +48,14 @@ public class AdaptadorRepositorioClases implements RepositorioClases{
         return mapper.toDomainList(jpaRepository.findByGrupoNombreAndGrupoGradoNombreOrderByDiaSemanaAscHoraInicioAsc(nombreGrupo, nombreGrado));
     }
     @Override
+    public List<Clase> buscarPorDocente(String codigoDocente, String nombrePeriodo){
+        return mapper.toDomainList(jpaRepository.findByDocenteCodigoAndPeriodoNombreOrderByDiaSemanaAscHoraInicioAsc(codigoDocente, nombrePeriodo));
+    }
+    @Override
+    public List<Clase> buscarPorAula(String nombreAula, String nombrePeriodo){
+        return mapper.toDomainList(jpaRepository.findByAulaNombreAndPeriodoNombreOrderByDiaSemanaAscHoraInicioAsc(nombreAula, nombrePeriodo));
+    }
+    @Override
     public Optional<Clase> buscarClase(String nombreGrado, String nombreGrupo, String dia, String horaInicio, String horaFin){
         return jpaRepository.findByGrupoGradoNombreAndGrupoNombreAndDiaSemanaAndHoraInicioAndHoraFin(nombreGrado, nombreGrupo, dia, horaInicio, horaFin).map(mapper::toDomain);
     }

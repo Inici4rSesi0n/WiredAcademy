@@ -16,14 +16,17 @@
             
             <VBox styleClass="tabla-wrapper" VBox.vgrow="ALWAYS">
                 <TableView fx:id="tablaMatriculas" styleClass="seccion-tabla" VBox.vgrow="ALWAYS">
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
                     <columns>
                         <TableColumn fx:id="colNumMatricula" text="N°" prefWidth="60.0" />
-                        <TableColumn fx:id="colEstudiante" text="Estudiante" prefWidth="180.0" />
+                        <TableColumn fx:id="colEstudiante" text="Estudiante" prefWidth="200.0" />
                         <TableColumn fx:id="colPeriodo" text="Periodo" prefWidth="120.0" />
-                        <TableColumn fx:id="colGrupo" text="Grupo" prefWidth="150.0" />
-                        <TableColumn fx:id="colFecha" text="Fecha" prefWidth="100.0" />
-                        <TableColumn fx:id="colEstado" text="Estado" prefWidth="100.0" />
-                        <TableColumn fx:id="colAccionesMatricula" text="Acciones" prefWidth="160.0" />
+                        <TableColumn fx:id="colGrupo" text="Grupo" prefWidth="180.0" />
+                        <TableColumn fx:id="colFecha" text="Fecha" prefWidth="120.0" />
+                        <TableColumn fx:id="colEstado" text="Estado" prefWidth="120.0" />
+                        <TableColumn fx:id="colAccionesMatricula" text="Acciones" prefWidth="180.0" />
                     </columns>
                 </TableView>
             </VBox>

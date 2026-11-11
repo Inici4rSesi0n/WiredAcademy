@@ -28,7 +28,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 /**
@@ -50,9 +49,7 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
     @FXML private TableColumn<Matricula, EstadoMatricula> colEstado;
     @FXML private TableColumn<Matricula, Void> colAccionesMatricula;
     @FXML private ScrollPane scrollPaneFormulario;
-     private VBox panelFormularioMatricula;
     @FXML private ComboBox<String> cmbEstudianteMatricula, cmbPeriodoMatricula, cmbGrupoMatricula;
-    // Cambiado a String para igualar a los otros ComboBox
     @FXML private ComboBox<String> cmbEstadoMatricula;
     @FXML private TextField txtFechaMatricula;
     @FXML private Button btnNuevaMatricula, btnGuardarMatricula, btnCancelarMatricula;
@@ -141,7 +138,7 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         cmbEstadoMatricula.getItems().add("Seleccione un estado");
         for (EstadoMatricula estado : EstadoMatricula.values()) {
             cmbEstadoMatricula.getItems().add(estado.name());
-                }
+        }
         cmbEstadoMatricula.getSelectionModel().selectFirst();
     }
     private void recargarCombos() {
@@ -197,7 +194,7 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
             Estudiante estudiante = gestionEstudiantes.buscarPorCodigo(codigoEstudiante);
             PeriodoAcademico periodo = gestionPeriodos.buscarPorNombre(periodoSeleccionado);
             Grupo grupo = parsearGrupo(grupoSeleccionado);
-            EstadoMatricula estado = EstadoMatricula.valueOf(estadoSeleccionado); // Parseo de String a Enum
+            EstadoMatricula estado = EstadoMatricula.valueOf(estadoSeleccionado);
             if (estudiante == null || periodo == null || grupo == null) {
                 Dialogos.info("Los datos seleccionados no son válidos."); return;
             }
@@ -232,7 +229,7 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         cmbPeriodoMatricula.setValue(matricula.getPeriodo().getNombre());
         cmbGrupoMatricula.setValue(formatearGrupo(matricula.getGrupo()));
         txtFechaMatricula.setText(matricula.getFecha());
-        cmbEstadoMatricula.setValue(matricula.getEstado().name()); // Setea el String del Enum
+        cmbEstadoMatricula.setValue(matricula.getEstado().name());
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }

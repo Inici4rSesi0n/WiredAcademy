@@ -32,6 +32,16 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.1</version>
+        </dependency>
         <!-- JavaFX -->
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -202,6 +212,7 @@
                         <module>javafx.controls</module>
                         <module>javafx.fxml</module>
                         <module>javafx.base</module>
+                        <module>javafx.swing</module>
                     </modules>
                 </configuration>
             </plugin>

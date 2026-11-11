@@ -18,14 +18,17 @@
 .visor-close-btn {
     -fx-background-color: rgba(239, 68, 68, 0.1);
     -fx-text-fill: #EF4444;
-    -fx-font-size: 16px;
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-background-radius: 50%;
     -fx-min-width: 30px;
     -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
     -fx-cursor: hand;
     -fx-border-color: rgba(239, 68, 68, 0.3);
     -fx-border-radius: 50%;
+    -fx-alignment: center;
 }
 
 .visor-close-btn:hover {
@@ -34,7 +37,6 @@
     -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.6), 10, 0.2, 0, 0);
 }
 
-/* Eliminar fondos blancos del ScrollPane del Visor */
 .visor-root .scroll-pane {
     -fx-background-color: transparent;
     -fx-background: transparent;
@@ -42,4 +44,102 @@
 }
 .visor-root .scroll-pane > .viewport {
     -fx-background-color: transparent;
+}
+
+/* ==========================================================================
+   Grid del Horario
+   ========================================================================== */
+.horario-header {
+    -fx-text-fill: #F8FAFC;
+    -fx-font-weight: bold;
+    -fx-padding: 12px;
+    -fx-background-color: rgba(30, 41, 59, 0.6);
+    -fx-background-radius: 6px;
+    -fx-alignment: center;
+    -fx-border-color: transparent transparent rgba(255, 255, 255, 0.1) transparent;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.horario-hora-label {
+    -fx-text-fill: #64748B;
+    -fx-font-size: 12px;
+    -fx-padding: 2px;
+}
+
+.tarjeta-clase {
+    -fx-padding: 8px;
+    -fx-background-color: rgba(22, 26, 41, 0.8);
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-width: 0 0 0 5px;
+    -fx-cursor: hand;
+    -fx-transition: opacity 0.2s ease-in-out;
+}
+
+.tarjeta-clase:hover {
+    -fx-background-color: rgba(30, 41, 59, 0.95);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 2);
+}
+
+.clase-titulo {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.clase-hora {
+    -fx-text-fill: #CBD5E1;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
+}
+
+.clase-detalle {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 11px;
+}
+
+.tarjeta-recreo {
+    -fx-background-color: rgba(71, 85, 105, 0.15);
+    -fx-background-radius: 6px;
+    -fx-border-color: rgba(71, 85, 105, 0.4);
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-alignment: center;
+}
+
+.recreo-texto {
+    -fx-text-fill: #64748B;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-letter-spacing: 3px;
+}
+
+/* Indicador de Hora Actual */
+.linea-ahora {
+    -fx-background-color: #EF4444;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.8), 8, 0.5, 0, 0);
+    -fx-max-height: 2px;
+}
+
+.linea-ahora-badge {
+    -fx-background-color: #EF4444;
+    -fx-text-fill: white;
+    -fx-font-size: 10px;
+    -fx-font-weight: bold;
+    -fx-padding: 2px 6px;
+    -fx-background-radius: 10px;
+}
+
+/* ==========================================================================
+   Leyenda
+   ========================================================================== */
+.leyenda-container {
+    -fx-background-color: rgba(22, 26, 41, 0.8);
+    -fx-padding: 15px;
+    -fx-border-color: rgba(0, 210, 255, 0.2) transparent transparent transparent;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.leyenda-item {
+    -fx-text-fill: #CBD5E1;
+    -fx-font-size: 13px;
 }

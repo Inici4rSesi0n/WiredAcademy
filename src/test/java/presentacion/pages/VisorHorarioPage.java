@@ -4,7 +4,7 @@
  */
 package presentacion.pages;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.TableView;
+import javafx.scene.layout.GridPane;
 import org.testfx.api.FxRobot;
 import org.testfx.util.WaitForAsyncUtils;
 /**
@@ -30,7 +30,24 @@ public class VisorHorarioPage {
         robot.clickOn("#btnGenerarHorario");
         return this;
     }
-    public TableView<?> getTablaHorario() {
-        return robot.lookup("#tablaHorario").queryTableView();
+    @SuppressWarnings("unchecked")
+    public VisorHorarioPage seleccionarAula(String aula) {
+        robot.clickOn("Por Aula");
+        ComboBox<String> cmb = robot.lookup("#cmbAulaVisor").queryComboBox();
+        WaitForAsyncUtils.waitForAsyncFx(1000, () -> cmb.getSelectionModel().select(aula));
+        return this;
+    }
+    @SuppressWarnings("unchecked")
+    public VisorHorarioPage seleccionarPeriodoAula(String periodo) {
+        ComboBox<String> cmb = robot.lookup("#cmbPeriodoAula").queryComboBox();
+        WaitForAsyncUtils.waitForAsyncFx(1000, () -> cmb.getSelectionModel().select(periodo));
+        return this;
+    }
+    public VisorHorarioPage clickGenerarHorarioAula() {
+        robot.clickOn("#btnGenerarHorarioAula");
+        return this;
+    }
+    public GridPane getGridHorario() {
+        return robot.lookup("#gridHorario").queryAs(GridPane.class);
     }
 }

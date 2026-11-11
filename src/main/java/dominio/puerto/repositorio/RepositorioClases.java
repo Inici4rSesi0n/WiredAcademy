@@ -12,6 +12,8 @@ import java.util.Optional;
  */
 public interface RepositorioClases extends Repositorio<Clase> {
     List<Clase> buscarPorGrupoYGrado(String nombreGrupo, String nombreGrado);
+    List<Clase> buscarPorDocente(String codigoDocente, String nombrePeriodo);
+    List<Clase> buscarPorAula(String nombreAula, String nombrePeriodo);
     Optional<Clase> buscarClase(String nombreGrado, String nombreGrupo, String dia,
                                 String horaInicio, String horaFin);
     /**

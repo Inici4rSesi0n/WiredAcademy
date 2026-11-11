@@ -17,6 +17,8 @@ import java.util.Optional;
 @Repository
 public interface ClaseJpaRepository extends JpaRepository<ClaseEntity, Long>{
     List<ClaseEntity> findByGrupoNombreAndGrupoGradoNombreOrderByDiaSemanaAscHoraInicioAsc(String nombreGrupo, String nombreGrado);
+    List<ClaseEntity> findByDocenteCodigoAndPeriodoNombreOrderByDiaSemanaAscHoraInicioAsc(String codigoDocente, String nombrePeriodo);
+    List<ClaseEntity> findByAulaNombreAndPeriodoNombreOrderByDiaSemanaAscHoraInicioAsc(String nombreAula, String nombrePeriodo);
     Optional<ClaseEntity> findByGrupoGradoNombreAndGrupoNombreAndDiaSemanaAndHoraInicioAndHoraFin(
             String nombreGrado, String nombreGrupo, String diaSemana, String horaInicio, String horaFin);
     @Query("SELECT COUNT(c) > 0 FROM ClaseEntity c WHERE c.docente.codigo = :codigoDocente " +
