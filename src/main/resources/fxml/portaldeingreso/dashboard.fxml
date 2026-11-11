@@ -16,7 +16,7 @@
     
     <left>
         <VBox styleClass="sidebar">
-            <VBox alignment="CENTER" spacing="2.0" styleClass="sidebar-branding">
+            <VBox alignment="CENTER" spacing="2.0" styleClass="sidebar-branding" fx:id="sidebarBranding" onMouseClicked="#handleIrInicio">
                 <Label text="WiredAcademy" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #F8FAFC; -fx-effect: dropshadow(gaussian, rgba(0,210,255,0.3), 10, 0.1, 0, 0);"/>
                 <Label text="Sistema Educativo Digital" style="-fx-font-size: 10px; -fx-text-fill: #A78BFA; -fx-letter-spacing: 1px;"/>
             </VBox>

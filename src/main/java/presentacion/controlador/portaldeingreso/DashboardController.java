@@ -22,6 +22,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -50,6 +51,7 @@ public class DashboardController implements Initializable, EventBusListener {
     @FXML private StackPane contenedorCentral;
     @FXML private Button btnVolverInicio;
     private Usuario usuario;
+    private Node vistaInicial;
     private final Map<String, Pane> vistasCargadas = new HashMap<>();
     private final Map<String, String> rutasVistas = new HashMap<>();
     public DashboardController(GestionEstudiantes gestionEstudiantes,
@@ -76,6 +78,9 @@ public class DashboardController implements Initializable, EventBusListener {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         precargarRutas();
+        if (!contenedorCentral.getChildren().isEmpty()) {
+            vistaInicial = contenedorCentral.getChildren().get(0);
+        }
         eventBus.suscribir(TipoEvento.ESTUDIANTES, this);
         eventBus.suscribir(TipoEvento.DOCENTES, this);
         eventBus.suscribir(TipoEvento.GRUPOS, this);
@@ -137,6 +142,12 @@ public class DashboardController implements Initializable, EventBusListener {
             }
         }
         contenedorCentral.getChildren().setAll(vista);
+    }
+    @FXML
+    private void handleIrInicio() {
+        if (vistaInicial != null) {
+            contenedorCentral.getChildren().setAll(vistaInicial);
+        }
     }
     @FXML
     private void handleVolverInicio() {
