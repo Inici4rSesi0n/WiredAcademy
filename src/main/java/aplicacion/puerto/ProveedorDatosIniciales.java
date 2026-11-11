@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package aplicacion.puerto;
+import dominio.modelo.configuracion.TipoInstitucion;
 /**
  *
  * @author inici4rsesi0n
@@ -14,4 +15,5 @@ public interface ProveedorDatosIniciales {
     String getDni();
     char[] getContrasena();
     boolean isConfirmado();
+    TipoInstitucion getTipoInstitucion();
 }

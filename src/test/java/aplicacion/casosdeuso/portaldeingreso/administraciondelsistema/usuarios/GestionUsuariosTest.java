@@ -23,9 +23,12 @@ import static org.mockito.Mockito.*;
 class GestionUsuariosTest {
     private RepositorioAdministradores repoAdmin;
     private RepositorioDirectores repoDir;
+    private RepositorioSubdirectores repoSub;
     private RepositorioDocentes repoDoc;
+    private RepositorioPsicologos repoPsi;
     private RepositorioEstudiantes repoEst;
     private RepositorioSecretarios repoSec;
+    private RepositorioTesoreros repoTes;
     private RepositorioCoordinadores repoCoord;
     private RepositorioPadres repoPad;
     private LoggerPort loggerPort;
@@ -36,16 +39,18 @@ class GestionUsuariosTest {
     void setUp() {
         repoAdmin = mock(RepositorioAdministradores.class);
         repoDir = mock(RepositorioDirectores.class);
+        repoSub = mock(RepositorioSubdirectores.class);
         repoDoc = mock(RepositorioDocentes.class);
+        repoPsi = mock(RepositorioPsicologos.class);
         repoEst = mock(RepositorioEstudiantes.class);
         repoSec = mock(RepositorioSecretarios.class);
+        repoTes = mock(RepositorioTesoreros.class);
         repoCoord = mock(RepositorioCoordinadores.class);
         repoPad = mock(RepositorioPadres.class);
         loggerPort = mock(LoggerPort.class);
         publisherMock = mock(EventPublisher.class);
-        buscadorUsuario = new BuscadorUsuario(repoAdmin, repoDir, repoDoc, repoEst, repoSec, repoCoord, repoPad);
-        casoUso = new GestionUsuarios(repoAdmin, repoDir, repoDoc, repoEst, repoSec, repoCoord, repoPad,
-                loggerPort, buscadorUsuario, publisherMock);
+        buscadorUsuario = new BuscadorUsuario(repoAdmin, repoDir, repoDoc, repoEst, repoSec, repoCoord, repoPad, repoSub, repoTes, repoPsi);
+        casoUso = new GestionUsuarios(repoAdmin, repoDir, repoSub, repoDoc, repoPsi, repoEst, repoSec, repoTes, repoCoord, repoPad, loggerPort, buscadorUsuario, publisherMock);
     }
     @Test
     void agregarUsuario_codigoDuplicado_debeLanzarExcepcion() {
@@ -70,9 +75,12 @@ class GestionUsuariosTest {
     void listarTodos_debeCombinarTodosLosRepositorios() {
         when(repoAdmin.listarTodos()).thenReturn(List.of(new Administrador("A001", "hash", "111", "Admin", "Uno", 30)));
         when(repoDir.listarTodos()).thenReturn(List.of());
+        when(repoSub.listarTodos()).thenReturn(List.of());
         when(repoDoc.listarTodos()).thenReturn(List.of(new Docente("D001", "hash", "222", "Doc", "Uno", 30, "Mat", new ArrayList<>())));
+        when(repoPsi.listarTodos()).thenReturn(List.of());
         when(repoEst.listarTodos()).thenReturn(List.of(new Estudiante("E001", "hash", "333", "Est", "Uno", 15)));
         when(repoSec.listarTodos()).thenReturn(List.of());
+        when(repoTes.listarTodos()).thenReturn(List.of());
         when(repoCoord.listarTodos()).thenReturn(List.of());
         when(repoPad.listarTodos()).thenReturn(List.of());
         List<Usuario> resultado = casoUso.listarTodos();
@@ -140,21 +148,45 @@ class GestionUsuariosTest {
         verify(publisherMock, times(1)).notificar(TipoEvento.DOCENTES);
         verifyNoMoreInteractions(publisherMock);
     }
+    @Test
+    void agregarUsuario_tesorero_notificaUsuariosYTesoreros() {
+        CrearUsuarioCommand cmd = new CrearUsuarioCommand(
+                "T100", "hash", "10101010", "Nuevo", "Tesorero", 40, Usuario.Rol.TESORERO, null);
+        casoUso.agregarUsuario(cmd);
+        verify(publisherMock, times(1)).notificar(TipoEvento.USUARIOS);
+        verify(publisherMock, times(1)).notificar(TipoEvento.TESOREROS);
+        verifyNoMoreInteractions(publisherMock);
+    }
+    @Test
+    void agregarUsuario_subdirector_notificaUsuariosYSubdirectores() {
+        CrearUsuarioCommand cmd = new CrearUsuarioCommand(
+                "S100", "hash", "20202020", "Nuevo", "Subdirector", 45, Usuario.Rol.SUBDIRECTOR, null);
+        casoUso.agregarUsuario(cmd);
+        verify(publisherMock, times(1)).notificar(TipoEvento.USUARIOS);
+        verify(publisherMock, times(1)).notificar(TipoEvento.SUBDIRECTORES);
+        verifyNoMoreInteractions(publisherMock);
+    }
     private void mockListarTodosVacios() {
         when(repoAdmin.listarTodos()).thenReturn(List.of());
         when(repoDir.listarTodos()).thenReturn(List.of());
+        when(repoSub.listarTodos()).thenReturn(List.of());
         when(repoDoc.listarTodos()).thenReturn(List.of());
+        when(repoPsi.listarTodos()).thenReturn(List.of());
         when(repoEst.listarTodos()).thenReturn(List.of());
         when(repoSec.listarTodos()).thenReturn(List.of());
+        when(repoTes.listarTodos()).thenReturn(List.of());
         when(repoCoord.listarTodos()).thenReturn(List.of());
         when(repoPad.listarTodos()).thenReturn(List.of());
     }
     private void mockListarTodosConDni(String dni) {
         when(repoAdmin.listarTodos()).thenReturn(List.of(new Administrador("A001", "hash", dni, "Admin", "Uno", 30)));
         when(repoDir.listarTodos()).thenReturn(List.of());
+        when(repoSub.listarTodos()).thenReturn(List.of());
         when(repoDoc.listarTodos()).thenReturn(List.of());
+        when(repoPsi.listarTodos()).thenReturn(List.of());
         when(repoEst.listarTodos()).thenReturn(List.of());
         when(repoSec.listarTodos()).thenReturn(List.of());
+        when(repoTes.listarTodos()).thenReturn(List.of());
         when(repoCoord.listarTodos()).thenReturn(List.of());
         when(repoPad.listarTodos()).thenReturn(List.of());
     }

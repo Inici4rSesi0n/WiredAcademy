@@ -8,40 +8,34 @@
             fx:controller="presentacion.controlador.BootstrapController"
             maxWidth="1.0E8" maxHeight="1.0E8"
             styleClass="app-background">
-
     <center>
         <StackPane alignment="CENTER">
             <VBox styleClass="glass-card" spacing="20.0" maxWidth="550.0">
                 <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
-                
                 <Label styleClass="crud-title" text="Configuración Inicial" />
-                <Label text="Configure los datos del administrador para comenzar." 
+                <Label text="Configure los datos del administrador y el tipo de institución." 
                        style="-fx-text-fill: #A78BFA; -fx-font-size: 14px; -fx-padding: -10 0 10 0;"/>
-                
                 <GridPane hgap="15.0" vgap="15.0" alignment="CENTER">
                     <columnConstraints>
-                        <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="90.0" prefWidth="120.0" />
+                        <ColumnConstraints halignment="RIGHT" hgrow="NEVER" minWidth="120.0" prefWidth="140.0" />
                         <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" prefWidth="300.0" />
                     </columnConstraints>
                     
-                    <Label text="Código:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <TextField fx:id="campoCodigo" promptText="Ej: ADMIN001" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                    <Label text="Tipo Institución:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                    <ComboBox fx:id="cmbTipoInstitucion" styleClass="formulario-input" maxWidth="1.0E8" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                    <Label text="Nombre:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <TextField fx:id="campoNombre" promptText="Nombre" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                    <Label text="Apellido:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                    <TextField fx:id="campoApellido" promptText="Apellido" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                    <Label text="DNI:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                    <TextField fx:id="campoDni" promptText="Ej: 12345678" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-
-                    <Label text="Contraseña:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                    <PasswordField fx:id="campoContrasena" promptText="••••••••" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <Label text="Código:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                    <TextField fx:id="campoCodigo" promptText="Ej: ADMIN001" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label text="Nombre:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                    <TextField fx:id="campoNombre" promptText="Nombre" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                    <Label text="Apellido:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                    <TextField fx:id="campoApellido" promptText="Apellido" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label text="DNI:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                    <TextField fx:id="campoDni" promptText="Ej: 12345678" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <Label text="Contraseña:" styleClass="formulario-label" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                    <PasswordField fx:id="campoContrasena" promptText="••••••••" styleClass="formulario-input" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                 </GridPane>
-
                 <Region VBox.vgrow="ALWAYS" />
-                
                 <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-padding: 20 0 0 0;">
                     <Button text="Cancelar" styleClass="boton-morado-suave" prefWidth="120.0" prefHeight="40.0" onAction="#cancelar" />
                     <Button text="Confirmar" styleClass="boton-primario" prefWidth="120.0" prefHeight="40.0" onAction="#confirmar" />

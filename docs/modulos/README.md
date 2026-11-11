@@ -4,10 +4,9 @@
 
 ## Matriz de Control de Acceso (Roles)
 
-### PORTAL DE INGRESO (Back-Office)
-
 | Módulo / Sección | Admin | Director | Subdirector | Coordinador | Secretario | Tesorero | Psicólogo | Docente | Estudiante |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **PORTAL DE INGRESO (Back-Office)** | | | | | | | | | |
 | Mis Cursos | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Mi Horario | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Calificaciones | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
@@ -18,13 +17,9 @@
 | Gestión de Usuarios | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Gestión Académica | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Reportes Globales | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
-| Configuración (Perfil) | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Configuración (Sistema) | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-
-### PORTALES DE AUTOGESTIÓN (Front)
-
-| Módulo / Sección | Admin | Director | Subdirector | Coordinador | Secretario | Tesorero | Psicólogo | Docente | Estudiante |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Configuración (Perfil)** | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **PORTALES DE AUTOGESTIÓN (Front)** | | | | | | | | | |
 | Portal Trámites | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
 | Portal Pagos | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Portal Matrícula | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |

@@ -9,6 +9,8 @@ import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionDocentes;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionEstudiantes;
+import aplicacion.casosdeuso.portaldeingreso.sistema.GestionPermisos;
+import aplicacion.casosdeuso.portaldeingreso.sistema.GestionPermisos.SeccionMenu;
 import dominio.modelo.Usuario;
 import infraestructura.configuracion.SpringFxmlLoader;
 import presentacion.dialogos.Dialogos;
@@ -41,6 +43,7 @@ public class DashboardController implements Initializable, EventBusListener {
     private final GestionDocentes gestionDocentes;
     private final GestionGrupos gestionGrupos;
     private final GestionAsignaturas gestionAsignaturas;
+    private final GestionPermisos gestionPermisos;
     private final SpringFxmlLoader fxmlLoader;
     private final EventBus eventBus;
     @FXML private Label lblUsuarioHeader;
@@ -50,28 +53,26 @@ public class DashboardController implements Initializable, EventBusListener {
     @FXML private Label lblNumAsignaturas;
     @FXML private StackPane contenedorCentral;
     @FXML private Button btnVolverInicio;
+    @FXML private Button btnMisCursos, btnMiHorario, btnCalificaciones, btnSubirMaterial, btnRegistrarAsistencia;
+    @FXML private Button btnTramites, btnMatricula, btnGestionUsuarios, btnGestionAcademica, btnReportes, btnConfiguracion;
     private Usuario usuario;
     private Node vistaInicial;
     private final Map<String, Pane> vistasCargadas = new HashMap<>();
     private final Map<String, String> rutasVistas = new HashMap<>();
-    public DashboardController(GestionEstudiantes gestionEstudiantes,
-                               GestionDocentes gestionDocentes,
-                               GestionGrupos gestionGrupos,
-                               GestionAsignaturas gestionAsignaturas,
-                               SpringFxmlLoader fxmlLoader, EventBus eventBus) {
+    public DashboardController(GestionEstudiantes gestionEstudiantes, GestionDocentes gestionDocentes,
+                               GestionGrupos gestionGrupos, GestionAsignaturas gestionAsignaturas,
+                               GestionPermisos gestionPermisos, SpringFxmlLoader fxmlLoader, EventBus eventBus) {
         this.gestionEstudiantes = gestionEstudiantes;
         this.gestionDocentes = gestionDocentes;
         this.gestionGrupos = gestionGrupos;
         this.gestionAsignaturas = gestionAsignaturas;
+        this.gestionPermisos = gestionPermisos;
         this.fxmlLoader = fxmlLoader;
         this.eventBus = eventBus;
     }
     public void onEvent(TipoEvento evento) {
         switch (evento) {
-            case ESTUDIANTES -> actualizarTarjetas();
-            case DOCENTES -> actualizarTarjetas();
-            case GRUPOS -> actualizarTarjetas();
-            case ASIGNATURAS -> actualizarTarjetas();
+            case ESTUDIANTES, DOCENTES, GRUPOS, ASIGNATURAS -> actualizarTarjetas();
             default -> {}
         }
     }
@@ -96,7 +97,36 @@ public class DashboardController implements Initializable, EventBusListener {
         if (lblUsuarioHeader != null) {
             lblUsuarioHeader.setText(usuario.getNombre() + " " + usuario.getApellido());
         }
+        aplicarPermisosUI();
         cargarDatosIniciales();
+    }
+    private void aplicarPermisosUI() {
+        if (usuario == null) return;
+        Usuario.Rol rol = usuario.getRol();
+        btnMisCursos.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.MIS_CURSOS));
+        btnMisCursos.setManaged(btnMisCursos.isVisible());
+        btnMiHorario.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.MI_HORARIO));
+        btnMiHorario.setManaged(btnMiHorario.isVisible());
+        btnCalificaciones.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.CALIFICACIONES));
+        btnCalificaciones.setManaged(btnCalificaciones.isVisible());
+        btnSubirMaterial.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.SUBIR_MATERIAL));
+        btnSubirMaterial.setManaged(btnSubirMaterial.isVisible());
+        btnRegistrarAsistencia.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.REGISTRAR_ASISTENCIA));
+        btnRegistrarAsistencia.setManaged(btnRegistrarAsistencia.isVisible());
+        btnTramites.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.TRAMITES));
+        btnTramites.setManaged(btnTramites.isVisible());
+        btnMatricula.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.MATRICULA));
+        btnMatricula.setManaged(btnMatricula.isVisible());
+        btnGestionUsuarios.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.GESTION_USUARIOS));
+        btnGestionUsuarios.setManaged(btnGestionUsuarios.isVisible());
+        btnGestionAcademica.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.GESTION_ACADEMICA));
+        btnGestionAcademica.setManaged(btnGestionAcademica.isVisible());
+        btnReportes.setVisible(gestionPermisos.esSeccionVisible(rol, SeccionMenu.REPORTES));
+        btnReportes.setManaged(btnReportes.isVisible());
+        boolean verConfig = gestionPermisos.esSeccionVisible(rol, SeccionMenu.CONFIGURACION_SISTEMA) || 
+                            gestionPermisos.esSeccionVisible(rol, SeccionMenu.CONFIGURACION_PERFIL);
+        btnConfiguracion.setVisible(verConfig);
+        btnConfiguracion.setManaged(verConfig);
     }
     private void cargarDatosIniciales() {
         if (usuario == null) return;
@@ -106,14 +136,10 @@ public class DashboardController implements Initializable, EventBusListener {
         if (usuario == null) return;
         Platform.runLater(() -> {
             try {
-                if (lblNumEstudiantes != null)
-                    lblNumEstudiantes.setText(String.valueOf(gestionEstudiantes.listarTodos().size()));
-                if (lblNumDocentes != null)
-                    lblNumDocentes.setText(String.valueOf(gestionDocentes.listarTodos().size()));
-                if (lblNumGrupos != null)
-                    lblNumGrupos.setText(String.valueOf(gestionGrupos.listarTodos().size()));
-                if (lblNumAsignaturas != null)
-                    lblNumAsignaturas.setText(String.valueOf(gestionAsignaturas.listarTodos().size()));
+                if (lblNumEstudiantes != null) lblNumEstudiantes.setText(String.valueOf(gestionEstudiantes.listarTodos().size()));
+                if (lblNumDocentes != null) lblNumDocentes.setText(String.valueOf(gestionDocentes.listarTodos().size()));
+                if (lblNumGrupos != null) lblNumGrupos.setText(String.valueOf(gestionGrupos.listarTodos().size()));
+                if (lblNumAsignaturas != null) lblNumAsignaturas.setText(String.valueOf(gestionAsignaturas.listarTodos().size()));
             } catch (Exception e) {
                 System.err.println("Error actualizando tarjetas KPI: " + e.getMessage());
             }

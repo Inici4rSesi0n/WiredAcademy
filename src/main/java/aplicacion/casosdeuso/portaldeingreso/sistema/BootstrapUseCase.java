@@ -5,6 +5,7 @@
 package aplicacion.casosdeuso.portaldeingreso.sistema;
 import aplicacion.puerto.ProveedorDatosIniciales;
 import dominio.modelo.*;
+import dominio.modelo.configuracion.ConfiguracionSistema;
 import dominio.puerto.externo.HashProvider;
 import dominio.puerto.externo.LoggerPort;
 import dominio.puerto.repositorio.*;
@@ -24,10 +25,11 @@ public class BootstrapUseCase {
     private final RepositorioGrados repoGrados;
     private final RepositorioPeriodos repoPeriodos;
     private final RepositorioRecreos repoRecreos;
+    private final RepositorioConfiguracionSistema repoConfig;
     public BootstrapUseCase(HashProvider hashProvider, LoggerPort logger,
                             RepositorioAdministradores repoAdmin, RepositorioTurnos repoTurnos,
                             RepositorioGrados repoGrados, RepositorioPeriodos repoPeriodos,
-                            RepositorioRecreos repoRecreos) {
+                            RepositorioRecreos repoRecreos, RepositorioConfiguracionSistema repoConfig) {
         this.hashProvider = hashProvider;
         this.logger = logger;
         this.repoAdmin = repoAdmin;
@@ -35,10 +37,12 @@ public class BootstrapUseCase {
         this.repoGrados = repoGrados;
         this.repoPeriodos = repoPeriodos;
         this.repoRecreos = repoRecreos;
+        this.repoConfig = repoConfig;
     }
     @Transactional
     public void inicializarSistema(ProveedorDatosIniciales proveedor) {
         if (proveedor == null) throw new IllegalArgumentException("El proveedor no puede ser nulo");
+        repoConfig.guardar(new ConfiguracionSistema(null, proveedor.getTipoInstitucion()));
         String hash = hashProvider.generarHash(proveedor.getContrasena());
         Administrador admin = new Administrador(proveedor.getCodigo(), hash, proveedor.getDni(),
                 proveedor.getNombre(), proveedor.getApellido(), 30);

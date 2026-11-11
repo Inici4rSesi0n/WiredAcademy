@@ -6,7 +6,9 @@ package presentacion.controlador;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import aplicacion.puerto.ProveedorDatosIniciales;
+import dominio.modelo.configuracion.TipoInstitucion;
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import presentacion.dialogos.Dialogos;
@@ -17,6 +19,7 @@ import presentacion.dialogos.Dialogos;
 @Component
 @Scope("prototype")
 public class BootstrapController implements ProveedorDatosIniciales {
+    @FXML private ComboBox<TipoInstitucion> cmbTipoInstitucion;
     @FXML private TextField campoCodigo;
     @FXML private TextField campoNombre;
     @FXML private TextField campoApellido;
@@ -28,8 +31,12 @@ public class BootstrapController implements ProveedorDatosIniciales {
     private String apellido;
     private String dni;
     private char[] contrasena;
+    private TipoInstitucion tipoInstitucion;
     @FXML
-    private void initialize() {}
+    private void initialize() {
+        cmbTipoInstitucion.getItems().addAll(TipoInstitucion.values());
+        cmbTipoInstitucion.getSelectionModel().selectFirst();
+    }
     @FXML
     private void confirmar() {
         String codigoTexto = campoCodigo.getText();
@@ -37,11 +44,13 @@ public class BootstrapController implements ProveedorDatosIniciales {
         String apellidoTexto = campoApellido.getText();
         String dniTexto = campoDni.getText();
         String contrasenaTexto = campoContrasena.getText();
+        TipoInstitucion tipo = cmbTipoInstitucion.getValue();
         if (codigoTexto == null || codigoTexto.isBlank()
                 || nombreTexto == null || nombreTexto.isBlank()
                 || apellidoTexto == null || apellidoTexto.isBlank()
                 || dniTexto == null || dniTexto.isBlank()
-                || contrasenaTexto == null || contrasenaTexto.isBlank()) {
+                || contrasenaTexto == null || contrasenaTexto.isBlank()
+                || tipo == null) {
             return;
         }
         if (!dniTexto.trim().matches("[A-Za-z0-9]{4,20}")) {
@@ -53,6 +62,7 @@ public class BootstrapController implements ProveedorDatosIniciales {
         this.apellido = apellidoTexto.trim();
         this.dni = dniTexto.trim();
         this.contrasena = contrasenaTexto.toCharArray();
+        this.tipoInstitucion = tipo;
         this.confirmado = true;
         campoCodigo.getScene().getWindow().hide();
     }
@@ -67,4 +77,5 @@ public class BootstrapController implements ProveedorDatosIniciales {
     @Override public String getDni() { return dni; }
     @Override public char[] getContrasena() { return contrasena; }
     @Override public boolean isConfirmado() { return confirmado; }
+    @Override public TipoInstitucion getTipoInstitucion() { return tipoInstitucion; }
 }

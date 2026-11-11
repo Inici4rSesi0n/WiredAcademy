@@ -3,17 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package boot;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAsignaturas;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAulas;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionClases;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrados;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionPeriodos;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionRecreos;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionDocentes;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionEstudiantes;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionPadres;
-import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.GestionUsuarios;
+import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.*;
+import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.*;
 import aplicacion.casosdeuso.portaldeingreso.gestiondetramites.GestionMatriculas;
 import aplicacion.dto.CrearUsuarioCommand;
 import dominio.modelo.*;
@@ -25,10 +16,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-/**
- *
- * @author inici4rsesi0n
- */
 @Component
 public class DataSeeder {
     private final GestionUsuarios gestionUsuarios;
@@ -98,18 +85,14 @@ public class DataSeeder {
     private void seedGrados() {
         String[] nombres = {"1er Grado", "2do Grado", "3er Grado", "4to Grado", "5to Grado", "6to Grado"};
         for (String n : nombres) {
-            if (gestionGrados.buscarPorNombreYNivel(n, "Primaria") == null) {
-                gestionGrados.crearGrado(n, "Primaria");
-            }
+            if (gestionGrados.buscarPorNombreYNivel(n, "Primaria") == null) gestionGrados.crearGrado(n, "Primaria");
         }
         System.out.println("  ✓ Grados verificados/creados.");
     }
     private List<Asignatura> seedAsignaturas() {
         String[] nombres = {"Matemática", "Lenguaje", "Ciencias", "Historia", "Inglés", "Arte", "Música", "Ed. Física", "Física", "Química"};
         for (String n : nombres) {
-            if (gestionAsignaturas.buscarAsignatura(n) == null) {
-                gestionAsignaturas.crearAsignatura(n);
-            }
+            if (gestionAsignaturas.buscarAsignatura(n) == null) gestionAsignaturas.crearAsignatura(n);
         }
         List<Asignatura> todas = gestionAsignaturas.listarTodos();
         System.out.println("  ✓ Asignaturas verificadas/creadas (" + todas.size() + ").");
@@ -118,9 +101,7 @@ public class DataSeeder {
     private List<Aula> seedAulas() {
         for (int i = 1; i <= 10; i++) {
             String nombre = "Aula " + (100 + i);
-            if (gestionAulas.buscarAula(nombre) == null) {
-                gestionAulas.crearAula(nombre, 30 + (i * 2), "Pabellón " + ((i % 3) + 1), "Teoría", ModalidadAula.PRESENCIAL);
-            }
+            if (gestionAulas.buscarAula(nombre) == null) gestionAulas.crearAula(nombre, 30 + (i * 2), "Pabellón " + ((i % 3) + 1), "Teoría", ModalidadAula.PRESENCIAL);
         }
         List<Aula> todas = gestionAulas.listarTodos();
         System.out.println("  ✓ Aulas verificadas/creadas (" + todas.size() + ").");
@@ -128,10 +109,13 @@ public class DataSeeder {
     }
     private void crearUsuariosAdmin(String hash) {
         crearUsuarioSiNoExiste("DIR-01", hash, "80000001", "Carlos", "Director", 45, Usuario.Rol.DIRECTOR, null);
+        crearUsuarioSiNoExiste("SUBDIR-01", hash, "80000005", "Luis", "Subdirector", 42, Usuario.Rol.SUBDIRECTOR, null);
         crearUsuarioSiNoExiste("CORD-01", hash, "80000002", "Ana", "Coordinadora", 40, Usuario.Rol.COORDINADOR, null);
         crearUsuarioSiNoExiste("SEC-01", hash, "80000003", "Luis", "Secretario 1", 30, Usuario.Rol.SECRETARIO, null);
         crearUsuarioSiNoExiste("SEC-02", hash, "80000004", "Maria", "Secretaria 2", 28, Usuario.Rol.SECRETARIO, null);
-        System.out.println("  ✓ Admin/Director/Coordinador/Secretarios verificados/creados.");
+        crearUsuarioSiNoExiste("TES-01", hash, "80000006", "Pedro", "Tesorero", 38, Usuario.Rol.TESORERO, null);
+        crearUsuarioSiNoExiste("PSI-01", hash, "80000007", "Lucia", "Psicologa", 35, Usuario.Rol.PSICOLOGO, null);
+        System.out.println("  ✓ Admin/Director/Subdirector/Coordinador/Secretarios/Tesorero/Psicologo verificados/creados.");
     }
     private List<Docente> seedDocentes(String hash, List<Asignatura> asignaturas) {
         List<Docente> docentes = new ArrayList<>();
@@ -158,15 +142,11 @@ public class DataSeeder {
         for (int i = 1; i <= 5; i++) {
             String nombre = "Grupo " + i + "A";
             Grado g = (i % 2 == 0) ? grado1 : grado2;
-            if (gestionGrupos.buscarPorNombre(nombre) == null) {
-                gestionGrupos.crearGrupo(nombre, g);
-            }
+            if (gestionGrupos.buscarPorNombre(nombre) == null) gestionGrupos.crearGrupo(nombre, g);
             grupos.add(gestionGrupos.buscarPorNombre(nombre));
         }
         for (int i = 0; i < grupos.size(); i++) {
-            if (grupos.get(i).getTutor() == null) {
-                gestionGrupos.asignarTutor(grupos.get(i), docentes.get(i));
-            }
+            if (grupos.get(i).getTutor() == null) gestionGrupos.asignarTutor(grupos.get(i), docentes.get(i));
         }
         System.out.println("  ✓ Grupos verificados/creados (" + grupos.size() + ").");
         return grupos;
@@ -195,9 +175,7 @@ public class DataSeeder {
             if (p != null && p.getEstudiantes().isEmpty()) {
                 for (int j = 0; j < 5; j++) {
                     int estIdx = (i - 1) * 5 + j;
-                    if (estIdx < estudiantes.size()) {
-                        gestionPadres.vincularEstudiante(p, estudiantes.get(estIdx));
-                    }
+                    if (estIdx < estudiantes.size()) gestionPadres.vincularEstudiante(p, estudiantes.get(estIdx));
                 }
             }
         }
@@ -220,8 +198,7 @@ public class DataSeeder {
         int nuevos = 0;
         for (String dia : dias) {
             FranjaHoraria franja = new FranjaHoraria(dia, "10:15", "10:45");
-            boolean existe = gestionRecreos.listarTodos().stream()
-                    .anyMatch(r -> r.getFranja().equals(franja) && r.aplicaEn(periodo));
+            boolean existe = gestionRecreos.listarTodos().stream().anyMatch(r -> r.getFranja().equals(franja) && r.aplicaEn(periodo));
             if (!existe) {
                 gestionRecreos.crearRecreo(franja, "Recreo " + dia, List.of(periodo));
                 nuevos++;
@@ -286,12 +263,9 @@ public class DataSeeder {
         }
         return null;
     }
-    private void crearUsuarioSiNoExiste(String codigo, String hash, String dni,
-                                         String nombre, String apellido, int edad,
-                                         Usuario.Rol rol, String especialidad) {
+    private void crearUsuarioSiNoExiste(String codigo, String hash, String dni, String nombre, String apellido, int edad, Usuario.Rol rol, String especialidad) {
         if (gestionUsuarios.buscarPorCodigo(codigo) == null) {
-            gestionUsuarios.agregarUsuario(new CrearUsuarioCommand(
-                    codigo, hash, dni, nombre, apellido, edad, rol, especialidad));
+            gestionUsuarios.agregarUsuario(new CrearUsuarioCommand(codigo, hash, dni, nombre, apellido, edad, rol, especialidad));
         }
     }
 }
