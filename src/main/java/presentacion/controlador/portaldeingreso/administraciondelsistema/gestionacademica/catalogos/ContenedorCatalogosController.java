@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package presentacion.controlador.portaldeingreso.administraciondelsistema.gestionacademica.catalogos;
+import dominio.modelo.configuracion.TipoInstitucion;
+import dominio.puerto.repositorio.RepositorioConfiguracionSistema;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("prototype")
 public class ContenedorCatalogosController implements Initializable {
+    private final RepositorioConfiguracionSistema repoConfig;
     @FXML private TabPane tabPaneCatalogos;
     @FXML private Tab tabAsignaturas, tabPeriodos, tabAulas, tabGrupos, tabRecreos, tabGrados, tabTurnos;
     @FXML private AsignaturasController includeAsignaturasController;
@@ -23,12 +26,19 @@ public class ContenedorCatalogosController implements Initializable {
     @FXML private RecreosController includeRecreosController;
     @FXML private GradosController includeGradosController;
     @FXML private TurnosController includeTurnosController;
+    public ContenedorCatalogosController(RepositorioConfiguracionSistema repoConfig) {
+        this.repoConfig = repoConfig;
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        boolean esUniversidad = repoConfig.obtener()
+                .map(c -> c.getTipoInstitucion() == TipoInstitucion.UNIVERSIDAD)
+                .orElse(false);
+        if (esUniversidad && tabRecreos != null && tabPaneCatalogos != null) {
+            tabPaneCatalogos.getTabs().remove(tabRecreos);
+        }
     }
-    public TabPane getTabPane() {
-        return tabPaneCatalogos;
-    }
+    public TabPane getTabPane() { return tabPaneCatalogos; }
     public AsignaturasController getIncludeAsignaturasController() { return includeAsignaturasController; }
     public PeriodosController getIncludePeriodosController() { return includePeriodosController; }
     public AulasController getIncludeAulasController() { return includeAulasController; }

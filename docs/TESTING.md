@@ -308,4 +308,18 @@ Si tu test llama `Platform.startup()` directamente (no vía `ApplicationTest` de
 
 ---
 
+## 11. Data Seeder (Herramienta de Desarrollo)
+
+El **DataSeeder** es una herramienta exclusiva para entornos de desarrollo y demostración. Su objetivo es poblar la base de datos con datos realistas (estudiantes, docentes, horarios) para probar la UI sin tener que crearlos manualmente.
+
+**No se ejecuta automáticamente en producción.** Para invocarlo, se debe usar la variable de entorno `WIRED_SEED=true` al arrancar la aplicación:
+
+```bash
+WIRED_SEED=true mvn -q javafx:run
+```
+
+El Seeder detecta automáticamente el `TIPO_INSTITUCION` configurado en el Bootstrap y genera los datos correspondientes (Grados y Grupos para Colegios; Ciclos y Secciones para Universidades).
+
+---
+
 **WiredAcademy — Ecosistema Educativo Digital**

@@ -8,7 +8,9 @@ import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.*
 import aplicacion.casosdeuso.portaldeingreso.gestiondetramites.GestionMatriculas;
 import aplicacion.dto.CrearUsuarioCommand;
 import dominio.modelo.*;
+import dominio.modelo.configuracion.TipoInstitucion;
 import dominio.puerto.externo.HashProvider;
+import dominio.puerto.repositorio.RepositorioConfiguracionSistema;
 import dominio.puerto.repositorio.RepositorioPeriodos;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,13 +34,15 @@ public class DataSeeder {
     private final GestionRecreos gestionRecreos;
     private final HashProvider hashProvider;
     private final RepositorioPeriodos repoPeriodos;
+    private final RepositorioConfiguracionSistema repoConfig;
     public DataSeeder(GestionUsuarios gestionUsuarios, GestionDocentes gestionDocentes,
                       GestionEstudiantes gestionEstudiantes, GestionPadres gestionPadres,
                       GestionGrados gestionGrados, GestionAsignaturas gestionAsignaturas,
                       GestionAulas gestionAulas, GestionGrupos gestionGrupos,
                       GestionPeriodos gestionPeriodos, GestionMatriculas gestionMatriculas,
                       GestionClases gestionClases, GestionRecreos gestionRecreos,
-                      HashProvider hashProvider, RepositorioPeriodos repoPeriodos) {
+                      HashProvider hashProvider, RepositorioPeriodos repoPeriodos,
+                      RepositorioConfiguracionSistema repoConfig) {
         this.gestionUsuarios = gestionUsuarios;
         this.gestionDocentes = gestionDocentes;
         this.gestionEstudiantes = gestionEstudiantes;
@@ -53,59 +57,44 @@ public class DataSeeder {
         this.gestionRecreos = gestionRecreos;
         this.hashProvider = hashProvider;
         this.repoPeriodos = repoPeriodos;
+        this.repoConfig = repoConfig;
     }
     @Transactional
     public void run() {
         System.out.println("🚀 Iniciando Seeder (idempotente)...");
+        TipoInstitucion tipo = repoConfig.obtener()
+                .map(c -> c.getTipoInstitucion())
+                .orElse(TipoInstitucion.COLEGIO);
+        System.out.println("  ⚙ Tipo de institución detectado: " + tipo);
         String defaultPass = "WiredAcademy2026!";
         String hash = hashProvider.generarHash(defaultPass.toCharArray());
         PeriodoAcademico periodo = seedPeriodo();
-        seedGrados();
         List<Asignatura> asignaturas = seedAsignaturas();
         List<Aula> aulas = seedAulas();
         crearUsuariosAdmin(hash);
         List<Docente> docentes = seedDocentes(hash, asignaturas);
-        List<Grupo> grupos = seedGrupos(docentes);
+        List<Grupo> grupos = seedGrupos(tipo, docentes);
         seedPadres(hash);
         List<Estudiante> estudiantes = seedEstudiantes(hash);
         vincularPadresEstudiantes(estudiantes);
-        seedMatriculas(estudiantes, grupos, asignaturas, periodo);
-        seedRecreos(periodo);
-        seedClases(grupos, asignaturas, aulas, docentes, periodo);
+        seedMatriculas(tipo, estudiantes, grupos, asignaturas, periodo);
+        if (tipo != TipoInstitucion.UNIVERSIDAD) {
+            seedRecreos(periodo);
+        } else {
+            System.out.println("  ✓ Recreos omitidos (Universidad).");
+        }
+        seedClases(tipo, grupos, asignaturas, aulas, docentes, periodo);
         System.out.println("✅ Seeder finalizado.");
         System.out.println("   Contraseña para todos los usuarios generados: " + defaultPass);
     }
     private PeriodoAcademico seedPeriodo() {
-        if (repoPeriodos.buscarPorNombre("2026-I").isEmpty()) {
-            gestionPeriodos.crearPeriodo("2026-I", "2026-01-01", "2026-07-15", "Activo");
-            System.out.println("  ✓ Periodo 2026-I creado.");
-        }
         return repoPeriodos.buscarPorNombre("2026-I").orElseThrow();
     }
-    private void seedGrados() {
-        String[] nombres = {"1er Grado", "2do Grado", "3er Grado", "4to Grado", "5to Grado", "6to Grado"};
-        for (String n : nombres) {
-            if (gestionGrados.buscarPorNombreYNivel(n, "Primaria") == null) gestionGrados.crearGrado(n, "Primaria");
-        }
-        System.out.println("  ✓ Grados verificados/creados.");
-    }
     private List<Asignatura> seedAsignaturas() {
-        String[] nombres = {"Matemática", "Lenguaje", "Ciencias", "Historia", "Inglés", "Arte", "Música", "Ed. Física", "Física", "Química"};
-        for (String n : nombres) {
-            if (gestionAsignaturas.buscarAsignatura(n) == null) gestionAsignaturas.crearAsignatura(n);
-        }
-        List<Asignatura> todas = gestionAsignaturas.listarTodos();
-        System.out.println("  ✓ Asignaturas verificadas/creadas (" + todas.size() + ").");
-        return todas;
+        return gestionAsignaturas.listarTodos();
     }
     private List<Aula> seedAulas() {
-        for (int i = 1; i <= 10; i++) {
-            String nombre = "Aula " + (100 + i);
-            if (gestionAulas.buscarAula(nombre) == null) gestionAulas.crearAula(nombre, 30 + (i * 2), "Pabellón " + ((i % 3) + 1), "Teoría", ModalidadAula.PRESENCIAL);
-        }
-        List<Aula> todas = gestionAulas.listarTodos();
-        System.out.println("  ✓ Aulas verificadas/creadas (" + todas.size() + ").");
-        return todas;
+        return gestionAulas.listarTodos();
     }
     private void crearUsuariosAdmin(String hash) {
         crearUsuarioSiNoExiste("DIR-01", hash, "80000001", "Carlos", "Director", 45, Usuario.Rol.DIRECTOR, null);
@@ -135,20 +124,19 @@ public class DataSeeder {
         System.out.println("  ✓ Docentes verificados/creados (" + docentes.size() + ").");
         return docentes;
     }
-    private List<Grupo> seedGrupos(List<Docente> docentes) {
-        Grado grado1 = gestionGrados.buscarPorNombreYNivel("1er Grado", "Primaria");
-        Grado grado2 = gestionGrados.buscarPorNombreYNivel("2do Grado", "Primaria");
+    private List<Grupo> seedGrupos(TipoInstitucion tipo, List<Docente> docentes) {
         List<Grupo> grupos = new ArrayList<>();
-        for (int i = 1; i <= 5; i++) {
-            String nombre = "Grupo " + i + "A";
-            Grado g = (i % 2 == 0) ? grado1 : grado2;
+        List<Grado> grados = gestionGrados.listarTodos();
+        for (int i = 0; i < 5; i++) {
+            String nombre = (tipo == TipoInstitucion.COLEGIO) ? "Grupo " + (i+1) + "A" : "Sección " + (char)('A' + i);
+            Grado g = grados.get(i % grados.size());
             if (gestionGrupos.buscarPorNombre(nombre) == null) gestionGrupos.crearGrupo(nombre, g);
             grupos.add(gestionGrupos.buscarPorNombre(nombre));
         }
         for (int i = 0; i < grupos.size(); i++) {
             if (grupos.get(i).getTutor() == null) gestionGrupos.asignarTutor(grupos.get(i), docentes.get(i));
         }
-        System.out.println("  ✓ Grupos verificados/creados (" + grupos.size() + ").");
+        System.out.println("  ✓ Grupos/Secciones verificados/creados (" + grupos.size() + ").");
         return grupos;
     }
     private void seedPadres(String hash) {
@@ -180,14 +168,23 @@ public class DataSeeder {
             }
         }
     }
-    private void seedMatriculas(List<Estudiante> estudiantes, List<Grupo> grupos, List<Asignatura> asignaturas, PeriodoAcademico periodo) {
+    private void seedMatriculas(TipoInstitucion tipo, List<Estudiante> estudiantes, List<Grupo> grupos, List<Asignatura> asignaturas, PeriodoAcademico periodo) {
         int nuevas = 0;
         for (int i = 0; i < estudiantes.size(); i++) {
             Estudiante est = estudiantes.get(i);
             if (gestionMatriculas.buscarMatricula(est.getCodigo(), periodo.getNombre()) == null) {
-                Grupo grp = grupos.get(i % grupos.size());
-                List<Asignatura> asigs = List.of(asignaturas.get(0), asignaturas.get(1), asignaturas.get(2));
-                gestionMatriculas.matricularEstudiante(est, periodo, grp, asigs, "2026-02-15", EstadoMatricula.ACTIVA);
+                if (tipo == TipoInstitucion.COLEGIO) {
+                    Grupo grp = grupos.get(i % grupos.size());
+                    List<Asignatura> asigs = new ArrayList<>(asignaturas);
+                    gestionMatriculas.matricularEstudiante(est, periodo, grp, asigs, "2026-02-15", EstadoMatricula.ACTIVA);
+                } else {
+                    List<InscripcionAsignatura> inscripciones = new ArrayList<>();
+                    for (Asignatura asig : asignaturas) {
+                        Grupo grp = grupos.get(i % grupos.size());
+                        inscripciones.add(new InscripcionAsignatura(asig, grp));
+                    }
+                    gestionMatriculas.matricularPorAsignaturas(est, periodo, inscripciones, "2026-02-15", EstadoMatricula.ACTIVA);
+                }
                 nuevas++;
             }
         }
@@ -206,9 +203,12 @@ public class DataSeeder {
         }
         System.out.println("  ✓ Recreos verificados/creados (nuevos: " + nuevos + ", total: " + gestionRecreos.listarTodos().size() + ").");
     }
-    private void seedClases(List<Grupo> grupos, List<Asignatura> asignaturas, List<Aula> aulas, List<Docente> docentes, PeriodoAcademico periodo) {
+    private void seedClases(TipoInstitucion tipo, List<Grupo> grupos, List<Asignatura> asignaturas, List<Aula> aulas, List<Docente> docentes, PeriodoAcademico periodo) {
         String[] dias = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
         String[][] franjas = {{"08:00", "10:00"}, {"10:45", "12:15"}, {"12:30", "14:00"}, {"14:15", "15:45"}};
+        if (tipo == TipoInstitucion.UNIVERSIDAD) {
+            franjas = new String[][]{{"07:00", "09:00"}, {"09:00", "11:00"}, {"11:00", "13:00"}, {"14:00", "16:00"}};
+        }
         Set<String> docenteOcupado = new HashSet<>();
         Set<String> aulaOcupada = new HashSet<>();
         Set<String> grupoOcupado = new HashSet<>();

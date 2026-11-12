@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="presentacion.controlador.portaldeingreso.miareapersonal.MisCursosController"
+            styleClass="app-background">
+    <center>
+        <VBox spacing="20.0" style="-fx-padding: 30px;">
+            <HBox styleClass="crud-header" alignment="CENTER_LEFT">
+                <Label styleClass="crud-title" text="Mis Cursos" />
+                <Region HBox.hgrow="ALWAYS" />
+            </HBox>
+            
+            <ScrollPane fitToWidth="true" fitToHeight="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent;" VBox.vgrow="ALWAYS">
+                <FlowPane fx:id="flowPaneCursos" hgap="20.0" vgap="20.0" style="-fx-padding: 10px;" />
+            </ScrollPane>
+        </VBox>
+    </center>
+</BorderPane>

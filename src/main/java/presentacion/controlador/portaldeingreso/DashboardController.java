@@ -91,6 +91,7 @@ public class DashboardController implements Initializable, EventBusListener {
         rutasVistas.put("seccion_gestion_usuarios", "/fxml/portaldeingreso/administraciondelsistema/gestiondeusuarios/seccion_gestion_usuarios.fxml");
         rutasVistas.put("seccion_gestion_academica", "/fxml/portaldeingreso/administraciondelsistema/gestionacademica/seccion_gestion_academica.fxml");
         rutasVistas.put("seccion_matricula", "/fxml/portaldeingreso/gestiondetramites/matricula/seccion_matricula.fxml");
+        rutasVistas.put("seccion_mis_cursos", "/fxml/portaldeingreso/miareapersonal/mis_cursos.fxml");
     }
     public void setUsuario(Usuario usuario) {
         this.usuario = usuario;
