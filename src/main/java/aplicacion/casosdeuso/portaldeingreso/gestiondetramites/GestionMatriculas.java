@@ -29,9 +29,22 @@ public class GestionMatriculas {
             throw new IllegalArgumentException("Estudiante, periodo y grupo son obligatorios.");
         if (repo.buscarPorEstudianteYPeriodo(estudiante.getCodigo(), periodo.getNombre()).isPresent())
             throw new IllegalArgumentException("El estudiante ya está matriculado en ese periodo.");
-        repo.agregar(new Matricula(estudiante, periodo, grupo, asignaturas, fecha, estado));
+        Matricula m = new Matricula(estudiante, periodo, grupo, asignaturas, fecha, estado);
+        repo.agregar(m);
         logger.audit(String.format("op=CREATE entity=MATRICULA id=%s-%s | grupo=%s estado=%s",
                 estudiante.getCodigo(), periodo.getNombre(), grupo.getNombre(), estado));
+        publisher.notificar(TipoEvento.MATRICULAS);
+    }
+    public void matricularPorAsignaturas(Estudiante estudiante, PeriodoAcademico periodo,
+                                         List<InscripcionAsignatura> inscripciones, String fecha, EstadoMatricula estado) {
+        if (estudiante == null || periodo == null || inscripciones == null || inscripciones.isEmpty())
+            throw new IllegalArgumentException("Estudiante, periodo e inscripciones son obligatorios.");
+        if (repo.buscarPorEstudianteYPeriodo(estudiante.getCodigo(), periodo.getNombre()).isPresent())
+            throw new IllegalArgumentException("El estudiante ya está matriculado en ese periodo.");
+        Matricula m = new Matricula(estudiante, periodo, inscripciones, fecha, estado);
+        repo.agregar(m);
+        logger.audit(String.format("op=CREATE entity=MATRICULA id=%s-%s | mode=UNIVERSIDAD asignaturas=%d estado=%s",
+                estudiante.getCodigo(), periodo.getNombre(), inscripciones.size(), estado));
         publisher.notificar(TipoEvento.MATRICULAS);
     }
     public List<Matricula> listarTodas() { return repo.listarTodos(); }

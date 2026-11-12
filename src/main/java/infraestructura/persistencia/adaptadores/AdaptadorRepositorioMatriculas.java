@@ -3,14 +3,16 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package infraestructura.persistencia.adaptadores;
+import dominio.modelo.InscripcionAsignatura;
 import dominio.modelo.Matricula;
 import dominio.puerto.repositorio.RepositorioMatriculas;
-import infraestructura.persistencia.entidades.AsignaturaEntity;
+import infraestructura.persistencia.entidades.MatriculaAsignaturaEntity;
 import infraestructura.persistencia.entidades.MatriculaEntity;
 import infraestructura.persistencia.jpa.*;
 import infraestructura.persistencia.mappers.MatriculaMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 /**
@@ -39,7 +41,9 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
     public void agregar(Matricula matricula){
         if(matricula==null) throw new IllegalArgumentException("La matrícula no puede ser nula");
         MatriculaEntity entity = mapper.toEntity(matricula);
-        resolverRelaciones(entity, matricula);
+        resolverRelacionesBase(entity, matricula);
+        entity = jpaRepository.saveAndFlush(entity);
+        resolverInscripciones(entity, matricula);
         jpaRepository.saveAndFlush(entity);
     }
     @Override
@@ -69,19 +73,26 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
                 matricula.getEstudiante().getCodigo(), matricula.getPeriodo().getNombre())
                 .ifPresent(jpaRepository::delete);
     }
-    private void resolverRelaciones(MatriculaEntity entity, Matricula domain){
+    private void resolverRelacionesBase(MatriculaEntity entity, Matricula domain){
         entity.setEstudiante(estudianteJpa.findByCodigo(domain.getEstudiante().getCodigo())
                 .orElseThrow(()->new IllegalArgumentException("Estudiante no existe")));
         entity.setPeriodo(periodoJpa.findByNombre(domain.getPeriodo().getNombre())
                 .orElseThrow(()->new IllegalArgumentException("Periodo no existe")));
-        entity.setGrupo(grupoJpa.findByNombre(domain.getGrupo().getNombre())
-                .orElseThrow(()->new IllegalArgumentException("Grupo no existe")));
-        if(domain.getAsignaturas()!=null){
-            List<AsignaturaEntity> asignaturas = domain.getAsignaturas().stream()
-                    .map(a -> asignaturaJpa.findByNombre(a.getNombre())
-                            .orElseThrow(()->new IllegalArgumentException("Asignatura no existe: " + a.getNombre())))
-                    .collect(java.util.stream.Collectors.toList());
-            entity.setAsignaturas(asignaturas);
+        if(domain.getGrupo() != null) {
+            entity.setGrupo(grupoJpa.findByNombre(domain.getGrupo().getNombre())
+                    .orElseThrow(()->new IllegalArgumentException("Grupo no existe")));
+        }
+    }
+    private void resolverInscripciones(MatriculaEntity entity, Matricula domain){
+        entity.getInscripciones().clear();
+        for(InscripcionAsignatura ins : domain.getInscripciones()){
+            MatriculaAsignaturaEntity insEntity = new MatriculaAsignaturaEntity();
+            insEntity.setMatricula(entity);
+            insEntity.setAsignatura(asignaturaJpa.findByNombre(ins.getAsignatura().getNombre())
+                    .orElseThrow(()->new IllegalArgumentException("Asignatura no existe: " + ins.getAsignatura().getNombre())));
+            insEntity.setGrupo(grupoJpa.findByNombre(ins.getGrupo().getNombre())
+                    .orElseThrow(()->new IllegalArgumentException("Grupo no existe: " + ins.getGrupo().getNombre())));
+            entity.getInscripciones().add(insEntity);
         }
     }
 }

@@ -17,27 +17,38 @@ public class Matricula implements Serializable {
     private Estudiante estudiante;
     private PeriodoAcademico periodo;
     private Grupo grupo;
-    private List<Asignatura> asignaturas;
+    private List<InscripcionAsignatura> inscripciones;
     private String fecha;
     private EstadoMatricula estado;
-    protected Matricula() {
-        this.asignaturas = new ArrayList<>();
+    public Matricula() {
+        this.inscripciones = new ArrayList<>();
     }
     public Matricula(Estudiante estudiante, PeriodoAcademico periodo, Grupo grupo,
                      List<Asignatura> asignaturas, String fecha, EstadoMatricula estado) {
-        if (estudiante == null) {
-            throw new IllegalArgumentException("El estudiante no puede ser nulo");
-        }
-        if (periodo == null) {
-            throw new IllegalArgumentException("El periodo académico no puede ser nulo");
-        }
-        if (grupo == null) {
-            throw new IllegalArgumentException("El grupo no puede ser nulo");
-        }
+        if (estudiante == null) throw new IllegalArgumentException("El estudiante no puede ser nulo");
+        if (periodo == null) throw new IllegalArgumentException("El periodo académico no puede ser nulo");
+        if (grupo == null) throw new IllegalArgumentException("El grupo no puede ser nulo");
         this.estudiante = estudiante;
         this.periodo = periodo;
         this.grupo = grupo;
-        this.asignaturas = (asignaturas != null) ? new ArrayList<>(asignaturas) : new ArrayList<>();
+        this.inscripciones = new ArrayList<>();
+        if (asignaturas != null) {
+            for (Asignatura a : asignaturas) {
+                this.inscripciones.add(new InscripcionAsignatura(a, grupo));
+            }
+        }
+        this.fecha = (fecha != null && !fecha.isBlank()) ? fecha : "";
+        this.estado = (estado != null) ? estado : EstadoMatricula.ACTIVA;
+    }
+    public Matricula(Estudiante estudiante, PeriodoAcademico periodo,
+                     List<InscripcionAsignatura> inscripciones, String fecha, EstadoMatricula estado) {
+        if (estudiante == null) throw new IllegalArgumentException("El estudiante no puede ser nulo");
+        if (periodo == null) throw new IllegalArgumentException("El periodo académico no puede ser nulo");
+        if (inscripciones == null || inscripciones.isEmpty()) throw new IllegalArgumentException("Debe tener al menos una asignatura");
+        this.estudiante = estudiante;
+        this.periodo = periodo;
+        this.grupo = inscripciones.get(0).getGrupo();
+        this.inscripciones = new ArrayList<>(inscripciones);
         this.fecha = (fecha != null && !fecha.isBlank()) ? fecha : "";
         this.estado = (estado != null) ? estado : EstadoMatricula.ACTIVA;
     }
@@ -47,19 +58,17 @@ public class Matricula implements Serializable {
     public void setPeriodo(PeriodoAcademico periodo) { this.periodo = periodo; }
     public Grupo getGrupo() { return grupo; }
     public void setGrupo(Grupo grupo) { this.grupo = grupo; }
-    public List<Asignatura> getAsignaturas() {
-        return Collections.unmodifiableList(asignaturas);
+    public List<InscripcionAsignatura> getInscripciones() {
+        return Collections.unmodifiableList(inscripciones);
     }
-    public void agregarAsignatura(Asignatura asignatura) {
-        if (asignatura == null) {
-            throw new IllegalArgumentException("La asignatura no puede ser nula");
-        }
-        if (!asignaturas.contains(asignatura)) {
-            asignaturas.add(asignatura);
+    public void agregarInscripcion(InscripcionAsignatura inscripcion) {
+        if (inscripcion == null) throw new IllegalArgumentException("La inscripción no puede ser nula");
+        if (!inscripciones.contains(inscripcion)) {
+            inscripciones.add(inscripcion);
         }
     }
-    public void removerAsignatura(Asignatura asignatura) {
-        asignaturas.remove(asignatura);
+    public void removerInscripcion(InscripcionAsignatura inscripcion) {
+        inscripciones.remove(inscripcion);
     }
     public String getFecha() { return fecha; }
     public void setFecha(String fecha) { this.fecha = fecha; }
@@ -71,21 +80,19 @@ public class Matricula implements Serializable {
         if (!(o instanceof Matricula)) return false;
         Matricula that = (Matricula) o;
         return Objects.equals(estudiante, that.estudiante) &&
-               Objects.equals(periodo, that.periodo) &&
-               Objects.equals(grupo, that.grupo);
+               Objects.equals(periodo, that.periodo);
     }
     @Override
     public int hashCode() {
-        return Objects.hash(estudiante, periodo, grupo);
+        return Objects.hash(estudiante, periodo);
     }
     @Override
     public String toString() {
-        String nombresAsignaturas = asignaturas.stream()
-                .map(Asignatura::getNombre)
+        String nombresAsignaturas = inscripciones.stream()
+                .map(i -> i.getAsignatura().getNombre())
                 .collect(java.util.stream.Collectors.joining(", "));
         return "Matricula [estudiante=" + (estudiante != null ? estudiante.getCodigo() : "N/A")
                 + ", periodo=" + (periodo != null ? periodo.getNombre() : "N/A")
-                + ", grupo=" + (grupo != null ? grupo.getNombre() : "N/A")
                 + ", asignaturas=[" + nombresAsignaturas + "]"
                 + ", fecha=" + fecha
                 + ", estado=" + estado + "]";

@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Entity
 @Table(name="matriculas")
-public class MatriculaEntity{
+public class MatriculaEntity {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
@@ -23,15 +23,10 @@ public class MatriculaEntity{
     @JoinColumn(name="periodo_id", nullable=false)
     private PeriodoAcademicoEntity periodo;
     @ManyToOne(fetch=FetchType.EAGER)
-    @JoinColumn(name="grupo_id", nullable=false)
+    @JoinColumn(name="grupo_id")
     private GrupoEntity grupo;
-    @ManyToMany(fetch=FetchType.EAGER)
-    @JoinTable(
-        name="matricula_asignaturas",
-        joinColumns=@JoinColumn(name="matricula_id"),
-        inverseJoinColumns=@JoinColumn(name="asignatura_id")
-    )
-    private List<AsignaturaEntity> asignaturas=new ArrayList<>();
+    @OneToMany(mappedBy="matricula", cascade=CascadeType.ALL, orphanRemoval=true, fetch=FetchType.EAGER)
+    private List<MatriculaAsignaturaEntity> inscripciones = new ArrayList<>();
     @Column(nullable=false)
     private String fecha;
     @Column(nullable=false, length=20)
@@ -44,8 +39,8 @@ public class MatriculaEntity{
     public void setPeriodo(PeriodoAcademicoEntity periodo){this.periodo=periodo;}
     public GrupoEntity getGrupo(){return grupo;}
     public void setGrupo(GrupoEntity grupo){this.grupo=grupo;}
-    public List<AsignaturaEntity> getAsignaturas(){return asignaturas;}
-    public void setAsignaturas(List<AsignaturaEntity> asignaturas){this.asignaturas=asignaturas;}
+    public List<MatriculaAsignaturaEntity> getInscripciones(){return inscripciones;}
+    public void setInscripciones(List<MatriculaAsignaturaEntity> inscripciones){this.inscripciones=inscripciones;}
     public String getFecha(){return fecha;}
     public void setFecha(String fecha){this.fecha=fecha;}
     public String getEstado(){return estado;}
