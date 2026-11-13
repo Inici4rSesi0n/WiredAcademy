@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package infraestructura.persistencia.adaptadores;
-import aplicacion.servicio.BuscadorUsuario;
 import dominio.modelo.Publicacion;
 import dominio.puerto.repositorio.RepositorioPublicaciones;
 import infraestructura.persistencia.entidades.PublicacionEntity;
@@ -30,11 +29,14 @@ public class AdaptadorRepositorioPublicaciones implements RepositorioPublicacion
     }
     @Override @Transactional
     public void agregar(Publicacion pub) {
+        if (pub.getAutor() == null) throw new IllegalArgumentException("El autor es obligatorio para publicar");
         PublicacionEntity entity = mapper.toEntity(pub);
         if (pub.getAsignatura() != null) {
-            entity.setAsignatura(asignaturaJpa.findByNombre(pub.getAsignatura().getNombre()).orElseThrow());
+            entity.setAsignatura(asignaturaJpa.findByNombre(pub.getAsignatura().getNombre())
+                    .orElseThrow(() -> new IllegalArgumentException("La asignatura no existe: " + pub.getAsignatura().getNombre())));
         }
-        entity.setAutor(usuarioJpa.findByCodigo(pub.getAutor().getCodigo()).orElseThrow());
+        entity.setAutor(usuarioJpa.findByCodigo(pub.getAutor().getCodigo())
+                .orElseThrow(() -> new IllegalArgumentException("El autor no existe: " + pub.getAutor().getCodigo())));
         entity.setFechaCreacion(LocalDateTime.now());
         jpaRepository.save(entity);
     }

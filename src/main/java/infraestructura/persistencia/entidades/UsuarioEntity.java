@@ -4,15 +4,11 @@
  */
 package infraestructura.persistencia.entidades;
 import jakarta.persistence.*;
-/**
- *
- * @author inici4rsesi0n
- */
 @Entity
 @Table(name="usuarios")
 @Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="rol", discriminatorType=DiscriminatorType.STRING)
-public abstract class UsuarioEntity{
+public abstract class UsuarioEntity {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;

@@ -4,16 +4,14 @@
  */
 package infraestructura.persistencia.mappers;
 import dominio.modelo.Publicacion;
-import dominio.modelo.TipoPublicacion;
 import infraestructura.persistencia.entidades.PublicacionEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import java.util.List;
-@Mapper(componentModel="spring", unmappedTargetPolicy=ReportingPolicy.IGNORE, uses={AsignaturaMapper.class})
+@Mapper(componentModel="spring", unmappedTargetPolicy=ReportingPolicy.IGNORE, uses={AsignaturaMapper.class, UsuarioMapper.class})
 public interface PublicacionMapper {
     @Mapping(target="tipo", expression="java(dominio.modelo.TipoPublicacion.valueOf(entity.getTipo()))")
-    @Mapping(target="autor", ignore=true)
     Publicacion toDomain(PublicacionEntity entity);
     @Mapping(target="id", ignore=true)
     @Mapping(target="tipo", expression="java(domain.getTipo().name())")
