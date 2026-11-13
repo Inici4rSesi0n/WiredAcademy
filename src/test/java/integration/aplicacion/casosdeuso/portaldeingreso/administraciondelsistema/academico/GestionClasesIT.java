@@ -36,7 +36,7 @@ public class GestionClasesIT extends BaseIntegrationTest {
         return gestionPeriodos.buscarPorNombre(nombre);
     }
     private Aula crearAula(String nombre) {
-        gestionAulas.crearAula(nombre, 30, "Piso 1", "Teoría", ModalidadAula.PRESENCIAL);
+        gestionAulas.crearAula(nombre, 30, "Piso 1", "Teoría");
         return gestionAulas.buscarAula(nombre);
     }
     private Docente crearDocente(String codigo, String dni) {

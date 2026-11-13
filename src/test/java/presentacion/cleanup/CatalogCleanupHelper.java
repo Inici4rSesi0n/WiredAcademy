@@ -16,24 +16,20 @@ import aplicacion.casosdeuso.portaldeingreso.gestiondetramites.GestionMatriculas
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
-/**
- * Helper centralizado para limpiar datos de UI tests por prefijo.
- * Orden FK: hoja -> raiz. Rompe ciclos (grupos <-> usuarios) via JdbcTemplate
- * (auto-commit, sin @Transactional) para no depender de proxy de Spring.
- * Uso: new CatalogCleanupHelper(springContext).limpiarTodo();
- *      new CatalogCleanupHelper(springContext, "IT-").limpiarTodo();
- *
- * @author inici4rsesi0n
- */
 public class CatalogCleanupHelper {
     private final ConfigurableApplicationContext ctx;
     private final String prefijo;
+    private final String prefijoDni;
     public CatalogCleanupHelper(ConfigurableApplicationContext ctx) {
-        this(ctx, "UITest-");
+        this(ctx, "UITest-", "9999");
     }
     public CatalogCleanupHelper(ConfigurableApplicationContext ctx, String prefijo) {
+        this(ctx, prefijo, prefijo.replace("-", ""));
+    }
+    public CatalogCleanupHelper(ConfigurableApplicationContext ctx, String prefijo, String prefijoDni) {
         this.ctx = ctx;
         this.prefijo = prefijo;
+        this.prefijoDni = prefijoDni;
     }
     public void limpiarTodo() {
         romperCiclosFK();
@@ -52,7 +48,7 @@ public class CatalogCleanupHelper {
         try {
             JdbcTemplate jdbc = new JdbcTemplate(ctx.getBean(DataSource.class));
             jdbc.update("UPDATE grupos SET tutor_id = NULL WHERE tutor_id IS NOT NULL AND nombre LIKE ?", prefijo + "%");
-            jdbc.update("UPDATE usuarios SET grupo_tutoria_id = NULL WHERE grupo_tutoria_id IS NOT NULL AND codigo LIKE ?", prefijo + "%");
+            jdbc.update("UPDATE usuarios SET grupo_tutoria_id = NULL WHERE grupo_tutoria_id IS NOT NULL AND (codigo LIKE ? OR dni LIKE ?)", prefijo + "%", prefijoDni + "%");
         } catch (Exception e) {
             System.err.println("[cleanup] romperCiclosFK fallo: " + e.getMessage());
         }
@@ -60,13 +56,14 @@ public class CatalogCleanupHelper {
     private boolean coincide(String valor) {
         return valor != null && valor.startsWith(prefijo);
     }
+    private boolean coincideDni(String valor) {
+        return valor != null && valor.startsWith(prefijoDni);
+    }
     private void limpiarMatriculas() {
         try {
             GestionMatriculas gm = ctx.getBean(GestionMatriculas.class);
             gm.listarTodas().stream()
-                .filter(m -> coincide(m.getEstudiante().getCodigo())
-                          || coincide(m.getPeriodo().getNombre())
-                          || coincide(m.getGrupo().getNombre()))
+                .filter(m -> coincide(m.getEstudiante().getCodigo()) || coincide(m.getPeriodo().getNombre()) || coincide(m.getGrupo().getNombre()))
                 .forEach(gm::eliminarMatricula);
         } catch (Exception ignored) {}
     }
@@ -74,76 +71,58 @@ public class CatalogCleanupHelper {
         try {
             GestionClases gc = ctx.getBean(GestionClases.class);
             gc.listarClases().stream()
-                .filter(c -> coincide(c.getGrupo().getNombre())
-                          || coincide(c.getAula().getNombre())
-                          || coincide(c.getDocente().getCodigo())
-                          || coincide(c.getPeriodo().getNombre())
-                          || coincide(c.getAsignatura().getNombre()))
+                .filter(c -> coincide(c.getGrupo().getNombre()) || coincide(c.getAula().getNombre()) || coincide(c.getDocente().getCodigo()) || coincide(c.getPeriodo().getNombre()) || coincide(c.getAsignatura().getNombre()))
                 .forEach(gc::eliminarClase);
         } catch (Exception ignored) {}
     }
     private void limpiarRecreos() {
         try {
             GestionRecreos gr = ctx.getBean(GestionRecreos.class);
-            gr.listarTodos().stream()
-                .filter(r -> coincide(r.getDescripcion()))
-                .forEach(gr::eliminarRecreo);
+            gr.listarTodos().stream().filter(r -> coincide(r.getDescripcion())).forEach(gr::eliminarRecreo);
         } catch (Exception ignored) {}
     }
     private void limpiarGrupos() {
         try {
             GestionGrupos ggr = ctx.getBean(GestionGrupos.class);
-            ggr.listarTodos().stream()
-                .filter(g -> coincide(g.getNombre()))
-                .forEach(ggr::eliminarGrupo);
+            ggr.listarTodos().stream().filter(g -> coincide(g.getNombre())).forEach(ggr::eliminarGrupo);
         } catch (Exception ignored) {}
     }
     private void limpiarUsuarios() {
         try {
             GestionUsuarios gu = ctx.getBean(GestionUsuarios.class);
             gu.listarTodos().stream()
-                .filter(u -> coincide(u.getCodigo()) || coincide(u.getNombre()))
+                .filter(u -> coincide(u.getCodigo()) || coincide(u.getNombre()) || coincideDni(u.getDni()))
                 .forEach(gu::eliminarUsuario);
         } catch (Exception ignored) {}
     }
     private void limpiarGrados() {
         try {
             GestionGrados gg = ctx.getBean(GestionGrados.class);
-            gg.listarTodos().stream()
-                .filter(g -> coincide(g.getNombre()))
-                .forEach(gg::eliminarGrado);
+            gg.listarTodos().stream().filter(g -> coincide(g.getNombre())).forEach(gg::eliminarGrado);
         } catch (Exception ignored) {}
     }
     private void limpiarPeriodos() {
         try {
             GestionPeriodos gp = ctx.getBean(GestionPeriodos.class);
-            gp.listarTodos().stream()
-                .filter(p -> coincide(p.getNombre()))
-                .forEach(gp::eliminarPeriodo);
+            gp.listarTodos().stream().filter(p -> coincide(p.getNombre())).forEach(gp::eliminarPeriodo);
         } catch (Exception ignored) {}
     }
     private void limpiarAulas() {
         try {
             GestionAulas ga = ctx.getBean(GestionAulas.class);
-            ga.listarTodos().stream()
-                .filter(a -> coincide(a.getNombre()))
-                .forEach(ga::eliminarAula);
+            ga.listarTodos().stream().filter(a -> coincide(a.getNombre())).forEach(ga::eliminarAula);
         } catch (Exception ignored) {}
     }
     private void limpiarAsignaturas() {
         try {
             GestionAsignaturas ga = ctx.getBean(GestionAsignaturas.class);
-            ga.listarTodos().stream()
-                .filter(a -> coincide(a.getNombre()))
-                .forEach(ga::eliminarAsignatura);
+            ga.listarTodos().stream().filter(a -> coincide(a.getNombre())).forEach(ga::eliminarAsignatura);
         } catch (Exception ignored) {}
     }
     private void limpiarTurnos() {
         try {
             GestionTurnos gt = ctx.getBean(GestionTurnos.class);
-            gt.listarTodos().stream()
-                .filter(t -> coincide(t.getNombre()))
-                .forEach(gt::eliminarTurno);
+            gt.listarTodos().stream().filter(t -> coincide(t.getNombre())).forEach(gt::eliminarTurno);
         } catch (Exception ignored) {}
     }
 }

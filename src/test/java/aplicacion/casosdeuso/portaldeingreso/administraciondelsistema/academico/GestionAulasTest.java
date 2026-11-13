@@ -40,20 +40,20 @@ class GestionAulasTest {
     @Test
     void crearAula_debeFallarSiCapacidadInvalida() {
         assertThrows(IllegalArgumentException.class,
-                () -> casoUso.crearAula("Aula 101", 0, "Pabellón A", "Teoría", ModalidadAula.PRESENCIAL));
+                () -> casoUso.crearAula("Aula 101", 0, "Pabellón A", "Teoría"));
     }
 
     @Test
     void crearAula_debeFallarSiNombreVacio() {
         assertThrows(IllegalArgumentException.class,
-                () -> casoUso.crearAula("", 40, "Pabellón A", "Teoría", ModalidadAula.PRESENCIAL));
+                () -> casoUso.crearAula("", 40, "Pabellón A", "Teoría"));
     }
 
     @Test
     void crearAula_debeFallarSiDuplicado() {
         when(repoMock.buscarPorNombre("Aula 101")).thenReturn(Optional.of(new Aula("Aula 101", 40, "X", "Y")));
         assertThrows(IllegalArgumentException.class,
-                () -> casoUso.crearAula("Aula 101", 40, "Pabellón A", "Teoría", ModalidadAula.PRESENCIAL));
+                () -> casoUso.crearAula("Aula 101", 40, "Pabellón A", "Teoría"));
     }
 
     @Test
@@ -77,7 +77,7 @@ class GestionAulasTest {
     void actualizarAula_debeFallarSiCapacidadInvalida() {
         Aula original = new Aula("Aula 101", 40, "P1", "Teoría");
         assertThrows(IllegalArgumentException.class,
-                () -> casoUso.actualizarAula(original, "Aula 102", 0, "P2", "Lab", ModalidadAula.PRESENCIAL));
+                () -> casoUso.actualizarAula(original, "Aula 102", 0, "P2", "Lab"));
     }
 
 }

@@ -3,13 +3,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package presentacion.portaldeingreso.administraciondelsistema.gestionacademica.catalogos.pages;
-import javafx.scene.control.ComboBox;
 import org.testfx.api.FxRobot;
-import org.testfx.util.WaitForAsyncUtils;
-/**
- *
- * @author inici4rsesi0n
- */
 public class AulasPage {
     private final FxRobot robot;
     public AulasPage(FxRobot robot) {this.robot = robot;}
@@ -35,12 +29,6 @@ public class AulasPage {
     }
     public AulasPage escribirTipo(String tipo) {
         robot.clickOn("#txtTipoAula").write(tipo);
-        return this;
-    }
-    @SuppressWarnings("unchecked")
-    public AulasPage seleccionarModalidad(String modalidad) {
-        ComboBox<String> cmb = robot.lookup("#cmbModalidadAula").queryComboBox();
-        WaitForAsyncUtils.waitForAsyncFx(1000, () -> cmb.getSelectionModel().select(modalidad));
         return this;
     }
     public AulasPage clickGuardar() {

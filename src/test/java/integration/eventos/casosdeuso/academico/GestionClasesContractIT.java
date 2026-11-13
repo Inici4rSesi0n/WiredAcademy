@@ -44,7 +44,7 @@ class GestionClasesContractIT extends BaseContractTest {
         Grado grado = gestionGrados.buscarPorNombreYNivel("CT-Clase-Grado", "Primaria");
         gestionGrupos.crearGrupo("CT-Clase-Grupo", grado);
         grupo = gestionGrupos.buscarPorNombre("CT-Clase-Grupo");
-        gestionAulas.crearAula("CT-Clase-Aula", 30, "Piso CT", "Teoría", ModalidadAula.PRESENCIAL);
+        gestionAulas.crearAula("CT-Clase-Aula", 30, "Piso CT", "Teoría");
         aula = gestionAulas.buscarAula("CT-Clase-Aula");
         gestionPeriodos.crearPeriodo("CT-Clase-Per", "2026-01-01", "2026-12-31", "Activo");
         periodo = gestionPeriodos.buscarPorNombre("CT-Clase-Per");

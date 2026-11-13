@@ -50,7 +50,7 @@ public class VisorHorarioUITest extends BaseUITest {
         gp.crearPeriodo(PREFIJO + "Periodo", "2026-01-01", "2026-12-31", "Activo");
         PeriodoAcademico periodo = gp.buscarPorNombre(PREFIJO + "Periodo");
         ga.crearAsignatura(PREFIJO + "Asignatura");
-        gau.crearAula(PREFIJO + "Aula", 30, "Piso 1", "Teoría", ModalidadAula.PRESENCIAL);
+        gau.crearAula(PREFIJO + "Aula", 30, "Piso 1", "Teoría");
         Docente docente = new Docente(PREFIJO + "DOC", "hash", "00000001", "Visor", "Doc", 30, "Mat", new ArrayList<>());
         gd.agregar(docente);
         Grupo grupo = ggr.buscarPorNombre(PREFIJO + "Grupo");
@@ -80,7 +80,7 @@ public class VisorHorarioUITest extends BaseUITest {
         gp.crearPeriodo(PREFIJO + "Periodo", "2026-01-01", "2026-12-31", "Activo");
         PeriodoAcademico periodo = gp.buscarPorNombre(PREFIJO + "Periodo");
         ga.crearAsignatura(PREFIJO + "Asignatura");
-        gau.crearAula(PREFIJO + "Aula", 30, "Piso 1", "Teoría", ModalidadAula.PRESENCIAL);
+        gau.crearAula(PREFIJO + "Aula", 30, "Piso 1", "Teoría");
         Docente docente = new Docente(PREFIJO + "DOC", "hash", "00000002", "Visor", "Doc", 30, "Mat", new ArrayList<>());
         gd.agregar(docente);
         Grupo grupo = ggr.buscarPorNombre(PREFIJO + "Grupo");

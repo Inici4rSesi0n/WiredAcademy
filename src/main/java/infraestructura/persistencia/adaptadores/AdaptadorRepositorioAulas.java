@@ -45,7 +45,6 @@ public class AdaptadorRepositorioAulas implements RepositorioAulas{
         entity.setCapacidad(actualizada.getCapacidad());
         entity.setUbicacion(actualizada.getUbicacion());
         entity.setTipo(actualizada.getTipo());
-        entity.setModalidad(actualizada.getModalidad().name());
         jpaRepository.save(entity);
     }
     @Override @Transactional

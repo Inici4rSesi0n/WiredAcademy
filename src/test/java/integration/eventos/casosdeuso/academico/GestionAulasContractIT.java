@@ -5,7 +5,7 @@
 package integration.eventos.casosdeuso.academico;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionAulas;
 import dominio.modelo.Aula;
-import dominio.modelo.ModalidadAula;
+
 import dominio.modelo.TipoEvento;
 import integration.eventos.BaseContractTest;
 import org.junit.jupiter.api.Test;
@@ -22,22 +22,22 @@ class GestionAulasContractIT extends BaseContractTest {
     private GestionAulas gestionAulas;
     @Test
     void crearAula_emiteAULAS() {
-        gestionAulas.crearAula("CT-Aula-001", 30, "Piso CT", "Teoría", ModalidadAula.PRESENCIAL);
+        gestionAulas.crearAula("CT-Aula-001", 30, "Piso CT", "Teoría");
         await().atMost(2, TimeUnit.SECONDS).until(() -> recorder.contiene(TipoEvento.AULAS));
         assertTrue(recorder.contiene(TipoEvento.AULAS));
     }
     @Test
     void actualizarAula_emiteAULAS() {
-        gestionAulas.crearAula("CT-Aula-002", 30, "Piso CT", "Teoría", ModalidadAula.PRESENCIAL);
+        gestionAulas.crearAula("CT-Aula-002", 30, "Piso CT", "Teoría");
         Aula original = gestionAulas.buscarAula("CT-Aula-002");
         recorder.reset();
-        gestionAulas.actualizarAula(original, "CT-Aula-002-UPD", 40, "Piso CT 2", "Laboratorio", ModalidadAula.VIRTUAL);
+        gestionAulas.actualizarAula(original, "CT-Aula-002-UPD", 40, "Piso CT 2", "Laboratorio");
         await().atMost(2, TimeUnit.SECONDS).until(() -> recorder.contiene(TipoEvento.AULAS));
         assertTrue(recorder.contiene(TipoEvento.AULAS));
     }
     @Test
     void eliminarAula_emiteAULAS() {
-        gestionAulas.crearAula("CT-Aula-003", 30, "Piso CT", "Teoría", ModalidadAula.PRESENCIAL);
+        gestionAulas.crearAula("CT-Aula-003", 30, "Piso CT", "Teoría");
         Aula aula = gestionAulas.buscarAula("CT-Aula-003");
         recorder.reset();
         gestionAulas.eliminarAula(aula);

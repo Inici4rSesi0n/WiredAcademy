@@ -6,15 +6,10 @@ package infraestructura.persistencia.entidades;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-/**
- *
- * @author inici4rsesi0n
- */
 @Entity
 @Table(name="grupos")
 public class GrupoEntity{
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
     @Column(nullable=false, length=50)
     private String nombre;
@@ -24,12 +19,10 @@ public class GrupoEntity{
     @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="tutor_id")
     private DocenteEntity tutor;
+    @Column(nullable=false, length=20)
+    private String modalidad;
     @ManyToMany(fetch=FetchType.EAGER)
-    @JoinTable(
-        name="grupo_estudiantes",
-        joinColumns=@JoinColumn(name="grupo_id"),
-        inverseJoinColumns=@JoinColumn(name="estudiante_id")
-    )
+    @JoinTable(name="grupo_estudiantes", joinColumns=@JoinColumn(name="grupo_id"), inverseJoinColumns=@JoinColumn(name="estudiante_id"))
     private List<EstudianteEntity> estudiantes=new ArrayList<>();
     public Long getId(){return id;}
     public void setId(Long id){this.id=id;}
@@ -39,6 +32,8 @@ public class GrupoEntity{
     public void setGrado(GradoEntity grado){this.grado=grado;}
     public DocenteEntity getTutor(){return tutor;}
     public void setTutor(DocenteEntity tutor){this.tutor=tutor;}
+    public String getModalidad(){return modalidad;}
+    public void setModalidad(String modalidad){this.modalidad=modalidad;}
     public List<EstudianteEntity> getEstudiantes(){return estudiantes;}
     public void setEstudiantes(List<EstudianteEntity> estudiantes){this.estudiantes=estudiantes;}
 }

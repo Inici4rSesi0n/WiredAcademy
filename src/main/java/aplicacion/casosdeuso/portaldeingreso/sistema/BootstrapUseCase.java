@@ -101,14 +101,14 @@ public class BootstrapUseCase {
         }
         if (repoAulas.listarTodos().isEmpty()) {
             if (tipo == TipoInstitucion.COLEGIO) {
-                repoAulas.agregar(new Aula("Aula 1A", 30, "Piso 1", "Teoría", ModalidadAula.PRESENCIAL));
-                repoAulas.agregar(new Aula("Aula 1B", 30, "Piso 1", "Teoría", ModalidadAula.PRESENCIAL));
-                repoAulas.agregar(new Aula("Laboratorio", 25, "Piso 2", "Laboratorio", ModalidadAula.PRESENCIAL));
+                repoAulas.agregar(new Aula("Aula 1A", 30, "Piso 1", "Teoría"));
+                repoAulas.agregar(new Aula("Aula 1B", 30, "Piso 1", "Teoría"));
+                repoAulas.agregar(new Aula("Laboratorio", 25, "Piso 2", "Laboratorio"));
             } else {
-                repoAulas.agregar(new Aula("Aula 101", 40, "Pabellón A", "Teoría", ModalidadAula.PRESENCIAL));
-                repoAulas.agregar(new Aula("Aula 102", 40, "Pabellón A", "Teoría", ModalidadAula.PRESENCIAL));
-                repoAulas.agregar(new Aula("Laboratorio de Cómputo", 35, "Pabellón B", "Laboratorio", ModalidadAula.PRESENCIAL));
-                repoAulas.agregar(new Aula("Auditorio", 100, "Pabellón Central", "Auditorio", ModalidadAula.PRESENCIAL));
+                repoAulas.agregar(new Aula("Aula 101", 40, "Pabellón A", "Teoría"));
+                repoAulas.agregar(new Aula("Aula 102", 40, "Pabellón A", "Teoría"));
+                repoAulas.agregar(new Aula("Laboratorio de Cómputo", 35, "Pabellón B", "Laboratorio"));
+                repoAulas.agregar(new Aula("Auditorio", 100, "Pabellón Central", "Auditorio"));
             }
             logger.info("Catálogo de Aulas inicializado.");
         }

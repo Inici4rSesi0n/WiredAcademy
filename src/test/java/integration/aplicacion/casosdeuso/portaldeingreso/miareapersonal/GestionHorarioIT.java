@@ -36,7 +36,7 @@ public class GestionHorarioIT extends BaseIntegrationTest {
         gestionGrupos.crearGrupo("HORARIO-IT-A", grado);
         gestionPeriodos.crearPeriodo("HORARIO-IT-Periodo", "2026-01-01", "2026-12-31", "Activo");
         gestionAsignaturas.crearAsignatura("HORARIO-IT-Asig");
-        gestionAulas.crearAula("HORARIO-IT-Aula", 30, "Piso 1", "Teoría", ModalidadAula.PRESENCIAL);
+        gestionAulas.crearAula("HORARIO-IT-Aula", 30, "Piso 1", "Teoría");
         Docente docente = new Docente("HORARIO-IT-DOC", "hashIT", "99000020", "Hora", "IT", 35, "Mat", new ArrayList<>());
         gestionDocentes.agregar(docente);
         Grupo grupo = gestionGrupos.buscarPorNombre("HORARIO-IT-A");
@@ -60,7 +60,7 @@ public class GestionHorarioIT extends BaseIntegrationTest {
         gestionGrupos.crearGrupo("AULA-IT-Grupo", grado);
         gestionPeriodos.crearPeriodo("AULA-IT-Periodo", "2026-01-01", "2026-12-31", "Activo");
         gestionAsignaturas.crearAsignatura("AULA-IT-Asig");
-        gestionAulas.crearAula("AULA-IT-Aula", 30, "Piso 1", "Teoría", ModalidadAula.PRESENCIAL);
+        gestionAulas.crearAula("AULA-IT-Aula", 30, "Piso 1", "Teoría");
         Docente docente = new Docente("AULA-IT-DOC", "hashIT", "99000021", "Aula", "IT", 35, "Mat", new ArrayList<>());
         gestionDocentes.agregar(docente);
         Grupo grupo = gestionGrupos.buscarPorNombre("AULA-IT-Grupo");

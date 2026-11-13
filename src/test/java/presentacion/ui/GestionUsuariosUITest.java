@@ -36,16 +36,16 @@ public class GestionUsuariosUITest extends BaseUITest {
         GestionUsuariosPage page = new GestionUsuariosPage(this);
         page.clickNuevoUsuario()
             .seleccionarRol("ADMINISTRADOR")
-            .escribirNombre("UITestNombre")
-            .escribirApellido("UITestApellido")
-            .escribirDni("99000001")
+            .escribirNombre("UITest-Usuario")
+            .escribirApellido("UITest-Apellido")
+            .escribirDni("99990001")
             .escribirEdad("30")
             .escribirContrasena("passUI123")
             .clickGuardar();
         WaitForAsyncUtils.waitFor(10, TimeUnit.SECONDS, () -> {
             TableView<?> tabla = lookup("#tablaUsuarios").queryTableView();
             return tabla.getItems().stream()
-                .anyMatch(o -> ((Usuario) o).getNombre().equals("UITestNombre"));
+                .anyMatch(o -> ((Usuario) o).getNombre().equals("UITest-Usuario"));
         });
     }
 }

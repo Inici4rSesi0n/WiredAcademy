@@ -14,10 +14,6 @@ import presentacion.BaseUITest;
 import presentacion.cleanup.CatalogCleanupHelper;
 import presentacion.portaldeingreso.administraciondelsistema.gestionacademica.catalogos.pages.AulasPage;
 import java.util.concurrent.TimeUnit;
-/**
- *
- * @author inici4rsesi0n
- */
 public class AulasUITest extends BaseUITest {
     @Override
     public void start(Stage stage) throws Exception {
@@ -40,7 +36,6 @@ public class AulasUITest extends BaseUITest {
             .escribirCapacidad("25")
             .escribirUbicacion("Piso Test")
             .escribirTipo("Teoría")
-            .seleccionarModalidad("PRESENCIAL")
             .clickGuardar();
         WaitForAsyncUtils.waitFor(10, TimeUnit.SECONDS, () -> {
             TableView<?> tabla = lookup("#tablaAulas").queryTableView();

@@ -35,6 +35,7 @@ public class AdaptadorRepositorioGrupos implements RepositorioGrupos{
     public void agregar(Grupo grupo){
         if(grupo==null) throw new IllegalArgumentException("El grupo no puede ser nulo");
         GrupoEntity entity = mapper.toEntity(grupo);
+        entity.setModalidad(grupo.getModalidad().name());
         entity.setGrado(gradoJpa.findByNombreAndNivel(grupo.getGrado().getNombre(), grupo.getGrado().getNivel())
                 .orElseThrow(()->new IllegalArgumentException("Grado no existe")));
         if(grupo.getTutor() != null) {
@@ -63,7 +64,8 @@ public class AdaptadorRepositorioGrupos implements RepositorioGrupos{
         entity.setGrado(gradoJpa.findByNombreAndNivel(actualizado.getGrado().getNombre(), actualizado.getGrado().getNivel())
                 .orElseThrow(()->new IllegalArgumentException("Grado no existe")));
         if(actualizado.getTutor() != null) {
-            entity.setTutor(docenteJpa.findByCodigo(actualizado.getTutor().getCodigo())
+            entity.setModalidad(actualizado.getModalidad().name());
+        entity.setTutor(docenteJpa.findByCodigo(actualizado.getTutor().getCodigo())
                     .orElseThrow(()->new IllegalArgumentException("Tutor no existe")));
         } else {
             entity.setTutor(null);

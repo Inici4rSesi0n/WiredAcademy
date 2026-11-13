@@ -30,5 +30,6 @@ public enum TipoEvento {
     TESOREROS,
     EVALUACIONES,
     CALIFICACIONES,
+    PUBLICACIONES,
     PSICOLOGOS
 }

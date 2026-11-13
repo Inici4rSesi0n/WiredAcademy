@@ -23,7 +23,7 @@
                         <TableColumn fx:id="colNumMatricula" text="N°" prefWidth="60.0" />
                         <TableColumn fx:id="colEstudiante" text="Estudiante" prefWidth="200.0" />
                         <TableColumn fx:id="colPeriodo" text="Periodo" prefWidth="120.0" />
-                        <TableColumn fx:id="colGrupo" text="Grupo" prefWidth="180.0" />
+                        <TableColumn fx:id="colGrupo" text="Grupo/Sección" prefWidth="180.0" />
                         <TableColumn fx:id="colFecha" text="Fecha" prefWidth="120.0" />
                         <TableColumn fx:id="colEstado" text="Estado" prefWidth="120.0" />
                         <TableColumn fx:id="colAccionesMatricula" text="Acciones" prefWidth="180.0" />
@@ -47,8 +47,16 @@
                 <Label text="Periodo:" styleClass="formulario-label" />
                 <ComboBox fx:id="cmbPeriodoMatricula" promptText="Seleccione un periodo" styleClass="formulario-input" maxWidth="1.0E8"/>
                 
-                <Label text="Grupo:" styleClass="formulario-label" />
-                <ComboBox fx:id="cmbGrupoMatricula" promptText="Seleccione un grupo" styleClass="formulario-input" maxWidth="1.0E8"/>
+                <VBox fx:id="panelColegio" managed="false" visible="false" spacing="5.0">
+                    <Label text="Grupo (Colegio):" styleClass="formulario-label" />
+                    <ComboBox fx:id="cmbGrupoMatricula" promptText="Seleccione un grupo" styleClass="formulario-input" maxWidth="1.0E8"/>
+                </VBox>
+
+                <VBox fx:id="panelUniversidad" managed="false" visible="false" spacing="10.0">
+                    <Label text="Inscripción por Asignatura (Universidad):" styleClass="formulario-label" />
+                    <VBox fx:id="vboxInscripciones" spacing="8.0" style="-fx-padding: 5px; -fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 5px;"/>
+                    <Button fx:id="btnAgregarAsignatura" text="+ Añadir Asignatura" styleClass="boton-morado-suave" onAction="#handleAgregarInscripcion" maxWidth="1.0E8"/>
+                </VBox>
                 
                 <Label text="Fecha (YYYY-MM-DD):" styleClass="formulario-label" />
                 <TextField fx:id="txtFechaMatricula" promptText="Ej. 2026-10-19" styleClass="formulario-input" />
