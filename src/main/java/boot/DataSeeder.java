@@ -12,11 +12,14 @@ import dominio.modelo.configuracion.TipoInstitucion;
 import dominio.puerto.externo.HashProvider;
 import dominio.puerto.repositorio.RepositorioConfiguracionSistema;
 import dominio.puerto.repositorio.RepositorioPeriodos;
+import dominio.puerto.repositorio.RepositorioEvaluaciones;
+import dominio.puerto.repositorio.RepositorioCalificaciones;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 @Component
 public class DataSeeder {
@@ -35,6 +38,8 @@ public class DataSeeder {
     private final HashProvider hashProvider;
     private final RepositorioPeriodos repoPeriodos;
     private final RepositorioConfiguracionSistema repoConfig;
+    private final RepositorioEvaluaciones repoEvaluaciones;
+    private final RepositorioCalificaciones repoCalificaciones;
     public DataSeeder(GestionUsuarios gestionUsuarios, GestionDocentes gestionDocentes,
                       GestionEstudiantes gestionEstudiantes, GestionPadres gestionPadres,
                       GestionGrados gestionGrados, GestionAsignaturas gestionAsignaturas,
@@ -42,7 +47,8 @@ public class DataSeeder {
                       GestionPeriodos gestionPeriodos, GestionMatriculas gestionMatriculas,
                       GestionClases gestionClases, GestionRecreos gestionRecreos,
                       HashProvider hashProvider, RepositorioPeriodos repoPeriodos,
-                      RepositorioConfiguracionSistema repoConfig) {
+                      RepositorioConfiguracionSistema repoConfig, RepositorioEvaluaciones repoEvaluaciones,
+                      RepositorioCalificaciones repoCalificaciones) {
         this.gestionUsuarios = gestionUsuarios;
         this.gestionDocentes = gestionDocentes;
         this.gestionEstudiantes = gestionEstudiantes;
@@ -58,6 +64,8 @@ public class DataSeeder {
         this.hashProvider = hashProvider;
         this.repoPeriodos = repoPeriodos;
         this.repoConfig = repoConfig;
+        this.repoEvaluaciones = repoEvaluaciones;
+        this.repoCalificaciones = repoCalificaciones;
     }
     @Transactional
     public void run() {
@@ -84,6 +92,7 @@ public class DataSeeder {
             System.out.println("  ✓ Recreos omitidos (Universidad).");
         }
         seedClases(tipo, grupos, asignaturas, aulas, docentes, periodo);
+        seedEvaluacionesYCalificaciones(estudiantes, asignaturas);
         System.out.println("✅ Seeder finalizado.");
         System.out.println("   Contraseña para todos los usuarios generados: " + defaultPass);
     }
@@ -234,11 +243,16 @@ public class DataSeeder {
                     if (aula == null) continue;
                     String keyGrupo = grupo.getNombre() + "|" + dia + "|" + horaInicio;
                     if (grupoOcupado.contains(keyGrupo)) continue;
-                    gestionClases.crearClase(dia, horaInicio, horaFin, asignatura, docente, grupo, aula, periodo);
-                    docenteOcupado.add(docente.getCodigo() + "|" + dia + "|" + horaInicio);
-                    aulaOcupada.add(aula.getNombre() + "|" + dia + "|" + horaInicio);
-                    grupoOcupado.add(keyGrupo);
-                    nuevas++;
+                    try {
+                        gestionClases.crearClase(dia, horaInicio, horaFin, asignatura, docente, grupo, aula, periodo);
+                        docenteOcupado.add(docente.getCodigo() + "|" + dia + "|" + horaInicio);
+                        aulaOcupada.add(aula.getNombre() + "|" + dia + "|" + horaInicio);
+                        grupoOcupado.add(keyGrupo);
+                        nuevas++;
+                    } catch (IllegalArgumentException e) {
+                        // Conflicto de horario residual en la BD. Ignorar y continuar.
+                        saltadas++;
+                    }
                 }
             }
         }
@@ -262,6 +276,33 @@ public class DataSeeder {
             if (!ocupadas.contains(key)) return au;
         }
         return null;
+    }
+    private void seedEvaluacionesYCalificaciones(List<Estudiante> estudiantes, List<Asignatura> asignaturas) {
+        if (repoEvaluaciones.listarTodos().isEmpty()) {
+            System.out.println("  ✓ Iniciando creación de Evaluaciones y Calificaciones de prueba...");
+            Random random = new Random();
+            for (Asignatura asignatura : asignaturas) {
+                Evaluacion pc1 = new Evaluacion(null, "Práctica Calificada 1 (PC1)", 0.2, asignatura);
+                Evaluacion pc2 = new Evaluacion(null, "Práctica Calificada 2 (PC2)", 0.2, asignatura);
+                Evaluacion exfn = new Evaluacion(null, "Examen Final (EXFN)", 0.6, asignatura);
+                repoEvaluaciones.agregar(pc1);
+                repoEvaluaciones.agregar(pc2);
+                repoEvaluaciones.agregar(exfn);
+
+                List<Evaluacion> evs = repoEvaluaciones.buscarPorAsignatura(asignatura.getNombre());
+                Evaluacion pc1Saved = evs.stream().filter(e -> e.getNombre().contains("PC1")).findFirst().orElse(null);
+                Evaluacion pc2Saved = evs.stream().filter(e -> e.getNombre().contains("PC2")).findFirst().orElse(null);
+                
+                for (int i = 0; i < Math.min(10, estudiantes.size()); i++) {
+                    Estudiante est = estudiantes.get(i);
+                    int n1 = 10 + random.nextInt(11);
+                    int n2 = 10 + random.nextInt(11);
+                    if (pc1Saved != null) repoCalificaciones.agregar(new Calificacion(null, pc1Saved, est, (double) n1));
+                    if (pc2Saved != null) repoCalificaciones.agregar(new Calificacion(null, pc2Saved, est, (double) n2));
+                }
+            }
+            System.out.println("  ✓ Evaluaciones y Calificaciones creadas exitosamente.");
+        }
     }
     private void crearUsuarioSiNoExiste(String codigo, String hash, String dni, String nombre, String apellido, int edad, Usuario.Rol rol, String especialidad) {
         if (gestionUsuarios.buscarPorCodigo(codigo) == null) {

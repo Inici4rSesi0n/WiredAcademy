@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="presentacion.controlador.portaldeingreso.miareapersonal.CalificacionesController"
+            styleClass="app-background">
+    <top>
+        <HBox styleClass="crud-header" alignment="CENTER_LEFT" spacing="15.0" style="-fx-padding: 20px;">
+            
+            <Label fx:id="lblTituloCurso" styleClass="crud-title" text="Calificaciones - Curso" />
+            <Region HBox.hgrow="ALWAYS" />
+            <Button fx:id="btnNuevaEvaluacion" text="+ Nueva Evaluación" styleClass="boton-primario" onAction="#handleNuevaEvaluacion" visible="false" managed="false"/>
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="20.0" style="-fx-padding: 20px;">
+            <HBox spacing="20.0" alignment="CENTER_LEFT" styleClass="glass-card" style="-fx-padding: 20px;">
+                <VBox spacing="5.0">
+                    <Label text="Promedio Ponderado (PP)" style="-fx-text-fill: #94A3B8; -fx-font-size: 14px;"/>
+                    <Label fx:id="lblPromedio" text="0.00" style="-fx-text-fill: #00D2FF; -fx-font-size: 36px; -fx-font-weight: bold;"/>
+                </VBox>
+            </HBox>
+
+            <VBox styleClass="tabla-wrapper" VBox.vgrow="ALWAYS">
+                <TableView fx:id="tablaNotas" styleClass="seccion-tabla" VBox.vgrow="ALWAYS">
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                    <columns>
+                        <TableColumn fx:id="colEvaluacion" text="Evaluación" prefWidth="250.0" />
+                        <TableColumn fx:id="colPeso" text="Peso" prefWidth="100.0" />
+                        <TableColumn fx:id="colNota" text="Nota" prefWidth="150.0" />
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

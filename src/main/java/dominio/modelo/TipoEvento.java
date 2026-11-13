@@ -28,5 +28,7 @@ public enum TipoEvento {
     SECRETARIOS,
     SUBDIRECTORES,
     TESOREROS,
+    EVALUACIONES,
+    CALIFICACIONES,
     PSICOLOGOS
 }

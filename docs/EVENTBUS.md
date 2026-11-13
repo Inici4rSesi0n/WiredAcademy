@@ -2,9 +2,8 @@
 
 > Documento de referencia del sistema de eventos. Define el contrato B1 y su enforcement.
 
-**Versión:** 1.0  
+**Versión:** 1.2  
 **Estado:** Activo  
-**Última revisión:** 2026-11-08  
 **Mantenedor:** inici4rsesi0n
 
 ---
@@ -20,194 +19,208 @@
 | Infraestructura (EventBus) | ✅ (implementa) | ✅ (implementa) |
 | Presentación (controllers) | ❌ | ✅ |
 
-**Enforcement:**
-
-- **Código:** `grep -rn "eventBus.notificar" src/main/java/presentacion/` = 0 líneas.
-- **Contract tests:** 51 tests blindan el contrato (ver `integration/eventos/`).
-- **Bot:** valida en `analyze-logs.sh` (sección 1).
-
-**Motivo:** sin esta regla, cada cambio en un controller debía recordarse manualmente de notificar. Con esta regla, el use case muta → notifica → todos los suscriptores se enteran. Un solo punto de cambio, cero olvidos.
-
 ---
 
-## 2. Tipos de evento
+## 2. Tipos de evento (Actualizado)
 
 Enum `TipoEvento` (`dominio/modelo/TipoEvento.java`):
 
 ```java
 public enum TipoEvento {
-    USUARIOS,
-    GRUPOS,
-    ASIGNATURAS,
-    AULAS,
-    GRADOS,
-    PERIODOS,
-    RECREOS,
-    TURNOS,
-    CLASES,
-    MATRICULAS,
-    DOCENTES,
-    ESTUDIANTES,
-    PADRES,
-    COORDINADORES,
-    ADMINISTRADORES,
-    DIRECTORES,
-    SECRETARIOS
+    USUARIOS, GRUPOS, ASIGNATURAS, AULAS, GRADOS, PERIODOS,
+    RECREOS, TURNOS, CLASES, MATRICULAS,
+    DOCENTES, ESTUDIANTES, PADRES, COORDINADORES, ADMINISTRADORES,
+    DIRECTORES, SECRETARIOS, SUBDIRECTORES, TESOREROS, PSICOLOGOS,
+    EVALUACIONES, CALIFICACIONES
 }
 ```
 
-Cada `TipoEvento` corresponde a una entidad de dominio. Algunos son **semilla** (nadie los consume aún, pero están listos para futuros suscriptores): `COORDINADORES`, `ADMINISTRADORES`, `DIRECTORES`, `SECRETARIOS`, `PADRES`.
+Los eventos **semilla** (`SUBDIRECTORES`, `TESOREROS`, etc.) están listos para futuros suscriptores.
 
 ---
 
 ## 3. Flujo end-to-end
 
-```
-┌─────────────┐  mutación  ┌──────────────────┐  notificar  ┌──────────┐
-│ Controller  │───────────▶│  Use Case        │────────────▶│ EventBus │
-│ (UI)        │            │ (GestionUsuarios)│             │ (Spring) │
-└─────────────┘            └──────────────────┘             └────┬─────┘
-       ▲                                                          │
-       │                                                          │ Platform.runLater
-       │                                                          ▼
-       │                    ┌──────────────────────────┐  onEvent ┌──────────┐
-       └────────────────────│ Otros Controllers        │◀─────────│ Listeners│
-                            │ (suscritos al TipoEvento)│          │ (WeakRef)│
-                            └──────────────────────────┘          └──────────┘
-```
-
-1. Controller invoca un caso de uso (`gestionUsuarios.agregarUsuario(cmd)`).
-2. Use case valida, persiste y luego `publisher.notificar(TipoEvento.USUARIOS)`.
-3. `EventBus` recibe la notificación y despacha a listeners en `Platform.runLater(...)`.
-4. Controllers suscritos reciben `onEvent(USUARIOS)` y recargan su UI.
+1. Controller invoca un caso de uso.
+2. Use case valida, persiste y notifica (`publisher.notificar(...)`).
+3. EventBus despacha a listeners en `Platform.runLater(...)`.
+4. Controllers suscritos reciben `onEvent(...)` y actualizan la UI.
 
 ---
 
-## 4. Los 12 use cases publicadores
+## 4. Use cases publicadores (Actualizado)
 
 | Use case | Eventos emitidos | Cuándo |
 |---|---|---|
-| `GestionAsignaturas` | `ASIGNATURAS` | crear / actualizar / eliminar |
-| `GestionAulas` | `AULAS` | crear / actualizar / eliminar |
-| `GestionClases` | `CLASES` | crear / actualizar / eliminar |
-| `GestionGrados` | `GRADOS` | crear / actualizar / eliminar |
-| `GestionPeriodos` | `PERIODOS` | crear / actualizar / eliminar |
-| `GestionTurnos` | `TURNOS` | crear / actualizar / eliminar |
-| `GestionRecreos` | `RECREOS` | crear / actualizar / eliminar / `aplicarA` / `removerDe` |
-| `GestionGrupos` | `GRUPOS` + `DOCENTES` | crear / actualizar / eliminar + asignar / removerTutor |
-| `GestionDocentes` | `DOCENTES` + `GRUPOS` | CRUD + agregar / removerAsignatura + asignarTutoria |
-| `GestionCoordinadores` | `COORDINADORES` + `GRADOS` | `agregarGrado` / `removerGrado` |
-| `GestionUsuarios` | `USUARIOS` + evento de rol | agregar / actualizar / eliminar (doble notificación) |
-| `GestionMatriculas` | `MATRICULAS` | matricular / actualizar / actualizarEstado / eliminar |
+| `GestionUsuarios` | `USUARIOS` + evento de rol | CRUD de cualquier usuario. |
+| `GestionEvaluaciones` | `EVALUACIONES` | Crear o eliminar una evaluación (PC1, Examen). |
+| `GestionCalificaciones` | `CALIFICACIONES` | Registrar o actualizar una nota. |
+| `GestionMatriculas` | `MATRICULAS` | Matricular, actualizar o eliminar. |
+| `GestionClases` | `CLASES` | Crear, actualizar o eliminar horarios. |
+| ... | ... | (Los catálogos emiten sus propios eventos). |
 
-**Excepciones** (por diseño, no notifican):
-
-- `GestionHorario` — solo lectura.
-- `AutenticarUsuario` — login (audit log, no evento).
-- `BootstrapUseCase` — corre antes de la UI, no hay listeners aún.
+**Excepciones (no notifican):** `GestionHorario` (solo lectura), `AutenticarUsuario` (login) y `BootstrapUseCase`.
 
 ---
 
-## 5. Los 15 controllers consumidores
-
-Suscritos a uno o más `TipoEvento`:
+## 5. Controllers consumidores (Actualizado)
 
 | Controller | Suscribe |
 |---|---|
-| `AsignacionCoordinadorController` | `USUARIOS`, `GRADOS` |
-| `AsignacionDocenteController` | `DOCENTES`, `ASIGNATURAS` |
-| `AsignacionTutorController` | `GRUPOS`, `DOCENTES` |
-| `GestionHorariosController` | `CLASES`, `GRUPOS`, `DOCENTES`, `AULAS`, `PERIODOS`, `ASIGNATURAS` |
-| `VisorHorarioController` | `CLASES`, `RECREOS` |
-| `TurnosController` | `TURNOS` |
-| `GradosController` | `GRADOS` |
-| `PeriodosController` | `PERIODOS` |
-| `AsignaturasController` | `ASIGNATURAS` |
-| `RecreosController` | `RECREOS`, `PERIODOS` |
-| `AulasController` | `AULAS` |
-| `GruposController` | `GRUPOS`, `GRADOS` |
-| `SeccionGestionUsuariosController` | `USUARIOS` |
+| `CalificacionesController` | `CALIFICACIONES`, `EVALUACIONES` |
+| `CursoDetalleController` | `CLASES`, `MATRICULAS` (para recalcular notas) |
 | `DashboardController` | `ESTUDIANTES`, `DOCENTES`, `GRUPOS`, `ASIGNATURAS` |
-| `SeccionMatriculaController` | `MATRICULAS`, `GRUPOS`, `ESTUDIANTES`, `PERIODOS` |
+| `VisorHorarioController` | `CLASES`, `RECREOS` |
+| ... | ... |
 
 ---
 
 ## 6. Contract tests
 
-**Ubicación:** `src/test/java/integration/eventos/`.
+- **Ubicación:** `src/test/java/integration/eventos/`.
+- **Cobertura:** 12 archivos base, 51+ tests totales.
 
-**Infraestructura:**
-
-- `TestEventRecorder` — listener de test que acumula eventos.
-- `BaseContractTest` — base con `Platform.startup`, recorder y suscripción a todos los eventos.
-
-**Cobertura:** 12 archivos, 51 tests totales. Patrón:
+**Patrón:**
 
 ```java
 @Test
-void crearAula_emiteAULAS() {
+void crearEvaluacion_emiteEVALUACIONES() {
     recorder.reset();
-    gestionAulas.crearAula("A", 30, "Piso", "Tipo", PRESENCIAL);
-    await().atMost(2, SECONDS).until(() -> recorder.contiene(TipoEvento.AULAS));
-    assertTrue(recorder.contiene(TipoEvento.AULAS));
+    gestionEvaluaciones.crearEvaluacion("PC1", 0.2, asignatura);
+    await().atMost(2, SECONDS).until(() -> recorder.contiene(TipoEvento.EVALUACIONES));
+    assertTrue(recorder.contiene(TipoEvento.EVALUACIONES));
 }
 ```
-
-**Doble notificación validada específicamente en:**
-
-- `asignarTutor` (`GRUPOS` + `DOCENTES`)
-- `asignarTutoria` (`GRUPOS` + `DOCENTES`)
-- `agregarGrado` / `removerGrado` (`COORDINADORES` + `GRADOS`)
-- `agregarUsuario` / `actualizarUsuario` / `eliminarUsuario` (`USUARIOS` + evento de rol)
 
 ---
 
 ## 7. WeakReference y GC
 
-El `EventBus` guarda listeners como `WeakReference<EventBusListener>`. Motivo: evitar memory leaks cuando un controller JavaFX se destruye (ej. cambio de vista) sin desuscribir explícito.
-
-**Ciclo de vida:**
-
-1. `initialize()` de controller → `eventBus.suscribir(evento, this)`.
-2. Cuando el controller se GC'd → el `WeakReference` se limpia automáticamente.
-3. `notificar()` limpia refs muertas con `removeIf(ref -> ref.get() == null)`.
-
-**Warning en logs:** `SIN SUSCRIPTORES ACTIVOS (GC)` (nivel `WARN`) si un evento se publica pero todos los listeners fueron GC'd. Detectado por el bot en `analyze-logs.sh` (sección 2).
-
-**Comportamiento esperado para eventos semilla** (`COORDINADORES`, `ADMINISTRADORES`, `DIRECTORES`, `SECRETARIOS`, `PADRES`):
-
-- Lista nunca creada → `log.debug("[EVENT] ... SIN SUSCRIPTORES")` — no `WARN`.
-- No contamina los logs del bot.
+- El `EventBus` guarda listeners como `WeakReference<EventBusListener>`.
+- Si un controller se destruye, el `WeakReference` se limpia.
+- `notificar()` limpia refs muertas con `removeIf(ref -> ref.get() == null)`.
+- **Warning en logs:** `SIN SUSCRIPTORES ACTIVOS (GC)`.
 
 ---
 
-## 8. Añadir un nuevo evento
+## 8. Añadir un nuevo evento (Protocolo)
 
-**Protocolo:**
+1. Añadir el valor al enum `TipoEvento`.
+2. En el use case: `publisher.notificar(TipoEvento.NUEVO)`.
+3. Añadir contract test (`times(1)` verificado).
+4. Suscribir controllers interesados: `eventBus.suscribir(TipoEvento.NUEVO, this)`.
+5. `grep -rn "eventBus.notificar" src/main/java/presentacion/` debe dar **0**.# EVENTBUS.md — Contrato de eventos de dominio
 
-1. Añadir el valor al enum `TipoEvento` en `dominio/modelo/TipoEvento.java`.
-2. En el use case relevante: `publisher.notificar(TipoEvento.NUEVO)` tras la mutación.
-3. Añadir contract test en `integration/eventos/casosdeuso/.../` (sección 6).
-4. Suscribir controllers interesados: `eventBus.suscribir(TipoEvento.NUEVO, this)` en `initialize()`.
-5. Añadir `case` al `onEvent` del controller (o `default -> {}` si se ignora).
+> Documento de referencia del sistema de eventos. Define el contrato B1 y su enforcement.
 
-**Checklist de PR:**
-
-- [ ] Enum `TipoEvento` actualizado.
-- [ ] Use case notifica.
-- [ ] Contract test añadido (`times(1)` verificado).
-- [ ] Controllers interesados suscritos.
-- [ ] `mvn test -Dtest='*ContractIT'` verde.
-- [ ] `grep -rn "eventBus.notificar" src/main/java/presentacion/` sigue dando 0.
+**Versión:** 1.2  
+**Estado:** Activo  
+**Mantenedor:** inici4rsesi0n
 
 ---
 
-## 9. Ver también
+## 1. Contrato B1 (regla de oro)
 
-- **`ARCHITECTURE.md`** — Visión general arquitectónica.
-- **`TESTING.md`** — Estrategia de tests (incluye contract tests).
-- **`LOGGING.md`** — Convención de logging (`WiredAcademy.EVENTBUS` logger).
-- **`ADR/`** — Decisiones arquitectónicas.
+**Los use cases son la única fuente de eventos de dominio.**
+
+| Capa | Puede `notificar` | Puede `suscribir` |
+|---|:---:|:---:|
+| Dominio | ❌ | ❌ |
+| Aplicación (use cases) | ✅ | ❌ |
+| Infraestructura (EventBus) | ✅ (implementa) | ✅ (implementa) |
+| Presentación (controllers) | ❌ | ✅ |
+
+---
+
+## 2. Tipos de evento (Actualizado)
+
+Enum `TipoEvento` (`dominio/modelo/TipoEvento.java`):
+
+```java
+public enum TipoEvento {
+    USUARIOS, GRUPOS, ASIGNATURAS, AULAS, GRADOS, PERIODOS,
+    RECREOS, TURNOS, CLASES, MATRICULAS,
+    DOCENTES, ESTUDIANTES, PADRES, COORDINADORES, ADMINISTRADORES,
+    DIRECTORES, SECRETARIOS, SUBDIRECTORES, TESOREROS, PSICOLOGOS,
+    EVALUACIONES, CALIFICACIONES
+}
+```
+
+Los eventos **semilla** (`SUBDIRECTORES`, `TESOREROS`, etc.) están listos para futuros suscriptores.
+
+---
+
+## 3. Flujo end-to-end
+
+1. Controller invoca un caso de uso.
+2. Use case valida, persiste y notifica (`publisher.notificar(...)`).
+3. EventBus despacha a listeners en `Platform.runLater(...)`.
+4. Controllers suscritos reciben `onEvent(...)` y actualizan la UI.
+
+---
+
+## 4. Use cases publicadores (Actualizado)
+
+| Use case | Eventos emitidos | Cuándo |
+|---|---|---|
+| `GestionUsuarios` | `USUARIOS` + evento de rol | CRUD de cualquier usuario. |
+| `GestionEvaluaciones` | `EVALUACIONES` | Crear o eliminar una evaluación (PC1, Examen). |
+| `GestionCalificaciones` | `CALIFICACIONES` | Registrar o actualizar una nota. |
+| `GestionMatriculas` | `MATRICULAS` | Matricular, actualizar o eliminar. |
+| `GestionClases` | `CLASES` | Crear, actualizar o eliminar horarios. |
+| ... | ... | (Los catálogos emiten sus propios eventos). |
+
+**Excepciones (no notifican):** `GestionHorario` (solo lectura), `AutenticarUsuario` (login) y `BootstrapUseCase`.
+
+---
+
+## 5. Controllers consumidores (Actualizado)
+
+| Controller | Suscribe |
+|---|---|
+| `CalificacionesController` | `CALIFICACIONES`, `EVALUACIONES` |
+| `CursoDetalleController` | `CLASES`, `MATRICULAS` (para recalcular notas) |
+| `DashboardController` | `ESTUDIANTES`, `DOCENTES`, `GRUPOS`, `ASIGNATURAS` |
+| `VisorHorarioController` | `CLASES`, `RECREOS` |
+| ... | ... |
+
+---
+
+## 6. Contract tests
+
+- **Ubicación:** `src/test/java/integration/eventos/`.
+- **Cobertura:** 12 archivos base, 51+ tests totales.
+
+**Patrón:**
+
+```java
+@Test
+void crearEvaluacion_emiteEVALUACIONES() {
+    recorder.reset();
+    gestionEvaluaciones.crearEvaluacion("PC1", 0.2, asignatura);
+    await().atMost(2, SECONDS).until(() -> recorder.contiene(TipoEvento.EVALUACIONES));
+    assertTrue(recorder.contiene(TipoEvento.EVALUACIONES));
+}
+```
+
+---
+
+## 7. WeakReference y GC
+
+- El `EventBus` guarda listeners como `WeakReference<EventBusListener>`.
+- Si un controller se destruye, el `WeakReference` se limpia.
+- `notificar()` limpia refs muertas con `removeIf(ref -> ref.get() == null)`.
+- **Warning en logs:** `SIN SUSCRIPTORES ACTIVOS (GC)`.
+
+---
+
+## 8. Añadir un nuevo evento (Protocolo)
+
+1. Añadir el valor al enum `TipoEvento`.
+2. En el use case: `publisher.notificar(TipoEvento.NUEVO)`.
+3. Añadir contract test (`times(1)` verificado).
+4. Suscribir controllers interesados: `eventBus.suscribir(TipoEvento.NUEVO, this)`.
+5. `grep -rn "eventBus.notificar" src/main/java/presentacion/` debe dar **0**.
 
 ---
 

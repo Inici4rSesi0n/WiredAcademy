@@ -1,33 +1,27 @@
-# Módulo: Mis Cursos
-
----
+# Módulo: Mis Cursos (Aula Virtual LMS)
 
 ## 1. Visión General
-
-Es el catálogo personal de asignaturas. Proporciona al usuario un acceso rápido a los cursos en los que participa y funciona como el **consumidor principal del material académico** subido en el sistema.
-
----
+El hub central del usuario. Al seleccionar un curso, se abre un detalle con pestañas que consumen lo creado en el CMS.
 
 ## 2. Control de Acceso (RBAC)
+- `ESTUDIANTE`, `DOCENTE`. Acceso indirecto para Padre.
 
-- **Roles con visibilidad:** `ESTUDIANTE`, `DOCENTE`.
-- **Acceso de Padre:** Indirecto (asume la vista del estudiante seleccionado).
-- **Enum asociado:** `SeccionMenu.MIS_CURSOS`.
+## 3. Modelo Compartido
+- Pestañas dinámicas: `Contenido`, `Tareas`, `Evaluaciones`, `Foros`, `Anuncios`.
 
----
+## 4. Perspectiva DOCENTE
+- **Cabecera:** Filtro de periodos.
+- **Contenido:** Ve las semanas y puede ir al CMS a subir material.
+- **Tareas/Evaluaciones:** Tabla responsiva de estudiantes. Puede calificar masivamente (escribir nota y Enter).
+- **Foros:** Modera discusiones.
 
-## 3. Requisitos Funcionales (RF)
-
-- **RF-MC-01:** Listar las asignaturas del estudiante (matriculadas) o del docente (asignadas).
-- **RF-MC-02:** Mostrar un resumen del curso (Nombre, Docente, Aula).
-- **RF-MC-03 (Visualización de Material):** Al entrar al detalle de un curso, mostrar una lista de los recursos (Sílabos, Prácticas, Lecturas) que el docente o coordinador haya subido específicamente para esa asignatura.
-- **RF-MC-04 (Descarga):** Permitir al estudiante descargar estos recursos.
-- **RF-MC-05:** El docente verá en esta vista el material que él mismo ha publicado para su curso, sirviéndole como confirmación visual.
-
----
-
-## 4. Flujo de Trabajo (Workflow)
-
-1. El usuario entra a "Mis Cursos".
-2. Selecciona una tarjeta (ej. "Matemática").
-3. El sistema despliega el detalle del curso, mostrando en una sección inferior la lista de materiales académicos vinculados a esta asignatura.
+## 5. Perspectiva ESTUDIANTE
+- **Cabecera:** Ve su docente y la modalidad de la sección (Virtual/Presencial).
+- **Contenido:** Acordeón de semanas. Descarga archivos.
+- **Tareas:**
+  - Banner superior con días restantes.
+  - Badges de estado: `Por entregar`, `Entregado`, `Atrasado`, `Calificado`.
+  - Botón para subir archivo si quedan intentos.
+  - Ve feedback del docente.
+- **Evaluaciones:**
+  - Ve intentos utilizados y nota final (según criterio: última, más alta, promedio).

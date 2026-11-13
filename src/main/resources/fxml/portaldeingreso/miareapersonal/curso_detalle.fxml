@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="presentacion.controlador.portaldeingreso.miareapersonal.CursoDetalleController"
+            styleClass="app-background">
+    <top>
+        <VBox>
+            <HBox styleClass="crud-header" alignment="CENTER_LEFT" spacing="15.0" style="-fx-padding: 20px;">
+                <Button text="← Volver a Mis Cursos" styleClass="boton-morado-suave" onAction="#handleVolver" />
+                <Label fx:id="lblTituloCurso" styleClass="crud-title" text="Detalle del Curso" />
+            </HBox>
+            <TabPane fx:id="tabPaneCurso" tabClosingPolicy="UNAVAILABLE" style="-fx-background-color: transparent;">
+                <Tab text="Información">
+                    <VBox spacing="15.0" style="-fx-padding: 20px;">
+                        <Label fx:id="lblInfoCurso" style="-fx-text-fill: #CBD5E1; -fx-font-size: 16px;" />
+                    </VBox>
+                </Tab>
+                <Tab text="Calificaciones">
+                    <fx:include fx:id="includeCalificaciones" source="calificaciones.fxml" />
+                </Tab>
+                <Tab fx:id="tabAsistencia" text="Registrar Asistencia">
+                    <VBox alignment="CENTER" style="-fx-padding: 20px;">
+                        <Label text="Módulo de Asistencia en construcción." style="-fx-text-fill: #64748B;"/>
+                    </VBox>
+                </Tab>
+            </TabPane>
+        </VBox>
+    </top>
+</BorderPane>

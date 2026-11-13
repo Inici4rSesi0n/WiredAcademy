@@ -2,9 +2,8 @@
 
 > Documento maestro de la estrategia de tests del proyecto.
 
-**Versión:** 1.1  
+**Versión:** 1.2  
 **Estado:** Activo  
-**Última revisión:** 2026-11-09  
 **Mantenedor:** inici4rsesi0n
 
 ---
@@ -15,13 +14,13 @@ El proyecto usa **5 categorías** organizadas por alcance y propósito.
 
 | Categoría | Path | Sufijo | Archivos | Ejecuta |
 |---|---|---|---:|---|
-| **Unitarios de dominio** | `src/test/java/dominio/` | `*Test.java` | ~20 | Instancias puras o mocks |
-| **Unitarios de aplicación** | `src/test/java/aplicacion/` | `*Test.java` | ~22 | Mockito (repos + logger + publisher) |
-| **Integración (IT)** | `src/test/java/integration/aplicacion/` | `*IT.java` | 20 | BD real (`wiredacademy_test`), rollback por test |
-| **Contract tests (EventBus)** | `src/test/java/integration/eventos/` | `*ContractIT.java` | 12 archivos / 51 tests | End-to-end: use case → EventBus → `TestEventRecorder` |
-| **UI tests (TestFX)** | `src/test/java/presentacion/` | `*UITest.java` | 15 | TestFX + Monocle headless |
+| **Unitarios de dominio** | `src/test/java/dominio/` | `*Test.java` | ~25 | Instancias puras o mocks |
+| **Unitarios de aplicación** | `src/test/java/aplicacion/` | `*Test.java` | ~25 | Mockito (repos + logger + publisher) |
+| **Integración (IT)** | `src/test/java/integration/aplicacion/` | `*IT.java` | 22 | BD real (`wiredacademy_test`), rollback por test |
+| **Contract tests (EventBus)** | `src/test/java/integration/eventos/` | `*ContractIT.java` | 12 archivos / 55+ tests | End-to-end: use case → EventBus → `TestEventRecorder` |
+| **UI tests (TestFX)** | `src/test/java/presentacion/` | `*UITest.java` | 17+ | TestFX + Monocle headless |
 
-**Total:** ~498 tests sin UI + 15 UI = **~513 tests** en suite completa (incluye los 3 tests de `MonoclePropertiesTest`).
+**Total:** ~520+ tests en suite completa.
 
 ### ¿Cuándo usar cada uno?
 
@@ -37,288 +36,38 @@ El proyecto usa **5 categorías** organizadas por alcance y propósito.
 
 ## 2. Comandos por modo
 
-### Modos principales
-
 ```bash
-# Rápido: unitarios + integración (sin UI) ~2 min
-./scripts/test.sh fast
+./scripts/test.sh fast          # unitarios + integración (sin UI)
+./scripts/test.sh ui            # Solo UI
+./scripts/test.sh full          # Todo
 
-# Solo UI: TestFX headless ~5 min
-./scripts/test.sh ui
-
-# Full: todo ~10 min
-./scripts/test.sh full
-
-# Directo con Maven (sin script)
-mvn test                    # Igual que `fast`
-mvn test -Pui               # Igual que `ui`
-mvn test -Pfull             # Igual que `full`
-```
-
-### Ejecutar un solo test (para iterar rápido)
-
-```bash
-mvn test -Dtest=GestionUsuariosTest              # Una clase
-mvn test -Dtest='Gestion*Test'                   # Pattern
-mvn test -Dtest='GestionUsuariosTest#crear*'     # Solo un método
-```
-
-### Solo los contract tests del EventBus
-
-```bash
-mvn test -Dtest='*ContractIT'
-```
-
-### Solo un UI test específico
-
-```bash
-mvn test -Pui -Dtest=AsignacionDocenteUITest
+mvn test -Dtest='*ContractIT'   # Contract tests
 ```
 
 ---
 
 ## 3. Política CI/CD
 
-Configuración en `.github/workflows/ci.yml`.
+- **push** a cualquier rama → `fast-tests`.
+- **pull_request** a `master` / `main` → `full-tests`.
 
-### Triggers y jobs
-
-| Trigger | Job | Modo |
-|---|---|---|
-| push a cualquier rama | `fast-tests` | `mvn clean test` (sin UI) |
-| pull_request a master / main | `full-tests` | `mvn test -Pfull` (con UI) |
-| push a master / main | `full-tests` | `mvn test -Pfull` (con UI) |
-
-### Servicios en CI
-
-- **PostgreSQL 16** (efímero, puerto 5433) con healthcheck `pg_isready -U wiredacademy_app -d wiredacademy_test`.
-- **Xvfb** para los UI tests (TestFX + Monocle headless).
-- **JDK 21** (Temurin, vía `actions/setup-java@v5`).
-
-### Duración esperada en CI
-
-| Job | Duración |
-|---|---|
-| `fast-tests` | ~2 min |
-| `full-tests` | ~5 min |
+**Servicios en CI:** PostgreSQL 16 efímero + Xvfb para UI.
 
 ---
 
-## 4. Bot post-ejecución (`run-bot.sh`)
+## 4. Convenciones
 
-Además de los tests, el proyecto tiene un guardián post-ejecución que analiza logs:
-
-```bash
-./scripts/run-bot.sh fast
-./scripts/run-bot.sh full
-```
-
-### Secciones que valida el bot
-
-El bot valida **4 secciones**:
-
-1. **Errores no conocidos** en `wiredacademy-error.log`.
-2. **Listeners GC'd** en `wiredacademy-eventbus.log`.
-3. **Bugs históricos reincidentes** (`Query did not return a unique result`, `value too long for type character varying`).
-4. **Resumen de actividad** (mutaciones + eventos).
-
-**Baseline de errores aceptados:** `scripts/dev/log-baseline.txt` (versionado).  
-Si un error está whitelisted (aceptado con justificación), el bot lo ignora.
-
-### Scope del bot
-
-El bot es **complemento**, no reemplazo de:
-
-- **SAST** (Semgrep, CodeQL) — análisis estático.
-- **WAF** (ModSecurity, Coraza) — seguridad web.
-- **Linters** (SpotBugs, Checkstyle) — estilo.
-- **Cobertura** (JaCoCo) — cobertura.
-
-> Verde en el bot **no** significa "0 bugs en la app". Significa "0 bugs detectables en los logs analizados durante la ejecución de tests".
+- **UI tests:** Prefijo `UITest-` para cleanup con `CatalogCleanupHelper`.
+- **Contract tests:** Heredar de `BaseContractTest` y usar `Awaitility`.
+- **Aislamiento:** `@Transactional` para ITs, cleanup explícito para UI.
 
 ---
 
-## 5. Convenciones
-
-### Prefijo de tests para cleanup
-
-Los UI tests usan prefijo `UITest-` para auto-limpiar datos entre ejecuciones vía `CatalogCleanupHelper`. Si añades un UI test nuevo:
-
-1. Usa `UITest-` en los datos de prueba.
-2. Hereda de `BaseUITest`.
-3. Implementa `@BeforeEach setUp()` + `@AfterEach tearDown()` con `CatalogCleanupHelper`.
-
-### Contract tests (EventBus)
-
-Si añades un use case que notifica eventos:
-
-1. Hereda de `BaseContractTest`.
-2. Añade un `*ContractIT.java` con al menos un test por evento emitido.
-3. Usa `Awaitility` con timeout de 2 segundos.
-4. Verifica con `verifyNoMoreInteractions` cuando corresponda (`times(1)`).
-
-### Aislamiento entre tests
-
-- **ITs:** `@Transactional` (rollback automático por test).
-- **Contract tests:** `@Transactional` heredado de `BaseContractTest`.
-- **UI tests:** `CatalogCleanupHelper` (borrado explícito por prefijo + orden FK correcto).
-- **Nunca** confíes en el orden de ejecución entre tests.
-
-### Configuración headless del toolkit JavaFX
-
-Los tests que ejecutan `Platform.startup()` directo (contract tests) deben configurar:
-
-- `glass.platform=Monocle`
-- `monocle.platform=Headless`
-- `testfx.headless=true`
-
-Esta configuración está en `BaseContractTest` (bloque `static`) y en `pom.xml` (`<systemPropertyVariables>`). Ver §6 Troubleshooting y §9 Lecciones aprendidas.
-
----
-
-## 6. Troubleshooting
-
-### Error: "Connection refused" al correr `mvn test`
-
-Podman no está corriendo o el contenedor está parado:
-
-```bash
-podman ps
-podman start wiredacademy-postgres
-```
-
-### Error: "database wiredacademy_test does not exist"
-
-La BD de test se crea con la primera migración Flyway. Ejecutar:
-
-```bash
-podman exec -it wiredacademy-postgres psql -U wiredacademy_app -d postgres -c "CREATE DATABASE wiredacademy_test;"
-mvn test -Dtest=GestionUsuariosIT
-```
-
-### Error: UI tests fallan con "Toolkit not initialized"
-
-El FX toolkit no está headless. `BaseUITest` configura Monocle. En CI se requiere Xvfb.
-
-### Error: contract tests fallan con "Unable to open DISPLAY" en CI
-
-**Síntoma:** los `*ContractIT` fallan en cascada con `ExceptionInInitializerError` → `NoClassDefFoundError`. Un `clinit` fallido "envenena" la clase para toda la JVM, por eso 1 error se convierte en 51.
-
-**Causa:** `BaseContractTest` ejecuta `Platform.startup()` en un bloque `static`. Sin `glass.platform=Monocle` + `monocle.platform=Headless`, JavaFX arranca Glass/GTK que requiere X11 (`DISPLAY`).
-
-**Fix:** ver bloque `static` de `BaseContractTest.java` + `pom.xml` `<systemPropertyVariables>`. Configuración requerida:
-
-- `glass.platform=Monocle`
-- `monocle.platform=Headless`
-- `testfx.headless=true`
-
-**Prevención:** `MonoclePropertiesTest` (3 tests) verifica que las properties están configuradas. Falla si alguien las borra.
-
-**Verificar localmente simulando CI:**
-
-```bash
-unset DISPLAY
-mvn test -Dtest='*ContractIT'
-```
-
-Debe dar 51/51 verde. Si falla → config rota.
-
-> **Distinto de** "UI tests fallan con Toolkit not initialized" (entrada anterior): esa es para `ApplicationTest` de TestFX; esta es para `Platform.startup()` directo.
-
-### Error: "DNI already exists" en tests
-
-Un test previo no limpió. `CatalogCleanupHelper.limpiarTodo()` en `@BeforeEach`/`@AfterEach` lo previene. Si persiste, ejecutar manualmente o cambiar el prefijo.
-
-### El bot dice "archivo no existe" en `[1/4]`
-
-Comportamiento conocido: `mvn test` puro (sin `-Pui`) escribe a `logs/` solo si `spring.profiles.active=dev` está activo, pero los IT activan `@ActiveProfiles("test")`. El bot tiene fallback a `logs/` vacío — significa "sin errores detectables en este run".
-
----
-
-## 7. Cobertura
-
-Actualmente **no hay integración de JaCoCo**. Planificado para fase futura.
-
-Para añadir: `mvn jacoco:report` después de configurar el plugin en `pom.xml`.
-
----
-
-## 8. Añadir un test nuevo
-
-### Test unitario de aplicación
-
-1. Crear `src/test/java/aplicacion/casosdeuso/.../MiUseCaseTest.java`.
-2. `@BeforeEach` con `mock()` de repos + `LoggerPort` + `EventPublisher`.
-3. Tests con `@Test` + `assertThrows` / `verify`.
-
-### Test de integración
-
-1. Crear `src/test/java/integration/aplicacion/.../MiUseCaseIT.java`.
-2. Heredar de `BaseIntegrationTest`.
-3. `@Autowired` los beans necesarios.
-4. Usar prefijo único para datos (ej. `IT-`).
-
-### Contract test
-
-1. Crear `src/test/java/integration/eventos/casosdeuso/.../MiUseCaseContractIT.java`.
-2. Heredar de `BaseContractTest`.
-3. Patrón: `recorder.reset()` → mutación → `await().until(() -> recorder.contiene(EVENTO))`.
-
-### UI test
-
-1. Crear `src/test/java/presentacion/.../MiVistaUITest.java`.
-2. Heredar de `BaseUITest`.
-3. `start(Stage)` con `loadAndShow(stage, "...fxml")`.
-4. `@BeforeEach setUp()` con `CatalogCleanupHelper`.
-5. Verificar en tabla con `WaitForAsyncUtils.waitFor`.
-
-### Test con `Platform.startup()`
-
-Si tu test llama `Platform.startup()` directamente (no vía `ApplicationTest` de TestFX), debes heredar de `BaseContractTest` o replicar la config Monocle. Ver §9 Lecciones aprendidas (L-001).
-
----
-
-## 9. Lecciones aprendidas
-
-### L-001 — Configurar Monocle explícitamente en `Platform.startup()`
-
-**Contexto:** Fase 5 introdujo `BaseContractTest` con `Platform.startup()` en bloque `static`. En local funcionaba (`DISPLAY` activo). En CI falló con 51 errores en cascada (`ExceptionInInitializerError` → `NoClassDefFoundError`).
-
-**Lección:** `Platform.startup()` **no** respeta `testfx.headless=true` porque TestFX procesa esa property solo cuando corre bajo su framework (`ApplicationTest`). Cuando se llama `Platform.startup()` directamente, hay que configurar `glass.platform=Monocle` + `monocle.platform=Headless` **antes** de la llamada.
-
-**Regla para futuros tests:**
-
-- Si añades un test con `Platform.startup()` directo → config Monocle **obligatoria**.
-- Si usas `ApplicationTest` de TestFX → `testfx.headless=true` es suficiente.
-
-**Prevención:** `MonoclePropertiesTest` verifica que las properties están configuradas. Falla si alguien las borra por accidente, con un mensaje claro de qué property falta y por qué importa.
-
-**Ver:** §6 Troubleshooting, entrada "contract tests fallan con Unable to open DISPLAY".
-
----
-
-## 10. Ver también
-
-- **`ARCHITECTURE.md`** — Visión general arquitectónica.
-- **`EVENTBUS.md`** — Contrato B1 (los contract tests lo validan).
-- **`DATABASE.md`** — Esquema y migraciones Flyway.
-- **`LOGGING.md`** — Convención de logging (audit log analizado por el bot).
-- **`ADR/`** — Decisiones arquitectónicas.
-- **`CHANGELOG.md`** — Historial de versiones.
-
----
-
-## 11. Data Seeder (Herramienta de Desarrollo)
-
-El **DataSeeder** es una herramienta exclusiva para entornos de desarrollo y demostración. Su objetivo es poblar la base de datos con datos realistas (estudiantes, docentes, horarios) para probar la UI sin tener que crearlos manualmente.
-
-**No se ejecuta automáticamente en producción.** Para invocarlo, se debe usar la variable de entorno `WIRED_SEED=true` al arrancar la aplicación:
-
-```bash
-WIRED_SEED=true mvn -q javafx:run
-```
-
-El Seeder detecta automáticamente el `TIPO_INSTITUCION` configurado en el Bootstrap y genera los datos correspondientes (Grados y Grupos para Colegios; Ciclos y Secciones para Universidades).
+## 5. Lecciones Aprendidas (Monocle)
+
+- `Platform.startup()` directo requiere `glass.platform=Monocle` y `monocle.platform=Headless`.
+- TestFX (`ApplicationTest`) solo requiere `testfx.headless=true`.
+- `MonoclePropertiesTest` verifica que las properties estén configuradas.
 
 ---
 
