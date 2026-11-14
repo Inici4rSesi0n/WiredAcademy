@@ -17,7 +17,8 @@ public abstract class GrupoMapper{
     @Autowired protected DocenteMapper docenteMapper;
     public Grupo toDomain(GrupoEntity entity) {
         if (entity == null) return null;
-        Grupo grupo = new Grupo(entity.getNombre(), gradoMapper.toDomain(entity.getGrado()), Modalidad.valueOf(entity.getModalidad()));
+        Modalidad modalidad = (entity.getModalidad() != null) ? Modalidad.valueOf(entity.getModalidad()) : Modalidad.PRESENCIAL;
+        Grupo grupo = new Grupo(entity.getNombre(), gradoMapper.toDomain(entity.getGrado()), modalidad);
         if (entity.getTutor() != null) grupo.asignarTutor(docenteMapper.toDomain(entity.getTutor()));
         return grupo;
     }

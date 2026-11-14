@@ -27,5 +27,8 @@ public class Calificacion implements Serializable {
     public Estudiante getEstudiante() { return estudiante; }
     public void setEstudiante(Estudiante estudiante) { this.estudiante = estudiante; }
     public Double getNota() { return nota; }
-    public void setNota(Double nota) { this.nota = nota; }
+    public void setNota(Double nota) {
+        if (nota != null && (nota < 0 || nota > 20)) throw new IllegalArgumentException("La nota debe estar entre 0 y 20");
+        this.nota = nota;
+    }
 }

@@ -137,7 +137,7 @@ src/main/java/
 | Trade-off | Justificación |
 |---|---|
 | **Doble FK de tutoría** | Sincronización manual en `asignarTutor`. Deuda: unificar. |
-| **Singletons estáticos** (`SesionUsuario`) | Simple para escritorio. Deuda: persistir en BD. |
+| **Singletons estáticos** (`SesionUsuario`) | Simple para escritorio. Deuda: persistir en BD (tabla `sesiones` de V1 sin uso). `PersistenciaSesion` cubre archivo local con flag opt-in. |
 | **Fechas/horas como String** | Compatibilidad con `DatePicker`. Deuda: migrar a `LocalDate`. |
 
 ---

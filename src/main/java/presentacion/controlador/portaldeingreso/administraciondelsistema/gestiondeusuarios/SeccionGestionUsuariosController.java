@@ -13,6 +13,7 @@ import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
 import dominio.modelo.TipoEvento;
 import java.net.URL;
+import java.security.SecureRandom;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Scope("prototype")
 public class SeccionGestionUsuariosController implements Initializable, EventBusListener {
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
     private final GestionUsuarios gestionUsuarios;
     private final HashProvider hashProvider;
     private final LoggerPort logger;
@@ -40,7 +42,6 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
     @FXML private TableColumn<Usuario, String> colCodigo, colNombre, colApellido, colDni, colRol;
     @FXML private TableColumn<Usuario, Void> colAcciones;
     @FXML private ScrollPane scrollPaneFormulario;
-     private VBox panelFormulario;
     @FXML private ComboBox<String> cmbRol;
     @FXML private TextField txtCodigo, txtNombre, txtApellido, txtDni, txtEdad, txtContrasena;
     @FXML private Button btnNuevoUsuario, btnGuardar, btnCancelar;
@@ -207,7 +208,7 @@ public class SeccionGestionUsuariosController implements Initializable, EventBus
     private String generarCodigoUnico() {
         String codigo;
         do {
-            int numero = (int) (Math.random() * 90_000_000) + 10_000_000;
+            int numero = SECURE_RANDOM.nextInt(90_000_000) + 10_000_000;
             codigo = "U" + numero;
         } while (gestionUsuarios.buscarPorCodigo(codigo) != null);
         return codigo;

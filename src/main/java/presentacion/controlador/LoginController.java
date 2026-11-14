@@ -5,8 +5,10 @@
 package presentacion.controlador;
 import aplicacion.casosdeuso.portaldeingreso.sistema.AutenticarUsuario;
 import dominio.modelo.Usuario;
+import dominio.puerto.externo.LoggerPort;
 import infraestructura.seguridad.UtilLimpieza;
 import presentacion.dialogos.Dialogos;
+import presentacion.estadousuario.PersistenciaSesion;
 import presentacion.estadousuario.SesionUsuario;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -18,14 +20,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-/**
- *
- * @author inici4rsesi0n
- */
 @Component
 @Scope("prototype")
 public class LoginController implements Initializable {
     private final AutenticarUsuario autenticarUsuario;
+    private final LoggerPort logger;
     @FXML private TextField txtCodigo;
     @FXML private PasswordField txtPassword;
     @FXML private TextField txtPasswordRevealed;
@@ -37,8 +36,9 @@ public class LoginController implements Initializable {
     private String modo;
     private Usuario usuarioAutenticado;
     private boolean regresando = false;
-    public LoginController(AutenticarUsuario autenticarUsuario) {
+    public LoginController(AutenticarUsuario autenticarUsuario, LoggerPort logger) {
         this.autenticarUsuario = autenticarUsuario;
+        this.logger = logger;
     }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -67,7 +67,10 @@ public class LoginController implements Initializable {
     private void handleLogin() {
         String codigo = txtCodigo.getText();
         char[] contraseña = obtenerContrasena();
+        boolean rememberMe = chkMantenerSesion.isSelected();
+        logger.audit("[SESSION] login_intento codigo={} rememberMe={}", codigo, rememberMe);
         if (codigo == null || codigo.isBlank() || contraseña == null || contraseña.length == 0) {
+            logger.audit("[SESSION] login_fallido codigo={} motivo=campos_vacios", codigo);
             Dialogos.info("Debe ingresar un código y una contraseña.");
             return;
         }
@@ -75,10 +78,20 @@ public class LoginController implements Initializable {
             Usuario usuario = autenticarUsuario.ejecutar(codigo, contraseña);
             if (usuario != null) {
                 this.usuarioAutenticado = usuario;
-                if (chkMantenerSesion.isSelected()) SesionUsuario.iniciarSesion(usuario);
+                SesionUsuario.iniciarSesion(usuario);
+                String persistencia;
+                if (rememberMe) {
+                    persistencia = PersistenciaSesion.guardar(usuario.getCodigo()) ? "escrita" : "error_escritura";
+                } else {
+                    PersistenciaSesion.borrar();
+                    persistencia = "borrada";
+                }
+                logger.audit("[SESSION] login_exitoso codigo={} rol={} rememberMe={} persistencia={}",
+                        usuario.getCodigo(), usuario.getRol(), rememberMe, persistencia);
                 Stage stage = (Stage) btnLogin.getScene().getWindow();
                 stage.close();
             } else {
+                logger.audit("[SESSION] login_fallido codigo={} motivo=credenciales_invalidas", codigo);
                 Dialogos.info("Código o contraseña incorrectos.");
             }
         } finally {
@@ -87,6 +100,7 @@ public class LoginController implements Initializable {
     }
     @FXML
     private void handleRegresar() {
+        logger.audit("[SESSION] login_cancelado");
         regresando = true;
         Stage stage = (Stage) btnRegresar.getScene().getWindow();
         stage.close();
@@ -102,10 +116,8 @@ public class LoginController implements Initializable {
     }
     private void togglePasswordVisibility(MouseEvent event) {
         boolean revelado = txtPasswordRevealed.isVisible();
-        // Alternar visibilidad
         txtPasswordRevealed.setVisible(!revelado);
         txtPassword.setVisible(revelado);
-        // Alternar ocupación de espacio (esto evita el salto visual)
         txtPasswordRevealed.setManaged(!revelado);
         txtPassword.setManaged(revelado);
         if (!revelado) {

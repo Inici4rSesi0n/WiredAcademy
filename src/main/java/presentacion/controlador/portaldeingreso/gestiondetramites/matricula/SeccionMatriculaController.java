@@ -94,6 +94,7 @@ public class SeccionMatriculaController implements Initializable, EventBusListen
         eventBus.suscribir(TipoEvento.PERIODOS, this);
     }
     private void evaluarTipoInstitucion() {
+        // UNIVERSIDAD e INSTITUTO usan matrícula flexible (por asignatura); COLEGIO usa grupo completo
         esUniversidad = repoConfig.obtener()
                 .map(c -> c.getTipoInstitucion() == TipoInstitucion.UNIVERSIDAD || c.getTipoInstitucion() == TipoInstitucion.INSTITUTO)
                 .orElse(false);

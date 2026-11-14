@@ -16,7 +16,7 @@ public abstract class UsuarioEntity {
     private String codigo;
     @Column(name="hash_contrasena", nullable=false)
     private String hashContrasena;
-    @Column(nullable=false, unique=true, length=8)
+    @Column(nullable=false, unique=true, length=20)
     private String dni;
     @Column(nullable=false)
     private String nombre;

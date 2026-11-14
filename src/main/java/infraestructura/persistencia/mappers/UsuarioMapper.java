@@ -5,6 +5,7 @@
 package infraestructura.persistencia.mappers;
 import dominio.modelo.*;
 import infraestructura.persistencia.entidades.*;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
 /**
  * Mapper manual para convertir UsuarioEntity a Usuario (clase abstracta).
@@ -41,7 +42,7 @@ public class UsuarioMapper {
     }
     public Usuario toDomain(UsuarioEntity entity) {
         if (entity == null) return null;
-        String rol = entity.getClass().getAnnotation(jakarta.persistence.DiscriminatorValue.class).value();
+        String rol = Hibernate.unproxy(entity).getClass().getAnnotation(jakarta.persistence.DiscriminatorValue.class).value();
         return switch (rol) {
             case "ADMINISTRADOR" -> adminMapper.toDomain((AdministradorEntity) entity);
             case "DIRECTOR" -> dirMapper.toDomain((DirectorEntity) entity);

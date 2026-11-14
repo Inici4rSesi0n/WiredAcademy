@@ -25,7 +25,10 @@ public class Evaluacion implements Serializable {
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
     public double getPeso() { return peso; }
-    public void setPeso(double peso) { this.peso = peso; }
+    public void setPeso(double peso) {
+        if (peso <= 0 || peso > 1) throw new IllegalArgumentException("El peso debe estar entre 0.01 y 1.0");
+        this.peso = peso;
+    }
     public Asignatura getAsignatura() { return asignatura; }
     public void setAsignatura(Asignatura asignatura) { this.asignatura = asignatura; }
 }

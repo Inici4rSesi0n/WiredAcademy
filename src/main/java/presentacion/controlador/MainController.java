@@ -9,6 +9,7 @@ import dominio.puerto.externo.LoggerPort;
 import dominio.modelo.Usuario;
 import infraestructura.configuracion.SpringFxmlLoader;
 import presentacion.dialogos.Dialogos;
+import presentacion.estadousuario.PersistenciaSesion;
 import presentacion.estadousuario.SesionUsuario;
 import java.net.URL;
 import java.util.Map;
@@ -73,7 +74,11 @@ public class MainController implements Initializable {
     @FXML private void handlePortalMatricula() { navegar("MATRICULA", btnPortalMatricula); }
     @FXML
     private void handleCerrarSesion() {
+        Usuario usuarioActual = SesionUsuario.getUsuarioActual();
+        String codigo = (usuarioActual != null) ? usuarioActual.getCodigo() : "desconocido";
         SesionUsuario.cerrarSesion();
+        boolean borrado = PersistenciaSesion.borrar();
+        logger.audit("[SESSION] logout codigo={} persistencia_borrada={}", codigo, borrado);
         logger.setUsuario(null);
         Stage stage = (Stage) btnCerrarSesion.getScene().getWindow();
         navegarAVista("main", stage, null);
@@ -133,6 +138,14 @@ public class MainController implements Initializable {
     private void navegarAVista(String vistaKey, Stage ventanaActual, Usuario usuario) {
         String ruta = rutasVistas.get(vistaKey);
         if (ruta == null) return;
+        if ("main".equals(vistaKey) && !PersistenciaSesion.leer().isPresent()) {
+            Usuario activo = SesionUsuario.getUsuarioActual();
+            if (activo != null) {
+                logger.audit("[SESSION] logout_auto motivo=volver_a_main_sin_persistencia codigo={}", activo.getCodigo());
+                SesionUsuario.cerrarSesion();
+                logger.setUsuario(null);
+            }
+        }
         try {
             FXMLLoader loader = fxmlLoader.crearLoader(ruta);
             Parent root = loader.load();
