@@ -3,21 +3,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 package aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico;
-import dominio.modelo.Docente;
-import dominio.modelo.Grado;
-import dominio.modelo.Grupo;
+import dominio.modelo.*;
 import dominio.puerto.externo.LoggerPort;
 import dominio.puerto.externo.EventPublisher;
-import dominio.modelo.TipoEvento;
 import dominio.puerto.repositorio.RepositorioDocentes;
 import dominio.puerto.repositorio.RepositorioGrupos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-/**
- *
- * @author inici4rsesi0n
- */
 @Service
 public class GestionGrupos {
     private final RepositorioGrupos repo;
@@ -31,20 +24,27 @@ public class GestionGrupos {
         this.publisher = publisher;
     }
     public void crearGrupo(String nombre, Grado grado) {
+        crearGrupo(nombre, grado, Modalidad.PRESENCIAL);
+    }
+    public void crearGrupo(String nombre, Grado grado, Modalidad modalidad) {
         if (nombre == null || nombre.isBlank()) throw new IllegalArgumentException("El nombre no puede estar vacío.");
         if (grado == null) throw new IllegalArgumentException("El grado no puede ser nulo.");
         if (repo.buscarPorNombre(nombre).isPresent()) throw new IllegalArgumentException("Ya existe un grupo con ese nombre.");
-        repo.agregar(new Grupo(nombre, grado));
-        logger.audit(String.format("op=CREATE entity=GRUPO id=%s | grado=%s", nombre, grado.getNombre()));
+        repo.agregar(new Grupo(nombre, grado, modalidad));
+        logger.audit(String.format("op=CREATE entity=GRUPO id=%s | grado=%s modalidad=%s", nombre, grado.getNombre(), modalidad));
         publisher.notificar(TipoEvento.GRUPOS);
     }
     public Grupo buscarPorNombre(String nombre) { return repo.buscarPorNombre(nombre).orElse(null); }
     public List<Grupo> listarTodos() { return repo.listarTodos(); }
     public List<Grupo> buscarPorNombreYGrado(String nombreGrupo, String nombreGrado) { return repo.buscarPorNombreYGrado(nombreGrupo, nombreGrado); }
     public void actualizarGrupo(Grupo original, String nuevoNombre, Grado nuevoGrado) {
+        actualizarGrupo(original, nuevoNombre, nuevoGrado, original.getModalidad());
+    }
+    public void actualizarGrupo(Grupo original, String nuevoNombre, Grado nuevoGrado, Modalidad nuevaModalidad) {
         if (nuevoNombre == null || nuevoNombre.isBlank()) throw new IllegalArgumentException("El nombre no puede estar vacío.");
+        if (nuevaModalidad == null) throw new IllegalArgumentException("La modalidad no puede ser nula.");
         String antes = original.toString();
-        Grupo actualizado = new Grupo(nuevoNombre, nuevoGrado);
+        Grupo actualizado = new Grupo(nuevoNombre, nuevoGrado, nuevaModalidad);
         actualizado.asignarTutor(original.getTutor());
         for (var e : original.getEstudiantes()) actualizado.agregarEstudiante(e);
         repo.actualizar(original, actualizado);

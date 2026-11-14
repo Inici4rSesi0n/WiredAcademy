@@ -164,6 +164,44 @@ class GrupoTest {
     }
 
     @Test
+    void constructor_debeAsignarModalidadPresencialPorDefecto() {
+        assertEquals(Modalidad.PRESENCIAL, grupo.getModalidad());
+    }
+
+    @Test
+    void constructor_debeAsignarModalidadVirtualExplicita() {
+        Grupo g = new Grupo("1A", grado, Modalidad.VIRTUAL);
+        assertEquals(Modalidad.VIRTUAL, g.getModalidad());
+    }
+
+    @Test
+    void constructor_debeFallbackAPresencialSiModalidadNula() {
+        Grupo g = new Grupo("1A", grado, null);
+        assertEquals(Modalidad.PRESENCIAL, g.getModalidad());
+    }
+
+    @Test
+    void setModalidad_debeActualizarValor() {
+        grupo.setModalidad(Modalidad.REMOTO);
+        assertEquals(Modalidad.REMOTO, grupo.getModalidad());
+    }
+
+    @Test
+    void setModalidad_null_debeFallbackAPresencial() {
+        grupo.setModalidad(Modalidad.VIRTUAL);
+        grupo.setModalidad(null);
+        assertEquals(Modalidad.PRESENCIAL, grupo.getModalidad());
+    }
+
+    @Test
+    void equals_noDebeConsiderarModalidad() {
+        Grado grado = new Grado("1er Grado", "Primaria");
+        Grupo g1 = new Grupo("1A", grado, Modalidad.PRESENCIAL);
+        Grupo g2 = new Grupo("1A", grado, Modalidad.VIRTUAL);
+        assertEquals(g1, g2, "La modalidad no forma parte de la identidad del grupo");
+    }
+
+    @Test
     void hashCode_debeSerConsistenteConEquals() {
         Grado grado = new Grado("1er Grado", "Primaria");
         Grupo g1 = new Grupo("1a", grado);

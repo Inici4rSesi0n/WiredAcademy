@@ -22,6 +22,16 @@ Todos los cambios notables de este proyecto se documentan aquí.
 ### Changed
 
 - `LOGGING.md` movido a `docs/LOGGING.md`.
+- **Logout automático al volver a Main sin persistencia:** si el checkbox "Mantener sesión" no fue marcado, `MainController.navegarAVista("main", ...)` ejecuta `SesionUsuario.cerrarSesion()` + limpia MDC + emite `[SESSION] logout_auto`. El Menú Principal ya no muestra panel de sesión activo — el próximo portal exige login.
+- **Grupos — Modalidad en UI:** `GruposController` expone `ComboBox` de modalidad (PRESENCIAL/VIRTUAL/REMOTO) y columna con chip de color en la tabla. `GestionGrupos.actualizarGrupo(..., Modalidad)` permite cambiar modalidad en edición. Añadidos 6 tests en `GrupoTest` y `testCrearGrupoVirtual` en `GruposUITest`. Cierra el gap funcional post-V6 donde el `DataSeeder` creaba modalidades por código pero la UI forzaba PRESENCIAL.
+- **Session flow hardening:** `PersistenciaSesion` ahora retorna `boolean`/`Optional<String>`. Logs `[SESSION]` en `LoginController`, `MainController`, `WiredAcademyApp` cubren las 3 ramas del checkbox "Mantener sesión" + auto-login.
+- **UsuarioEntity.dni:** `@Column(length=8)` → `length=20` (cierra ADR-007 en capa JPA).
+- **UsuarioMapper:** `Hibernate.unproxy(entity)` para evitar NPE con proxies CGLIB.
+- **GrupoMapper:** null-guard en `Modalidad.valueOf(...)` → fallback `PRESENCIAL`.
+- **Evaluacion.setPeso / Calificacion.setNota:** revalidan invariantes.
+- **SeccionGestionUsuariosController:** campo `panelFormulario` muerto eliminado; `Math.random()` → `SecureRandom`.
+- **SeccionMatriculaController:** `evaluarTipoInstitucion` documenta INSTITUTO = matrícula flexible.
+- **LOGGING.md:** reescrito (v2.0) — antes duplicaba `REGLAS_DE_NEGOCIO.md`. Añadida §8 `[SESSION]` + §11-12 ADRs históricos.
 
 ### Fixed
 

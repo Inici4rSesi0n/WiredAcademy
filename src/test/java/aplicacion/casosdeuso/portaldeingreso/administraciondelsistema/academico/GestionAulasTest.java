@@ -5,7 +5,6 @@
 package aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico;
 
 import dominio.modelo.Aula;
-import dominio.modelo.ModalidadAula;
 import dominio.puerto.externo.LoggerPort;
 import dominio.puerto.repositorio.RepositorioAulas;
 import org.junit.jupiter.api.BeforeEach;

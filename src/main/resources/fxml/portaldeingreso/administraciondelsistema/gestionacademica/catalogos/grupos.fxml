@@ -12,6 +12,7 @@
                     <TableColumn fx:id="colNumGrupo" text="N°" prefWidth="50.0" />
                     <TableColumn fx:id="colNombreGrupo" text="Nombre" prefWidth="200.0" />
                     <TableColumn fx:id="colGradoGrupo" text="Grado" prefWidth="150.0" />
+                    <TableColumn fx:id="colModalidadGrupo" text="Modalidad" prefWidth="140.0" />
                     <TableColumn fx:id="colAccionesGrupo" text="Acciones" prefWidth="160.0" />
                 </columns>
             </TableView>
@@ -27,6 +28,8 @@
                 <TextField fx:id="txtNombreGrupo" promptText="Ej. 1A" styleClass="formulario-input" />
                 <Label text="Grado:" styleClass="formulario-label" />
                 <ComboBox fx:id="cmbGradoGrupo" promptText="Seleccione un grado" styleClass="formulario-input" maxWidth="1.0E8"/>
+                <Label text="Modalidad:" styleClass="formulario-label" />
+                <ComboBox fx:id="cmbModalidadGrupo" promptText="Seleccione modalidad" styleClass="formulario-input" maxWidth="1.0E8"/>
                 <Region VBox.vgrow="ALWAYS" />
                 <HBox alignment="CENTER_RIGHT" spacing="15.0" style="-fx-padding: 20 0 0 0;">
                     <Button fx:id="btnCancelarGrupo" text="Cancelar" styleClass="boton-morado-suave" onAction="#handleCancelarGrupo" prefWidth="120.0" />

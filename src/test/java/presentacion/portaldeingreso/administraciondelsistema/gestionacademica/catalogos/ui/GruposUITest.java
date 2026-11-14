@@ -38,6 +38,26 @@ public class GruposUITest extends BaseUITest {
         new CatalogCleanupHelper(springContext).limpiarTodo();
     }
     @Test
+    public void testCrearGrupoVirtual() throws Exception {
+        GruposPage page = new GruposPage(this);
+        page.clickTabGrupos()
+            .clickNuevoGrupo()
+            .escribirNombre("UITest-Grupo-Virtual")
+            .seleccionarGrado(GRADO_PREREQ_NOMBRE)
+            .seleccionarModalidad("VIRTUAL")
+            .clickGuardar();
+        WaitForAsyncUtils.waitFor(10, TimeUnit.SECONDS, () -> {
+            TableView<?> tabla = lookup("#tablaGrupos").queryTableView();
+            return tabla.getItems().stream()
+                .anyMatch(o -> {
+                    Grupo g = (Grupo) o;
+                    return g.getNombre().equals("UITest-Grupo-Virtual")
+                        && g.getModalidad() == dominio.modelo.Modalidad.VIRTUAL;
+                });
+        });
+    }
+
+    @Test
     public void testCrearGrupo() throws Exception {
         GruposPage page = new GruposPage(this);
         page.clickTabGrupos()

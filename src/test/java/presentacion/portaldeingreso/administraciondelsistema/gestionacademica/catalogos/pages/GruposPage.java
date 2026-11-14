@@ -36,6 +36,18 @@ public class GruposPage {
         });
         return this;
     }
+    @SuppressWarnings("unchecked")
+    public GruposPage seleccionarModalidad(String modalidad) {
+        ComboBox<String> cmb = robot.lookup("#cmbModalidadGrupo").queryComboBox();
+        WaitForAsyncUtils.waitForAsyncFx(1000, () -> {
+            cmb.getItems().stream()
+                .filter(item -> item.equals(modalidad))
+                .findFirst()
+                .ifPresent(cmb.getSelectionModel()::select);
+        });
+        return this;
+    }
+
     public GruposPage clickGuardar() {
         robot.clickOn("#btnGuardarGrupo");
         return this;

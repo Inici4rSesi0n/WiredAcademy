@@ -9,6 +9,7 @@ import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionGrupos;
 import dominio.modelo.Grado;
 import dominio.modelo.Grupo;
+import dominio.modelo.Modalidad;
 import dominio.puerto.externo.LoggerPort;
 import presentacion.dialogos.Dialogos;
 import dominio.modelo.TipoEvento;
@@ -19,6 +20,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
@@ -38,12 +40,13 @@ public class GruposController implements Initializable, EventBusListener {
     private final EventBus eventBus;
     @FXML private TableView<Grupo> tablaGrupos;
     @FXML private TableColumn<Grupo, Integer> colNumGrupo;
-    @FXML private TableColumn<Grupo, String> colNombreGrupo, colGradoGrupo;
+    @FXML private TableColumn<Grupo, String> colNombreGrupo, colGradoGrupo, colModalidadGrupo;
     @FXML private TableColumn<Grupo, Void> colAccionesGrupo;
     @FXML private VBox panelFormularioGrupo;
     @FXML private javafx.scene.control.ScrollPane scrollPaneFormulario;
     @FXML private TextField txtNombreGrupo;
     @FXML private ComboBox<String> cmbGradoGrupo;
+    @FXML private ComboBox<String> cmbModalidadGrupo;
     @FXML private Button btnNuevoGrupo, btnGuardarGrupo, btnCancelarGrupo;
     private ObservableList<Grupo> listaGrupos;
     private Grupo grupoEditando;
@@ -64,6 +67,7 @@ public class GruposController implements Initializable, EventBusListener {
     public void initialize(URL location, ResourceBundle resources) {
         configurarTabla();
         recargarComboGrados();
+        recargarComboModalidad();
         cargarGrupos();
         eventBus.suscribir(TipoEvento.GRUPOS, this);
         eventBus.suscribir(TipoEvento.GRADOS, this);
@@ -78,6 +82,8 @@ public class GruposController implements Initializable, EventBusListener {
         colNombreGrupo.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         colGradoGrupo.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
                 cell.getValue().getGrado() != null ? cell.getValue().getGrado().getNombre() : ""));
+        colModalidadGrupo.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(
+                cell.getValue().getModalidad() != null ? cell.getValue().getModalidad().name() : "PRESENCIAL"));
         configurarAcciones();
     }
     private void configurarAcciones() {
@@ -117,11 +123,21 @@ public class GruposController implements Initializable, EventBusListener {
         }
         cmbGradoGrupo.getSelectionModel().selectFirst();
     }
+    private void recargarComboModalidad() {
+        cmbModalidadGrupo.getItems().clear();
+        cmbModalidadGrupo.getItems().add("Seleccione modalidad");
+        for (Modalidad m : Modalidad.values()) {
+            cmbModalidadGrupo.getItems().add(m.name());
+        }
+        cmbModalidadGrupo.getSelectionModel().selectFirst();
+    }
     private void cargarEnFormulario(Grupo g) {
         grupoEditando = g;
         recargarComboGrados();
+        recargarComboModalidad();
         txtNombreGrupo.setText(g.getNombre());
         cmbGradoGrupo.setValue(g.getGrado() != null ? formatearGrado(g.getGrado()) : null);
+        cmbModalidadGrupo.setValue(g.getModalidad() != null ? g.getModalidad().name() : Modalidad.PRESENCIAL.name());
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
@@ -137,23 +153,36 @@ public class GruposController implements Initializable, EventBusListener {
     public void handleNuevoGrupo() {
         grupoEditando = null;
         recargarComboGrados();
+        recargarComboModalidad();
         txtNombreGrupo.clear();
+        cmbModalidadGrupo.setValue(Modalidad.PRESENCIAL.name());
         scrollPaneFormulario.setVisible(true);
         scrollPaneFormulario.setManaged(true);
     }
     @FXML private void handleGuardarGrupo() {
         String nombre = txtNombreGrupo.getText().trim();
         String gradoNombre = cmbGradoGrupo.getValue();
-        if (nombre.isBlank() || gradoNombre == null || gradoNombre.startsWith("Seleccione")) {
+        String modalidadTexto = cmbModalidadGrupo.getValue();
+        if (nombre.isBlank() || gradoNombre == null || gradoNombre.startsWith("Seleccione")
+                || modalidadTexto == null || modalidadTexto.startsWith("Seleccione")) {
             Dialogos.info("Todos los campos son obligatorios."); return;
         }
         Grado grado = parsearGrado(gradoNombre);
         if (grado == null) {
             Dialogos.info("El grado seleccionado no existe."); return;
         }
+        Modalidad modalidad;
         try {
-            if (grupoEditando == null) gestionGrupos.crearGrupo(nombre, grado);
-            else gestionGrupos.actualizarGrupo(grupoEditando, nombre, grado);
+            modalidad = Modalidad.valueOf(modalidadTexto);
+        } catch (IllegalArgumentException ex) {
+            Dialogos.info("Modalidad inválida: " + modalidadTexto); return;
+        }
+        String modo = (grupoEditando == null) ? "CREATE" : "UPDATE";
+        logger.info("op=SAVE entity=GRUPO nombre={} grado={} modalidad={} modo={}",
+                nombre, grado.getNombre(), modalidad, modo);
+        try {
+            if (grupoEditando == null) gestionGrupos.crearGrupo(nombre, grado, modalidad);
+            else gestionGrupos.actualizarGrupo(grupoEditando, nombre, grado, modalidad);
             scrollPaneFormulario.setVisible(false);
             scrollPaneFormulario.setManaged(false);
         } catch (Exception e) {
