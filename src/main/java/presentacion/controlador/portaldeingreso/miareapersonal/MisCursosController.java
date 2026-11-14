@@ -47,30 +47,22 @@ public class MisCursosController implements Initializable {
         }
         logger.info("op=READ entity=CURSO | inicio_carga rol=" + usuario.getRol() + " codigo=" + usuario.getCodigo());
         List<CursoItem> cursos = new ArrayList<>();
-        
         if (usuario.getRol() == Usuario.Rol.DOCENTE) {
             Docente docente = gestionDocentes.buscarPorCodigo(usuario.getCodigo());
             if (docente != null) {
-                logger.debug("op=READ entity=CURSO | docente_encontrado=" + docente.getCodigo() + " asignaturas=" + docente.getAsignaturas().size());
                 for (Asignatura a : docente.getAsignaturas()) {
-                    cursos.add(new CursoItem(a.getNombre(), docente.getNombreCompleto(), "Varios", "Varias", a));
+                    cursos.add(new CursoItem(a.getNombre(), docente.getNombreCompleto(), "Ver secciones", "Varias", a));
                 }
-            } else {
-                logger.warn("op=READ entity=CURSO | error=docente_no_encontrado codigo=" + usuario.getCodigo());
             }
         } else if (usuario.getRol() == Usuario.Rol.ESTUDIANTE) {
             Matricula matricula = gestionMatriculas.buscarMatricula(usuario.getCodigo(), "2026-I");
             if (matricula != null) {
-                logger.debug("op=READ entity=CURSO | matricula_encontrada=" + matricula.getEstudiante().getCodigo() + " inscripciones=" + matricula.getInscripciones().size());
                 for (InscripcionAsignatura ins : matricula.getInscripciones()) {
                     String grupoNombre = ins.getGrupo() != null ? ins.getGrupo().getNombre() : "S/G";
                     cursos.add(new CursoItem(ins.getAsignatura().getNombre(), "Docente Asignado", grupoNombre, "Aula Asignada", ins.getAsignatura()));
                 }
-            } else {
-                logger.warn("op=READ entity=CURSO | error=matricula_no_encontrada codigo=" + usuario.getCodigo());
             }
         }
-        
         logger.info("op=READ entity=CURSO | fin_carga cursos_encontrados=" + cursos.size());
         for (CursoItem c : cursos) {
             flowPaneCursos.getChildren().add(crearTarjetaCurso(c));
@@ -101,16 +93,27 @@ public class MisCursosController implements Initializable {
         return card;
     }
     private void abrirDetalleCurso(CursoItem curso) {
+        Usuario usuario = SesionUsuario.getUsuarioActual();
         try {
-            logger.debug("op=NAVIGATE entity=CURSO | destino=detalle curso=" + curso.getNombreAsignatura());
-            FXMLLoader loader = fxmlLoader.crearLoader("/fxml/portaldeingreso/miareapersonal/curso_detalle.fxml");
-            Parent root = loader.load();
-            CursoDetalleController controller = loader.getController();
-            controller.setAsignatura(curso.getAsignatura());
-            BorderPane mainRoot = (BorderPane) flowPaneCursos.getScene().getRoot();
-            mainRoot.setCenter(root);
+            if (usuario != null && usuario.getRol() == Usuario.Rol.DOCENTE) {
+                logger.debug("op=NAVIGATE entity=CURSO | destino=secciones curso=" + curso.getNombreAsignatura());
+                FXMLLoader loader = fxmlLoader.crearLoader("/fxml/portaldeingreso/miareapersonal/secciones.fxml");
+                Parent root = loader.load();
+                SeccionesController controller = loader.getController();
+                controller.setAsignatura(curso.getAsignatura());
+                BorderPane mainRoot = (BorderPane) flowPaneCursos.getScene().getRoot();
+                mainRoot.setCenter(root);
+            } else {
+                logger.debug("op=NAVIGATE entity=CURSO | destino=detalle curso=" + curso.getNombreAsignatura());
+                FXMLLoader loader = fxmlLoader.crearLoader("/fxml/portaldeingreso/miareapersonal/curso_detalle.fxml");
+                Parent root = loader.load();
+                CursoDetalleController controller = loader.getController();
+                controller.setAsignatura(curso.getAsignatura());
+                BorderPane mainRoot = (BorderPane) flowPaneCursos.getScene().getRoot();
+                mainRoot.setCenter(root);
+            }
         } catch (Exception e) {
-            logger.error("Error al abrir detalle del curso: " + e.getMessage(), e);
+            logger.error("Error al abrir curso: " + e.getMessage(), e);
             e.printStackTrace();
         }
     }

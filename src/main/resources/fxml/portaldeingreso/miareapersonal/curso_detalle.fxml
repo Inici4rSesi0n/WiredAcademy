@@ -9,14 +9,24 @@
     <top>
         <VBox>
             <HBox styleClass="crud-header" alignment="CENTER_LEFT" spacing="15.0" style="-fx-padding: 20px;">
-                <Button text="← Volver a Mis Cursos" styleClass="boton-morado-suave" onAction="#handleVolver" />
+                <Button fx:id="btnVolver" text="← Volver a Mis Cursos" styleClass="boton-morado-suave" onAction="#handleVolver" />
                 <Label fx:id="lblTituloCurso" styleClass="crud-title" text="Detalle del Curso" />
             </HBox>
             <TabPane fx:id="tabPaneCurso" tabClosingPolicy="UNAVAILABLE" style="-fx-background-color: transparent;">
-                <Tab text="Información">
-                    <VBox spacing="15.0" style="-fx-padding: 20px;">
-                        <Label fx:id="lblInfoCurso" style="-fx-text-fill: #CBD5E1; -fx-font-size: 16px;" />
-                    </VBox>
+                <Tab text="Contenido">
+                    <fx:include fx:id="includeContenido" source="publicaciones_panel.fxml" />
+                </Tab>
+                <Tab text="Tareas">
+                    <fx:include fx:id="includeTareas" source="publicaciones_panel.fxml" />
+                </Tab>
+                <Tab text="Evaluaciones">
+                    <fx:include fx:id="includeEvaluaciones" source="publicaciones_panel.fxml" />
+                </Tab>
+                <Tab text="Foros">
+                    <fx:include fx:id="includeForos" source="publicaciones_panel.fxml" />
+                </Tab>
+                <Tab text="Anuncios">
+                    <fx:include fx:id="includeAnuncios" source="publicaciones_panel.fxml" />
                 </Tab>
                 <Tab text="Calificaciones">
                     <fx:include fx:id="includeCalificaciones" source="calificaciones.fxml" />

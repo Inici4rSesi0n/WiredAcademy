@@ -44,13 +44,12 @@ public class BootstrapRunner {
                 if (controller.isConfirmado()) {
                     bootstrapUseCase.inicializarSistema(controller);
                 } else {
-                    javafx.application.Platform.exit(); // Si cancela, se cierra la app
+                    javafx.application.Platform.exit();
                 }
             } catch (Exception e) {
                 throw new RuntimeException("No se pudo cargar la ventana de configuración inicial.", e);
             }
         } else {
-            // Si ya hay admin, solo aseguramos que los catálogos existan
             bootstrapUseCase.inicializarCatalogos();
         }
     }
