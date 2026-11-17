@@ -51,15 +51,18 @@ public class MisCursosController implements Initializable {
             Docente docente = gestionDocentes.buscarPorCodigo(usuario.getCodigo());
             if (docente != null) {
                 for (Asignatura a : docente.getAsignaturas()) {
-                    cursos.add(new CursoItem(a.getNombre(), docente.getNombreCompleto(), "Ver secciones", "Varias", a));
+                    cursos.add(new CursoItem(a.getNombre(), docente.getNombreCompleto(), "Ver secciones", "Varias", a, null));
                 }
             }
         } else if (usuario.getRol() == Usuario.Rol.ESTUDIANTE) {
-            Matricula matricula = gestionMatriculas.buscarMatricula(usuario.getCodigo(), "2026-I");
+            String periodoActivo = gestionMatriculas.listarTodas().stream()
+                .map(m -> m.getPeriodo().getNombre())
+                .findFirst().orElse("2026-I");
+            Matricula matricula = gestionMatriculas.buscarMatricula(usuario.getCodigo(), periodoActivo);
             if (matricula != null) {
                 for (InscripcionAsignatura ins : matricula.getInscripciones()) {
                     String grupoNombre = ins.getGrupo() != null ? ins.getGrupo().getNombre() : "S/G";
-                    cursos.add(new CursoItem(ins.getAsignatura().getNombre(), "Docente Asignado", grupoNombre, "Aula Asignada", ins.getAsignatura()));
+                    cursos.add(new CursoItem(ins.getAsignatura().getNombre(), "Docente Asignado", grupoNombre, "Aula Asignada", ins.getAsignatura(), ins.getGrupo()));
                 }
             }
         }
@@ -100,7 +103,7 @@ public class MisCursosController implements Initializable {
                 FXMLLoader loader = fxmlLoader.crearLoader("/fxml/portaldeingreso/miareapersonal/secciones.fxml");
                 Parent root = loader.load();
                 SeccionesController controller = loader.getController();
-                controller.setAsignatura(curso.getAsignatura());
+                controller.setContexto(curso.getAsignatura(), curso.getGrupoObj());
                 BorderPane mainRoot = (BorderPane) flowPaneCursos.getScene().getRoot();
                 mainRoot.setCenter(root);
             } else {
@@ -108,7 +111,7 @@ public class MisCursosController implements Initializable {
                 FXMLLoader loader = fxmlLoader.crearLoader("/fxml/portaldeingreso/miareapersonal/curso_detalle.fxml");
                 Parent root = loader.load();
                 CursoDetalleController controller = loader.getController();
-                controller.setAsignatura(curso.getAsignatura());
+                controller.setContexto(curso.getAsignatura(), curso.getGrupoObj());
                 BorderPane mainRoot = (BorderPane) flowPaneCursos.getScene().getRoot();
                 mainRoot.setCenter(root);
             }

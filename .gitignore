@@ -87,3 +87,6 @@ Thumbs.db
 # Volcados locales y herramientas de diagnóstico
 # ==========================================
 /tmp/
+
+# direnv (config local de cada desarrollador)
+.envrc

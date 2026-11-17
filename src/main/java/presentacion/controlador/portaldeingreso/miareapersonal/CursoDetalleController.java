@@ -4,6 +4,7 @@
  */
 package presentacion.controlador.portaldeingreso.miareapersonal;
 import dominio.modelo.Asignatura;
+import dominio.modelo.Grupo;
 import dominio.modelo.TipoPublicacion;
 import dominio.modelo.Usuario;
 import infraestructura.configuracion.SpringFxmlLoader;
@@ -32,12 +33,15 @@ public class CursoDetalleController {
     @FXML private PublicacionesPanelController includeForosController;
     @FXML private PublicacionesPanelController includeAnunciosController;
     @FXML private CalificacionesController includeCalificacionesController;
+    @FXML private AsistenciaController includeAsistenciaController;
     private Asignatura asignaturaActual;
+    private Grupo grupoActual;
     public CursoDetalleController(SpringFxmlLoader fxmlLoader) {
         this.fxmlLoader = fxmlLoader;
     }
-    public void setAsignatura(Asignatura asignatura) {
+    public void setContexto(Asignatura asignatura, Grupo grupo) {
         this.asignaturaActual = asignatura;
+        this.grupoActual = grupo;
         lblTituloCurso.setText("Aula Virtual - " + asignatura.getNombre());
         Usuario usuario = SesionUsuario.getUsuarioActual();
         if (usuario != null && usuario.getRol() == Usuario.Rol.DOCENTE) {
@@ -51,6 +55,7 @@ public class CursoDetalleController {
         includeForosController.configurar(asignatura, TipoPublicacion.FORO);
         includeAnunciosController.configurar(asignatura, TipoPublicacion.ANUNCIO);
         includeCalificacionesController.setAsignatura(asignatura);
+        includeAsistenciaController.configurar(asignatura, grupo);
         if (usuario != null && usuario.getRol() != Usuario.Rol.DOCENTE) {
             tabPaneCurso.getTabs().remove(tabAsistencia);
         }
@@ -65,7 +70,7 @@ public class CursoDetalleController {
             Parent root = loader.load();
             if (esDocente) {
                 SeccionesController controller = loader.getController();
-                controller.setAsignatura(asignaturaActual);
+                controller.setContexto(asignaturaActual, grupoActual);
             }
             BorderPane mainRoot = (BorderPane) tabPaneCurso.getScene().getRoot();
             mainRoot.setCenter(root);

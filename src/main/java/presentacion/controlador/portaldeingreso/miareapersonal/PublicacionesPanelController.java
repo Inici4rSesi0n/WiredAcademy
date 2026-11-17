@@ -19,6 +19,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import java.net.URL;
 import java.time.format.DateTimeFormatter;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 @Component
@@ -108,9 +111,15 @@ public class PublicacionesPanelController implements Initializable, EventBusList
         HBox footer = new HBox(15);
         footer.setAlignment(Pos.CENTER_LEFT);
         if (pub.getFechaLimite() != null) {
-            Label lblFechaLimite = new Label("Límite: " + pub.getFechaLimite().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-            lblFechaLimite.setStyle("-fx-text-fill: #EF4444; -fx-font-size: 11px;");
-            footer.getChildren().add(lblFechaLimite);
+            long dias = ChronoUnit.DAYS.between(LocalDate.now(), pub.getFechaLimite().toLocalDate());
+            String msgBanner;
+            String color;
+            if (dias < 0) { msgBanner = "Atrasado por " + Math.abs(dias) + " días"; color = "#EF4444"; }
+            else if (dias == 0) { msgBanner = "Vence hoy"; color = "#F59E0B"; }
+            else { msgBanner = "Quedan " + dias + " días"; color = "#00D2FF"; }
+            Label banner = new Label(msgBanner);
+            banner.setStyle("-fx-background-color: " + color + "22; -fx-text-fill: " + color + "; -fx-padding: 4px 10px; -fx-background-radius: 4px; -fx-font-size: 11px; -fx-font-weight: bold;");
+            footer.getChildren().add(banner);
         }
         if (pub.getUrlArchivo() != null && !pub.getUrlArchivo().isBlank()) {
             Label lblArchivo = new Label("📎 " + new java.io.File(pub.getUrlArchivo()).getName());
@@ -125,8 +134,13 @@ public class PublicacionesPanelController implements Initializable, EventBusList
         Label badge = new Label();
         if (usuario == null || usuario.getRol() == Usuario.Rol.DOCENTE) return badge;
         if (tipoActual == TipoPublicacion.TAREA || tipoActual == TipoPublicacion.EVALUACION) {
-            badge.setText("Por entregar");
-            badge.setStyle("-fx-background-color: rgba(245, 158, 11, 0.15); -fx-text-fill: #F59E0B; -fx-padding: 3px 10px; -fx-background-radius: 10px; -fx-font-size: 10px; -fx-font-weight: bold;");
+            if (pub.getFechaLimite() != null && LocalDateTime.now().isAfter(pub.getFechaLimite())) {
+                badge.setText("Atrasado");
+                badge.setStyle("-fx-background-color: rgba(239, 68, 68, 0.15); -fx-text-fill: #EF4444; -fx-border-color: #EF4444; -fx-border-radius: 10px; -fx-padding: 3px 10px; -fx-font-size: 10px; -fx-font-weight: bold;");
+            } else {
+                badge.setText("Por entregar");
+                badge.setStyle("-fx-background-color: rgba(245, 158, 11, 0.15); -fx-text-fill: #F59E0B; -fx-border-color: #F59E0B; -fx-border-radius: 10px; -fx-padding: 3px 10px; -fx-font-size: 10px; -fx-font-weight: bold;");
+            }
         }
         return badge;
     }

@@ -4,9 +4,11 @@
  */
 package presentacion.controlador.portaldeingreso.miareapersonal;
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionClases;
+import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.GestionPeriodos;
 import dominio.modelo.Asignatura;
 import dominio.modelo.Clase;
 import dominio.modelo.Grupo;
+import dominio.modelo.PeriodoAcademico;
 import dominio.modelo.Usuario;
 import dominio.puerto.externo.LoggerPort;
 import infraestructura.configuracion.SpringFxmlLoader;
@@ -26,17 +28,19 @@ import java.util.stream.Collectors;
 @Scope("prototype")
 public class SeccionesController {
     private final GestionClases gestionClases;
+    private final GestionPeriodos gestionPeriodos;
     private final SpringFxmlLoader fxmlLoader;
     private final LoggerPort logger;
     @FXML private Label lblTituloAsignatura;
     @FXML private FlowPane flowPaneSecciones;
     private Asignatura asignaturaActual;
-    public SeccionesController(GestionClases gestionClases, SpringFxmlLoader fxmlLoader, LoggerPort logger) {
+    public SeccionesController(GestionClases gestionClases, GestionPeriodos gestionPeriodos, SpringFxmlLoader fxmlLoader, LoggerPort logger) {
         this.gestionClases = gestionClases;
+        this.gestionPeriodos = gestionPeriodos;
         this.fxmlLoader = fxmlLoader;
         this.logger = logger;
     }
-    public void setAsignatura(Asignatura asignatura) {
+    public void setContexto(Asignatura asignatura, Grupo grupoSeleccionado) {
         this.asignaturaActual = asignatura;
         lblTituloAsignatura.setText("Secciones - " + asignatura.getNombre());
         cargarSecciones();
@@ -49,7 +53,11 @@ public class SeccionesController {
             return;
         }
         logger.info("op=READ entity=SECCION | inicio_carga asignatura=" + asignaturaActual.getNombre() + " docente=" + usuario.getCodigo());
-        List<Clase> clases = gestionClases.buscarPorDocente(usuario.getCodigo(), "2026-I");
+        String periodoActivo = gestionPeriodos.listarTodos().stream()
+                .filter(pa -> "Activo".equalsIgnoreCase(pa.getEstado()))
+                .map(PeriodoAcademico::getNombre)
+                .findFirst().orElse("2026-I");
+        List<Clase> clases = gestionClases.buscarPorDocente(usuario.getCodigo(), periodoActivo);
         List<Grupo> secciones = clases.stream()
                 .filter(c -> c.getAsignatura().equals(asignaturaActual))
                 .map(Clase::getGrupo)
@@ -88,7 +96,7 @@ public class SeccionesController {
             FXMLLoader loader = fxmlLoader.crearLoader("/fxml/portaldeingreso/miareapersonal/curso_detalle.fxml");
             Parent root = loader.load();
             CursoDetalleController controller = loader.getController();
-            controller.setAsignatura(asignaturaActual);
+            controller.setContexto(asignaturaActual, grupo);
             BorderPane mainRoot = (BorderPane) flowPaneSecciones.getScene().getRoot();
             mainRoot.setCenter(root);
         } catch (Exception e) {

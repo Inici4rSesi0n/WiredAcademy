@@ -5,12 +5,14 @@
 package presentacion.dto;
 import dominio.modelo.Asignatura;
 public class CursoItem {
+    private final dominio.modelo.Grupo grupoObj;
     private final String nombreAsignatura;
     private final String nombreDocente;
     private final String nombreGrupo;
     private final String aula;
     private final Asignatura asignatura;
-    public CursoItem(String nombreAsignatura, String nombreDocente, String nombreGrupo, String aula, Asignatura asignatura) {
+    public CursoItem(String nombreAsignatura, String nombreDocente, String nombreGrupo, String aula, Asignatura asignatura, dominio.modelo.Grupo grupoObj) {
+        this.grupoObj = grupoObj;
         this.nombreAsignatura = nombreAsignatura;
         this.nombreDocente = nombreDocente;
         this.nombreGrupo = nombreGrupo;
@@ -22,4 +24,5 @@ public class CursoItem {
     public String getNombreGrupo() { return nombreGrupo; }
     public String getAula() { return aula; }
     public Asignatura getAsignatura() { return asignatura; }
+    public dominio.modelo.Grupo getGrupoObj() { return grupoObj; }
 }

@@ -32,9 +32,7 @@
                     <fx:include fx:id="includeCalificaciones" source="calificaciones.fxml" />
                 </Tab>
                 <Tab fx:id="tabAsistencia" text="Registrar Asistencia">
-                    <VBox alignment="CENTER" style="-fx-padding: 20px;">
-                        <Label text="Módulo de Asistencia en construcción." style="-fx-text-fill: #64748B;"/>
-                    </VBox>
+                    <fx:include fx:id="includeAsistencia" source="asistencia.fxml" />
                 </Tab>
             </TabPane>
         </VBox>

@@ -7,16 +7,21 @@ import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.academico.
 import aplicacion.casosdeuso.portaldeingreso.administraciondelsistema.usuarios.*;
 import aplicacion.casosdeuso.portaldeingreso.gestiondetramites.GestionMatriculas;
 import aplicacion.casosdeuso.portaldeingreso.publicaciones.GestionPublicaciones;
+import aplicacion.casosdeuso.portaldeingreso.miareapersonal.GestionAsistencias;
 import aplicacion.dto.CrearUsuarioCommand;
 import dominio.modelo.*;
 import dominio.modelo.configuracion.TipoInstitucion;
 import dominio.puerto.externo.HashProvider;
+import dominio.puerto.externo.LoggerPort;
 import dominio.puerto.repositorio.RepositorioConfiguracionSistema;
 import dominio.puerto.repositorio.RepositorioPeriodos;
 import dominio.puerto.repositorio.RepositorioEvaluaciones;
 import dominio.puerto.repositorio.RepositorioCalificaciones;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import aplicacion.casosdeuso.portaldeingreso.sistema.BootstrapUseCase;
+import org.springframework.context.ApplicationContext;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -39,20 +44,23 @@ public class DataSeeder {
     private final GestionRecreos gestionRecreos;
     private final GestionPublicaciones gestionPublicaciones;
     private final HashProvider hashProvider;
+    private final LoggerPort logger;
     private final RepositorioPeriodos repoPeriodos;
     private final RepositorioConfiguracionSistema repoConfig;
     private final RepositorioEvaluaciones repoEvaluaciones;
     private final RepositorioCalificaciones repoCalificaciones;
+    private final GestionAsistencias gestionAsistencias;
+    private final ApplicationContext ctx;
     public DataSeeder(GestionUsuarios gestionUsuarios, GestionDocentes gestionDocentes,
                       GestionEstudiantes gestionEstudiantes, GestionPadres gestionPadres,
                       GestionGrados gestionGrados, GestionAsignaturas gestionAsignaturas,
                       GestionAulas gestionAulas, GestionGrupos gestionGrupos,
                       GestionPeriodos gestionPeriodos, GestionMatriculas gestionMatriculas,
                       GestionClases gestionClases, GestionRecreos gestionRecreos,
-                      GestionPublicaciones gestionPublicaciones,
-                      HashProvider hashProvider, RepositorioPeriodos repoPeriodos,
+                      GestionPublicaciones gestionPublicaciones, HashProvider hashProvider,
+                      LoggerPort logger, RepositorioPeriodos repoPeriodos,
                       RepositorioConfiguracionSistema repoConfig, RepositorioEvaluaciones repoEvaluaciones,
-                      RepositorioCalificaciones repoCalificaciones) {
+                      RepositorioCalificaciones repoCalificaciones, GestionAsistencias gestionAsistencias, ApplicationContext ctx) {
         this.gestionUsuarios = gestionUsuarios;
         this.gestionDocentes = gestionDocentes;
         this.gestionEstudiantes = gestionEstudiantes;
@@ -67,18 +75,25 @@ public class DataSeeder {
         this.gestionRecreos = gestionRecreos;
         this.gestionPublicaciones = gestionPublicaciones;
         this.hashProvider = hashProvider;
+        this.logger = logger;
         this.repoPeriodos = repoPeriodos;
         this.repoConfig = repoConfig;
         this.repoEvaluaciones = repoEvaluaciones;
         this.repoCalificaciones = repoCalificaciones;
+        this.gestionAsistencias = gestionAsistencias;
+        this.ctx = ctx;
     }
     @Transactional
     public void run() {
-        System.out.println("🚀 Iniciando Seeder (idempotente)...");
+        logger.audit("[SEEDER] Iniciando Seeder (idempotente)...");
+        if (repoPeriodos.listarTodos().isEmpty()) {
+            logger.audit("[SEEDER] BD vacía detectada. Creando catálogos base...");
+            ctx.getBean(BootstrapUseCase.class).inicializarCatalogos();
+        }
         TipoInstitucion tipo = repoConfig.obtener()
                 .map(c -> c.getTipoInstitucion())
                 .orElse(TipoInstitucion.COLEGIO);
-        System.out.println("  ⚙ Tipo de institución detectado: " + tipo);
+        logger.audit("[SEEDER] Tipo de institución detectado: " + tipo);
         String defaultPass = "WiredAcademy2026!";
         String hash = hashProvider.generarHash(defaultPass.toCharArray());
         PeriodoAcademico periodo = seedPeriodo();
@@ -94,13 +109,13 @@ public class DataSeeder {
         if (tipo != TipoInstitucion.UNIVERSIDAD) {
             seedRecreos(periodo);
         } else {
-            System.out.println("  ✓ Recreos omitidos (Universidad).");
+            logger.audit("[SEEDER] Recreos omitidos (Universidad).");
         }
         seedClases(tipo, grupos, asignaturas, aulas, docentes, periodo);
         seedEvaluacionesYCalificaciones(estudiantes, asignaturas);
-        seedPublicacionesCMS(asignaturas, docentes, periodo);
-        System.out.println("✅ Seeder finalizado.");
-        System.out.println("   Contraseña para todos los usuarios generados: " + defaultPass);
+        seedPublicacionesCMS(asignaturas, docentes);
+        seedAsistencias(grupos, asignaturas);
+        logger.audit("[SEEDER] Seeder finalizado. Contraseña universal: " + defaultPass);
     }
     private PeriodoAcademico seedPeriodo() {
         return repoPeriodos.buscarPorNombre("2026-I").orElseThrow();
@@ -119,7 +134,7 @@ public class DataSeeder {
         crearUsuarioSiNoExiste("SEC-02", hash, "80000004", "Maria", "Secretaria 2", 28, Usuario.Rol.SECRETARIO, null);
         crearUsuarioSiNoExiste("TES-01", hash, "80000006", "Pedro", "Tesorero", 38, Usuario.Rol.TESORERO, null);
         crearUsuarioSiNoExiste("PSI-01", hash, "80000007", "Lucia", "Psicologa", 35, Usuario.Rol.PSICOLOGO, null);
-        System.out.println("  ✓ Admin/Director/Subdirector/Coordinador/Secretarios/Tesorero/Psicologo verificados/creados.");
+        logger.audit("[SEEDER] Admin/Director/Subdirector/Coordinador/Secretarios/Tesorero/Psicologo verificados.");
     }
     private List<Docente> seedDocentes(String hash, List<Asignatura> asignaturas) {
         List<Docente> docentes = new ArrayList<>();
@@ -136,7 +151,7 @@ public class DataSeeder {
             if (!d.getAsignaturas().contains(a1)) gestionDocentes.agregarAsignatura(d, a1);
             if (!d.getAsignaturas().contains(a2)) gestionDocentes.agregarAsignatura(d, a2);
         }
-        System.out.println("  ✓ Docentes verificados/creados (" + docentes.size() + ").");
+        logger.audit("[SEEDER] Docentes verificados (" + docentes.size() + ").");
         return docentes;
     }
     private List<Grupo> seedGrupos(TipoInstitucion tipo, List<Docente> docentes) {
@@ -152,7 +167,7 @@ public class DataSeeder {
         for (int i = 0; i < grupos.size(); i++) {
             if (grupos.get(i).getTutor() == null) gestionGrupos.asignarTutor(grupos.get(i), docentes.get(i));
         }
-        System.out.println("  ✓ Grupos/Secciones verificados/creados (" + grupos.size() + ").");
+        logger.audit("[SEEDER] Grupos/Secciones verificados (" + grupos.size() + ").");
         return grupos;
     }
     private void seedPadres(String hash) {
@@ -160,7 +175,7 @@ public class DataSeeder {
             String dni = String.format("200000%02d", i);
             crearUsuarioSiNoExiste("PAD-" + i, hash, dni, "Padre" + i, "Familia", 40, Usuario.Rol.PADRE, null);
         }
-        System.out.println("  ✓ Padres verificados/creados.");
+        logger.audit("[SEEDER] Padres verificados.");
     }
     private List<Estudiante> seedEstudiantes(String hash) {
         List<Estudiante> estudiantes = new ArrayList<>();
@@ -170,7 +185,7 @@ public class DataSeeder {
             crearUsuarioSiNoExiste(codigo, hash, dni, "Estudiante" + i, "Apellido", 12 + (i % 6), Usuario.Rol.ESTUDIANTE, null);
             estudiantes.add(gestionEstudiantes.buscarPorCodigo(codigo));
         }
-        System.out.println("  ✓ Estudiantes verificados/creados (" + estudiantes.size() + ").");
+        logger.audit("[SEEDER] Estudiantes verificados (" + estudiantes.size() + ").");
         return estudiantes;
     }
     private void vincularPadresEstudiantes(List<Estudiante> estudiantes) {
@@ -189,22 +204,25 @@ public class DataSeeder {
         for (int i = 0; i < estudiantes.size(); i++) {
             Estudiante est = estudiantes.get(i);
             if (gestionMatriculas.buscarMatricula(est.getCodigo(), periodo.getNombre()) == null) {
+                Grupo grp = grupos.get(i % grupos.size());
                 if (tipo == TipoInstitucion.COLEGIO) {
-                    Grupo grp = grupos.get(i % grupos.size());
                     List<Asignatura> asigs = new ArrayList<>(asignaturas);
                     gestionMatriculas.matricularEstudiante(est, periodo, grp, asigs, "2026-02-15", EstadoMatricula.ACTIVA);
                 } else {
                     List<InscripcionAsignatura> inscripciones = new ArrayList<>();
                     for (Asignatura asig : asignaturas) {
-                        Grupo grp = grupos.get(i % grupos.size());
                         inscripciones.add(new InscripcionAsignatura(asig, grp));
                     }
                     gestionMatriculas.matricularPorAsignaturas(est, periodo, inscripciones, "2026-02-15", EstadoMatricula.ACTIVA);
                 }
+                if (!grp.getEstudiantes().contains(est)) {
+                    grp.agregarEstudiante(est);
+                    gestionGrupos.actualizarGrupo(grp, grp.getNombre(), grp.getGrado(), grp.getModalidad());
+                }
                 nuevas++;
             }
         }
-        System.out.println("  ✓ Matrículas verificadas/creadas (nuevas: " + nuevas + ").");
+        logger.audit("[SEEDER] Matrículas verificadas/creadas (nuevas: " + nuevas + ").");
     }
     private void seedRecreos(PeriodoAcademico periodo) {
         String[] dias = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
@@ -217,7 +235,7 @@ public class DataSeeder {
                 nuevos++;
             }
         }
-        System.out.println("  ✓ Recreos verificados/creados (nuevos: " + nuevos + ", total: " + gestionRecreos.listarTodos().size() + ").");
+        logger.audit("[SEEDER] Recreos verificados (nuevos: " + nuevos + ", total: " + gestionRecreos.listarTodos().size() + ").");
     }
     private void seedClases(TipoInstitucion tipo, List<Grupo> grupos, List<Asignatura> asignaturas, List<Aula> aulas, List<Docente> docentes, PeriodoAcademico periodo) {
         String[] dias = {"Lunes", "Martes", "Miércoles", "Jueves", "Viernes"};
@@ -262,7 +280,7 @@ public class DataSeeder {
                 }
             }
         }
-        System.out.println("  ✓ Clases verificadas/creadas (nuevas: " + nuevas + ", saltadas: " + saltadas + ", total: " + gestionClases.listarClases().size() + ").");
+        logger.audit("[SEEDER] Clases verificadas (nuevas: " + nuevas + ", saltadas: " + saltadas + ", total: " + gestionClases.listarClases().size() + ").");
     }
     private Docente buscarDocenteLibre(List<Docente> docentes, Asignatura asignatura, String dia, String horaInicio, Set<String> ocupados, int offset) {
         int inicio = offset % docentes.size();
@@ -285,7 +303,7 @@ public class DataSeeder {
     }
     private void seedEvaluacionesYCalificaciones(List<Estudiante> estudiantes, List<Asignatura> asignaturas) {
         if (repoEvaluaciones.listarTodos().isEmpty()) {
-            System.out.println("  ✓ Iniciando creación de Evaluaciones y Calificaciones de prueba...");
+            logger.audit("[SEEDER] Iniciando creación de Evaluaciones y Calificaciones...");
             Random random = new Random();
             for (Asignatura asignatura : asignaturas) {
                 Evaluacion pc1 = new Evaluacion(null, "Práctica Calificada 1 (PC1)", 0.2, asignatura);
@@ -305,63 +323,53 @@ public class DataSeeder {
                     if (pc2Saved != null) repoCalificaciones.agregar(new Calificacion(null, pc2Saved, est, (double) n2));
                 }
             }
-            System.out.println("  ✓ Evaluaciones y Calificaciones creadas exitosamente.");
+            logger.audit("[SEEDER] Evaluaciones y Calificaciones creadas.");
         }
     }
-    private void seedPublicacionesCMS(List<Asignatura> asignaturas, List<Docente> docentes, PeriodoAcademico periodo) {
+    private void seedPublicacionesCMS(List<Asignatura> asignaturas, List<Docente> docentes) {
         if (!gestionPublicaciones.listarTodos().isEmpty()) {
-            System.out.println("  ✓ Publicaciones CMS ya existen. Omitiendo.");
+            logger.audit("[SEEDER] Publicaciones CMS ya existen. Omitiendo.");
             return;
         }
-        System.out.println("  ✓ Iniciando creación de Publicaciones CMS (Materiales, Tareas, Foros, Anuncios)...");
-        Random random = new Random();
+        logger.audit("[SEEDER] Iniciando creación de Publicaciones CMS...");
         int publicaciones = 0;
         LocalDateTime fechaLimite = LocalDateTime.now().plusDays(7);
         for (int i = 0; i < asignaturas.size(); i++) {
             Asignatura asig = asignaturas.get(i);
             Docente autor = docentes.get(i % docentes.size());
-            // Materiales (2 por asignatura)
-            gestionPublicaciones.crearPublicacion(
-                    "Material Semana 1 - " + asig.getNombre(),
-                    "Lecturas y recursos de la primera semana",
-                    TipoPublicacion.MATERIAL, 1, null, "/docs/semana1.pdf", asig, autor);
-            gestionPublicaciones.crearPublicacion(
-                    "Material Semana 2 - " + asig.getNombre(),
-                    "Lecturas y recursos de la segunda semana",
-                    TipoPublicacion.MATERIAL, 2, null, "/docs/semana2.pdf", asig, autor);
-            // Tareas (2 por asignatura)
-            gestionPublicaciones.crearPublicacion(
-                    "Tarea 1: Análisis - " + asig.getNombre(),
-                    "Realizar un análisis de los conceptos vistos en clase.",
-                    TipoPublicacion.TAREA, 1, fechaLimite, "/docs/tarea1.pdf", asig, autor);
-            gestionPublicaciones.crearPublicacion(
-                    "Tarea 2: Ensayo - " + asig.getNombre(),
-                    "Escribir un ensayo de 1000 palabras.",
-                    TipoPublicacion.TAREA, 2, fechaLimite.plusDays(7), "/docs/tarea2.pdf", asig, autor);
-            // Evaluación (1 por asignatura)
-            gestionPublicaciones.crearPublicacion(
-                    "Práctica Calificada 1 - " + asig.getNombre(),
-                    "Evaluación de los temas de la semana 1 y 2.",
-                    TipoPublicacion.EVALUACION, null, fechaLimite.plusDays(14), "/docs/pc1.pdf", asig, autor);
-            // Foro (1 por asignatura)
-            gestionPublicaciones.crearPublicacion(
-                    "Foro de Consultas - " + asig.getNombre(),
-                    "Espacio para preguntas sobre el curso.",
-                    TipoPublicacion.FORO, null, null, null, asig, autor);
+            gestionPublicaciones.crearPublicacion("Material Semana 1 - " + asig.getNombre(), "Lecturas y recursos de la primera semana", TipoPublicacion.MATERIAL, 1, null, "/docs/semana1.pdf", asig, autor);
+            gestionPublicaciones.crearPublicacion("Material Semana 2 - " + asig.getNombre(), "Lecturas y recursos de la segunda semana", TipoPublicacion.MATERIAL, 2, null, "/docs/semana2.pdf", asig, autor);
+            gestionPublicaciones.crearPublicacion("Tarea 1: Análisis - " + asig.getNombre(), "Realizar un análisis de los conceptos vistos en clase.", TipoPublicacion.TAREA, 1, fechaLimite, "/docs/tarea1.pdf", asig, autor);
+            gestionPublicaciones.crearPublicacion("Tarea 2: Ensayo - " + asig.getNombre(), "Escribir un ensayo de 1000 palabras.", TipoPublicacion.TAREA, 2, fechaLimite.plusDays(7), "/docs/tarea2.pdf", asig, autor);
+            gestionPublicaciones.crearPublicacion("Práctica Calificada 1 - " + asig.getNombre(), "Evaluación de los temas de la semana 1 y 2.", TipoPublicacion.EVALUACION, null, fechaLimite.plusDays(14), "/docs/pc1.pdf", asig, autor);
+            gestionPublicaciones.crearPublicacion("Foro de Consultas - " + asig.getNombre(), "Espacio para preguntas sobre el curso.", TipoPublicacion.FORO, null, null, null, asig, autor);
             publicaciones += 6;
         }
-        // Anuncios globales (2)
         Docente director = docentes.get(0);
-        gestionPublicaciones.crearPublicacion(
-                "Bienvenidos al Periodo 2026-I",
-                "Les damos la bienvenida al nuevo periodo académico. Revisen sus horarios y aulas.",
-                TipoPublicacion.ANUNCIO, null, null, null, null, director);
-        gestionPublicaciones.crearPublicacion(
-                "Suspensión de clases por feriado",
-                "El día 15 de noviembre no habrá clases por feriado nacional.",
-                TipoPublicacion.ANUNCIO, null, null, null, null, director);
+        gestionPublicaciones.crearPublicacion("Bienvenidos al Periodo 2026-I", "Les damos la bienvenida al nuevo periodo académico.", TipoPublicacion.ANUNCIO, null, null, null, null, director);
+        gestionPublicaciones.crearPublicacion("Suspensión de clases por feriado", "El día 15 de noviembre no habrá clases por feriado nacional.", TipoPublicacion.ANUNCIO, null, null, null, null, director);
         publicaciones += 2;
-        System.out.println("  ✓ Publicaciones CMS creadas (" + publicaciones + ").");
+        logger.audit("[SEEDER] Publicaciones CMS creadas (" + publicaciones + ").");
+    }
+    private void seedAsistencias(List<Grupo> grupos, List<Asignatura> asignaturas) {
+        if (grupos.isEmpty() || asignaturas.isEmpty()) return;
+        logger.audit("[SEEDER] Iniciando creación de Asistencias de prueba...");
+        LocalDate hoy = LocalDate.now();
+        Random random = new Random();
+        int registradas = 0;
+        for (int i = 1; i <= 3; i++) {
+            LocalDate fecha = hoy.minusDays(i);
+            if (fecha.getDayOfWeek().getValue() > 5) continue;
+            Grupo grupo = grupos.get(i % grupos.size());
+            Asignatura asignatura = asignaturas.get(i % asignaturas.size());
+            if (!gestionAsistencias.listarPorGrupoAsignaturaYFecha(grupo.getNombre(), asignatura.getNombre(), fecha).isEmpty()) continue;
+            for (Estudiante est : grupo.getEstudiantes()) {
+                EstadoAsistencia estado = random.nextInt(10) < 8 ? EstadoAsistencia.PRESENTE : EstadoAsistencia.AUSENTE;
+                gestionAsistencias.registrarAsistencia(grupo, asignatura, est, fecha, estado);
+                registradas++;
+            }
+        }
+        logger.audit("[SEEDER] Asistencias registradas (" + registradas + ").");
     }
     private void crearUsuarioSiNoExiste(String codigo, String hash, String dni, String nombre, String apellido, int edad, Usuario.Rol rol, String especialidad) {
         if (gestionUsuarios.buscarPorCodigo(codigo) == null) {
