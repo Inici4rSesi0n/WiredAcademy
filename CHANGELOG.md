@@ -18,6 +18,14 @@ Todos los cambios notables de este proyecto se documentan aquí.
 - `LICENSE` GPL-3.0-or-later.
 - `CHANGELOG.md` (este documento).
 - Test de prevención `MonoclePropertiesTest` que verifica la configuración headless del toolkit JavaFX (3 tests).
+- **FASE 2 · Módulo de Asistencia (LMS):** migración `V7__asistencia.sql` con tabla `asistencias` + constraint `UNIQUE (grupo_id, asignatura_id, estudiante_id, fecha)`. Entidades `Asistencia` + `EstadoAsistencia`, puerto `RepositorioAsistencias` + adaptador, caso de uso `GestionAsistencias`, controller `AsistenciaController` + `asistencia.fxml`. Integrado como pestaña del Aula Virtual (visible solo para DOCENTE).
+- **FASE 2 · Badges dinámicos + Banner de días restantes:** las tarjetas de Tarea/Evaluación en `PublicacionesPanelController` muestran `Por entregar` o `Atrasado` según `fecha_limite`, más un banner con color (`Cian` = quedan días, `Naranja` = vence hoy, `Rojo` = atrasado).
+- **FASE 2 · Filtro dinámico de periodos:** `MisCursosController` y `SeccionesController` leen el periodo activo desde `GestionPeriodos` en lugar del literal `"2026-I"`.
+- **Seeder Headless (`SeedRunner`):** clase `main` que no extiende `Application`, ejecutable con `mvn -q compile exec:java` sin `DISPLAY`. Configurado vía `exec-maven-plugin` en `pom.xml`.
+- **Seeder · Autosuficiencia:** `DataSeeder.run()` invoca `BootstrapUseCase.inicializarCatalogos()` si la BD está vacía, para no depender del Bootstrap manual.
+- **Seeder · Asistencias de prueba:** `DataSeeder.seedAsistencias()` crea registros (3 días × N estudiantes por grupo) para que el módulo de Asistencia tenga datos en UAT.
+- **Seeder · Vinculación `grupo_estudiantes`:** al matricular, el Seeder añade al estudiante al `Grupo` para que `AsistenciaController` vea los alumnos.
+- **direnv + `.envrc`:** inyecta `DISPLAY=${DISPLAY:-:0}` solo dentro del directorio del proyecto, permitiendo `mvn javafx:run` literal sin `export DISPLAY` global.
 
 ### Changed
 
@@ -32,6 +40,14 @@ Todos los cambios notables de este proyecto se documentan aquí.
 - **SeccionGestionUsuariosController:** campo `panelFormulario` muerto eliminado; `Math.random()` → `SecureRandom`.
 - **SeccionMatriculaController:** `evaluarTipoInstitucion` documenta INSTITUTO = matrícula flexible.
 - **LOGGING.md:** reescrito (v2.0) — antes duplicaba `REGLAS_DE_NEGOCIO.md`. Añadida §8 `[SESSION]` + §11-12 ADRs históricos.
+- **MatriculaMapper defensivo:** `toDomain()` maneja matrículas sin inscripciones usando el constructor de Colegio (grupo + asignaturas vacías). Registros huérfanos se omiten con warning en lugar de lanzar `IllegalStateException`.
+- **MatriculaJpaRepository:** `@EntityGraph` parcial reemplazado por `@Query` con `LEFT JOIN FETCH` completo (`estudiante`, `periodo`, `grupo`, `inscripciones`, `asignatura`, `grupo de inscripción`). Cierra el bug de proxies `LAZY` sobreescritos.
+- **DataSeeder · Logs reactivos:** 18 `System.out.println` migrados a `LoggerPort.audit()` con prefijo `[SEEDER]`. Visible en `logs/wiredacademy-audit.log` y compatible con el bot post-ejecución.
+- **CursoItem:** añadido campo `grupoObj` para que `CursoDetalleController` pueda pasar el `Grupo` real a `AsistenciaController`.
+- **CursoDetalleController:** recibe `setContexto(Asignatura, Grupo)` en lugar de solo `setAsignatura`. Pestaña Asistencia se elimina del `TabPane` para roles distintos de DOCENTE.
+- **SeccionesController:** recibe `setContexto(Asignatura, Grupo)` desde `MisCursosController`. Periodo dinámico en `buscarPorDocente`.
+- **README.md:** aviso de desarrollo activo, counts actualizados a `~545 tests`, sección de Seeder Headless, nota de `direnv` + `DISPLAY=:0`.
+- **`.gitignore`:** cubre `.envrc` además de `.env`.
 
 ### Fixed
 
@@ -39,6 +55,12 @@ Todos los cambios notables de este proyecto se documentan aquí.
 - **CI:** healthcheck PostgreSQL con `-U wiredacademy_app -d wiredacademy_test` (evita `role "root" does not exist` cada 10 s).
 - **CI:** `actions/setup-java@v4` → `@v5` (deprecation warning).
 - **CI:** nombre del step "Set up JDK 17" corregido a "JDK 21" (2 ocurrencias; la versión real ya era 21).
+- **BUG CRÍTICO · `MatriculaMapperImpl` `UnsupportedOperationException`:** el mapper ahora es `abstract class` con `toDomain` manual (no regenerado por MapStruct sobre `Collections.unmodifiableList()`). Cerrado y blindado con `GestionMatriculasIT`, `GestionMatriculasContractIT` y `SeccionMatriculaUITest`.
+- **BUG CRÍTICO · `Matrícula sin grupo ni inscripciones`:** corregido por `LEFT JOIN FETCH` completo en `MatriculaJpaRepository`. `listarTodos()` y `buscarPorGrupo()` usan los nuevos métodos.
+- **BUG · `Unable to open DISPLAY` en Seeder:** el Seeder ya no corre vía `mvn javafx:run` (que inicializa JavaFX por el plugin). Se usa `mvn -q compile exec:java` con `SeedRunner`.
+- **BUG · Autologin → "Volver al Menú Principal" cerraba la app:** `WiredAcademyApp.start()` ahora registra `setOnHidden` para navegar a `main.fxml` y dispara `[SESSION] logout_auto` si no hay persistencia.
+- **BUG · `limpiarMatriculas` silenciaba errores:** ahora usa `JdbcTemplate` directo (`DELETE FROM matricula_asignaturas` + `DELETE FROM matriculas`) para romper el ciclo de matrículas zombis. Aplicado también a `limpiarGrados`, `limpiarGrupos` y `limpiarPeriodos`.
+- **TEST · `GruposUITest.setUp` idempotente:** verifica existencia de grado antes de crear. Aplicado también a `SeccionMatriculaUITest.crearPrereqs`.
 
 ---
 

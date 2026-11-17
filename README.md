@@ -1,6 +1,6 @@
 # WiredAcademy
 
-> **Ecosistema Educativo Digital** 
+> **Ecosistema Educativo Digital**
 
 Aplicación de escritorio (JavaFX) para la gestión integral de una institución educativa: administración de usuarios, catálogos académicos, horarios, matrículas, y trazabilidad completa vía logging estructurado + EventBus.
 
@@ -12,6 +12,12 @@ Diseñada para **academias, colegios y universidades** — con especial atenció
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 ![Java](https://img.shields.io/badge/Java-21-orange.svg)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg)
+
+---
+
+> 🚧 **AVISO DE DESARROLLO ACTIVO**
+> **Esta aplicación está actualmente en proceso de desarrollo.**
+> Aunque el núcleo funcional (autenticación, catálogos, matrícula y LMS) es estable, algunas características (como el sistema de entregas, reportes avanzados y portales de autogestión) están en construcción. La API y el esquema de base de datos pueden cambiar sin previo aviso hasta alcanzar la versión `v1.0.0`.
 
 ---
 
@@ -52,6 +58,7 @@ El sistema está diseñado con **arquitectura hexagonal**, lo que permite adapta
 - **Java 21+** (JDK, no JRE)
 - **Maven 3.8+**
 - **Podman** (o Docker)
+- **direnv** (opcional, pero recomendado para inyectar variables de entorno)
 - Linux (probado en Linux Mint XFCE)
 
 ### 1. Clonar y configurar
@@ -62,6 +69,8 @@ cd WiredAcademy
 cp .env.example .env
 # Editar .env con tus credenciales
 ```
+
+> **Nota sobre `DISPLAY`:** El proyecto incluye un `.envrc` que, si usas `direnv`, inyecta `DISPLAY=:0` automáticamente solo dentro de esta carpeta. Si no usas `direnv`, asegúrate de ejecutar `export DISPLAY=:0` en tu terminal antes de abrir la UI.
 
 ### 2. Levantar PostgreSQL
 
@@ -83,6 +92,13 @@ mvn javafx:run
 ```
 
 La app abrirá el diálogo de **Configuración Inicial** (Bootstrap). Crea el primer administrador.
+
+Si deseas poblar la base de datos con datos de prueba (estudiantes, docentes, matrículas, asistencias, etc.), puedes ejecutar el **Seeder headless**:
+
+```bash
+unset DISPLAY
+mvn -q compile exec:java
+```
 
 ### 4. Ejecutar tests
 
@@ -133,15 +149,15 @@ Ver **`docs/ARCHITECTURE.md`** para el detalle completo.
 | Unitarios de aplicación | ~22 | Mockito |
 | Integración (IT) | 20 | BD real (`wiredacademy_test`) |
 | Contract tests (EventBus) | 12 archivos / 51 tests | End-to-end |
-| UI tests (TestFX) | 15 | TestFX + Monocle headless |
+| UI tests (TestFX) | 17 | TestFX + Monocle headless |
 
-**Total:** ~495 tests sin UI + 15 UI = **~510 tests** en suite completa.
+**Total:** ~528 tests sin UI + 17 UI = **~545 tests** en suite completa.
 
 **CI/CD:**
 
 - `push` a cualquier rama → `fast-tests` (sin UI)
-- `pull_request` a `master`/`main` → `full-tests` (con UI)
-- `push` a `master`/`main` → `full-tests` (con UI)
+- `pull_request` a `master` / `main` → `full-tests` (con UI)
+- `push` a `master` / `main` → `full-tests` (con UI)
 
 **Bot post-ejecución** (`scripts/run-bot.sh`) analiza logs tras los tests buscando regresiones, listeners GC'd y bugs históricos.
 
@@ -167,11 +183,11 @@ Ver **`docs/TESTING.md`** para el detalle completo.
 
 ## 🎯 Estado del proyecto
 
-**Fase:** alpha (`v0.1.0`). No apto para producción todavía. API y esquema pueden cambiar sin aviso.
+**Fase:** Desarrollo Activo (`v0.1.0-alpha`). No apto para producción todavía. La interfaz, la API y el esquema pueden cambiar sin aviso mientras se implementan las fases restantes.
 
 **Roadmap de estabilización:**
 
-- `v0.1.0` — Consolidación interna (actual)
+- `v0.1.0` — Consolidación interna (en desarrollo activo)
 - `v0.2.0` — Beta pública con primeras instituciones piloto
 - `v1.0.0` — Primera versión estable con API congelada
 

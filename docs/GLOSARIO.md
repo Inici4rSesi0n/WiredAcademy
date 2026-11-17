@@ -40,6 +40,7 @@ Este documento define el lenguaje ubicuo utilizado en el sistema, alineando los 
 | **Evaluación** | Prueba (PC1, Examen) con reglas de negocio (intentos, criterios de nota). |
 | **Foro** | Espacio de discusión asíncrona entre docente y alumnos. |
 | **Anuncio** | Comunicado publicado por el docente o la administración. Se muestra en el curso o en el Dashboard global. |
+| **Asistencia** | Registro diario de la presencia de un `Estudiante` en una `Asignatura` para su `Grupo`. Único por combinación `(grupo, asignatura, estudiante, fecha)`. Estados válidos: `PRESENTE`, `AUSENTE`, `TARDE`, `JUSTIFICADO`. |
 
 ---
 

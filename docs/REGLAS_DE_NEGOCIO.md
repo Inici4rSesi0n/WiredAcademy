@@ -34,7 +34,18 @@
 
 ---
 
-## 5. Seguridad y Jerarquía
+## 5. Asistencia (LMS)
+
+- **Unicidad por día/asignatura:** un estudiante solo puede tener **un registro de asistencia** por `(grupo, asignatura, fecha)`. Constraint en BD: `UNIQUE (grupo_id, asignatura_id, estudiante_id, fecha)`.
+- **Estados válidos:** `PRESENTE`, `AUSENTE`, `TARDE`, `JUSTIFICADO`. Cualquier otro valor es rechazado por CHECK constraint.
+- **Solo Docente registra:** el rol `DOCENTE` es el único que puede crear/modificar asistencias de su propia sección. El Estudiante solo ve su historial (pendiente de UI: FASE 5).
+- **Re-registro idempotente:** si se registra asistencia para el mismo estudiante/fecha/asignatura, se actualiza el estado existente en lugar de duplicar.
+- **Bloqueo por periodo culminado:** un `PeriodoAcademico` con estado `"Culminado"` **bloquea la edición de asistencias** (misma regla que calificaciones y matrículas, §2).
+- **No se puede eliminar una asistencia si el periodo está culminado.**
+
+---
+
+## 6. Seguridad y Jerarquía
 
 - Un Administrador no puede eliminarse a sí mismo si es el único en el sistema.
 - Las contraseñas siempre viajan encriptadas con BCrypt.

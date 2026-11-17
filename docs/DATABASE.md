@@ -31,6 +31,7 @@
 | V4 | `V4__matricula_asignatura_grupo.sql` | `matricula_asignaturas` gana ID y `grupo_id`. |
 | V5 | `V5__calificaciones.sql` | Tablas `evaluaciones` y `calificaciones`. |
 | V6 | `V6__modalidad_en_grupo.sql` | Mueve `modalidad` de `aulas` a `grupos`. |
+| V7 | `V7__asistencia.sql` | Tabla `asistencias` (grupo, asignatura, estudiante, fecha, estado). |
 
 ---
 
@@ -65,12 +66,19 @@ Discriminator: `rol` (10 roles: ADMINISTRADOR, DIRECTOR, SUBDIRECTOR, COORDINADO
 - `matriculas` (estudiante_id, periodo_id, grupo_id, fecha, estado).
 - `matricula_asignaturas` (id, matricula_id, asignatura_id, **grupo_id**). Permite que un alumno esté en diferentes grupos por asignatura.
 
-### 3.6. Evaluaciones y Calificaciones (LMS)
+### 3.6. Asistencias
+
+- `asistencias` (id, grupo_id, asignatura_id, estudiante_id, fecha, estado).
+- `estado`: `CHECK IN ('PRESENTE', 'AUSENTE', 'TARDE', 'JUSTIFICADO')`.
+- **Unicidad:** `UNIQUE (grupo_id, asignatura_id, estudiante_id, fecha)` — un estudiante solo puede tener un registro por día/asignatura.
+- **Índice:** `idx_asistencias_clase_fecha` sobre `(grupo_id, fecha)` para consultas rápidas.
+
+### 3.7. Evaluaciones y Calificaciones (LMS)
 
 - `evaluaciones` (id, nombre, peso, asignatura_id).
 - `calificaciones` (id, evaluacion_id, estudiante_id, nota).
 
-### 3.7. Sesiones
+### 3.8. Sesiones
 
 - `sesiones` (UUID PK, usuario_id, fechas). Preparada para futura persistencia.
 
