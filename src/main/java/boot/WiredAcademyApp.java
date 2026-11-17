@@ -15,16 +15,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import java.util.Optional;
-/**
- *
- * @author inici4rsesi0n
- */
 @SpringBootApplication(scanBasePackages = {"infraestructura", "aplicacion", "presentacion", "boot"})
 @EntityScan(basePackages = "infraestructura.persistencia.entidades")
 @EnableJpaRepositories(basePackages = "infraestructura.persistencia.jpa")
@@ -36,16 +33,9 @@ public class WiredAcademyApp extends Application {
     }
     @Override
     public void start(Stage stage) throws Exception {
-        LoggerPort logger = contextoSpring.getBean(LoggerPort.class);
-        if ("true".equalsIgnoreCase(System.getenv("WIRED_SEED"))) {
-            logger.audit("[SESSION] seed_mode_started");
-            contextoSpring.getBean(boot.DataSeeder.class).run();
-            logger.audit("[SESSION] seed_mode_completed");
-            contextoSpring.close();
-            System.exit(0);
-        }
         contextoSpring.getBean(BootstrapRunner.class).inicializar(stage);
         SpringFxmlLoader fxmlLoader = contextoSpring.getBean(SpringFxmlLoader.class);
+        LoggerPort logger = contextoSpring.getBean(LoggerPort.class);
         Usuario usuarioPersistido = intentarAutoLogin(logger);
         if (usuarioPersistido != null) {
             FXMLLoader loader = fxmlLoader.crearLoader("/fxml/portaldeingreso/dashboard.fxml");
@@ -57,6 +47,7 @@ public class WiredAcademyApp extends Application {
             stage.setTitle("WiredAcademy · Ecosistema Educativo Digital");
             stage.setScene(scene);
             stage.setOnCloseRequest(event -> javafx.application.Platform.exit());
+            stage.setOnHidden(event -> navegarAMain(stage, fxmlLoader, logger));
             stage.show();
         } else {
             Parent root = fxmlLoader.cargar("/fxml/main.fxml");
@@ -65,6 +56,33 @@ public class WiredAcademyApp extends Application {
             stage.setTitle("WiredAcademy · Ecosistema Educativo Digital");
             stage.setScene(scene);
             stage.show();
+        }
+    }
+    private void navegarAMain(Stage dashboardStage, SpringFxmlLoader fxmlLoader, LoggerPort logger) {
+        if (!PersistenciaSesion.leer().isPresent()) {
+            Usuario activo = SesionUsuario.getUsuarioActual();
+            if (activo != null) {
+                logger.audit("[SESSION] logout_auto motivo=volver_a_main_sin_persistencia codigo={}", activo.getCodigo());
+                SesionUsuario.cerrarSesion();
+                logger.setUsuario(null);
+            }
+        }
+        try {
+            FXMLLoader mainLoader = fxmlLoader.crearLoader("/fxml/main.fxml");
+            Parent mainRoot = mainLoader.load();
+            Stage mainStage = new Stage(StageStyle.DECORATED);
+            Scene mainScene = new Scene(mainRoot);
+            mainScene.getStylesheets().add(getClass().getResource("/css/app.css").toExternalForm());
+            mainStage.setScene(mainScene);
+            mainStage.setTitle("WiredAcademy · Ecosistema Educativo Digital");
+            mainStage.setX(dashboardStage.getX());
+            mainStage.setY(dashboardStage.getY());
+            mainStage.setWidth(dashboardStage.getWidth());
+            mainStage.setHeight(dashboardStage.getHeight());
+            mainStage.setMaximized(dashboardStage.isMaximized());
+            mainStage.show();
+        } catch (Exception e) {
+            logger.error("Error al navegar a main desde autologin: " + e.getMessage(), e);
         }
     }
     private Usuario intentarAutoLogin(LoggerPort logger) {
@@ -88,7 +106,9 @@ public class WiredAcademyApp extends Application {
     }
     @Override
     public void stop() {
-        contextoSpring.close();
+        if (contextoSpring != null) {
+            contextoSpring.close();
+        }
     }
     public static void main(String[] args) {
         launch(args);

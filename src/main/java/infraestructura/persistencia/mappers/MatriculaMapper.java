@@ -4,8 +4,11 @@
  */
 package infraestructura.persistencia.mappers;
 import dominio.modelo.EstadoMatricula;
+import dominio.modelo.Estudiante;
+import dominio.modelo.Grupo;
 import dominio.modelo.InscripcionAsignatura;
 import dominio.modelo.Matricula;
+import dominio.modelo.PeriodoAcademico;
 import infraestructura.persistencia.entidades.MatriculaAsignaturaEntity;
 import infraestructura.persistencia.entidades.MatriculaEntity;
 import org.mapstruct.Mapper;
@@ -23,6 +26,9 @@ public abstract class MatriculaMapper {
     @Autowired protected AsignaturaMapper asignaturaMapper;
     public Matricula toDomain(MatriculaEntity entity) {
         if (entity == null) return null;
+        Estudiante estudiante = estudianteMapper.toDomain(entity.getEstudiante());
+        PeriodoAcademico periodo = periodoMapper.toDomain(entity.getPeriodo());
+        EstadoMatricula estado = EstadoMatricula.valueOf(entity.getEstado());
         List<InscripcionAsignatura> inscripciones = new ArrayList<>();
         if (entity.getInscripciones() != null) {
             for (MatriculaAsignaturaEntity insEntity : entity.getInscripciones()) {
@@ -32,13 +38,16 @@ public abstract class MatriculaMapper {
                 ));
             }
         }
-        return new Matricula(
-                estudianteMapper.toDomain(entity.getEstudiante()),
-                periodoMapper.toDomain(entity.getPeriodo()),
-                inscripciones,
-                entity.getFecha(),
-                EstadoMatricula.valueOf(entity.getEstado())
-        );
+        if (!inscripciones.isEmpty()) {
+            return new Matricula(estudiante, periodo, inscripciones, entity.getFecha(), estado);
+        }
+        Grupo grupo = (entity.getGrupo() != null) ? grupoMapper.toDomain(entity.getGrupo()) : null;
+        if (grupo == null) {
+            System.err.println("[MatriculaMapper] Matrícula id=" + entity.getId()
+                    + " sin grupo ni inscripciones (registro inconsistente en BD). Omitiendo del listado.");
+            return null;
+        }
+        return new Matricula(estudiante, periodo, grupo, new ArrayList<>(), entity.getFecha(), estado);
     }
     @Mapping(target="id", ignore=true)
     @Mapping(target="estudiante", ignore=true)
@@ -48,6 +57,6 @@ public abstract class MatriculaMapper {
     @Mapping(target="estado", expression="java(domain.getEstado().name())")
     public abstract MatriculaEntity toEntity(Matricula domain);
     public List<Matricula> toDomainList(List<MatriculaEntity> entities) {
-        return entities.stream().map(this::toDomain).toList();
+        return entities.stream().map(this::toDomain).filter(java.util.Objects::nonNull).toList();
     }
 }

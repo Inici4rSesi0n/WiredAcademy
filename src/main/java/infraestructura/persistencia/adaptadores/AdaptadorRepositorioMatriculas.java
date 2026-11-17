@@ -12,15 +12,10 @@ import infraestructura.persistencia.jpa.*;
 import infraestructura.persistencia.mappers.MatriculaMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-/**
- *
- * @author inici4rsesi0n
- */
 @Repository
-public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
+public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas {
     private final MatriculaJpaRepository jpaRepository;
     private final EstudianteJpaRepository estudianteJpa;
     private final PeriodoJpaRepository periodoJpa;
@@ -42,9 +37,23 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
         if(matricula==null) throw new IllegalArgumentException("La matrícula no puede ser nula");
         MatriculaEntity entity = mapper.toEntity(matricula);
         resolverRelacionesBase(entity, matricula);
-        entity = jpaRepository.saveAndFlush(entity);
-        resolverInscripciones(entity, matricula);
-        jpaRepository.saveAndFlush(entity);
+        entity.getInscripciones().clear();
+        for(InscripcionAsignatura ins : matricula.getInscripciones()){
+            MatriculaAsignaturaEntity insEntity = new MatriculaAsignaturaEntity();
+            insEntity.setMatricula(entity);
+            insEntity.setAsignatura(asignaturaJpa.findByNombre(ins.getAsignatura().getNombre())
+                    .orElseThrow(()->new IllegalArgumentException("Asignatura no existe: " + ins.getAsignatura().getNombre())));
+            insEntity.setGrupo(grupoJpa.findByNombre(ins.getGrupo().getNombre())
+                    .orElseThrow(()->new IllegalArgumentException("Grupo no existe: " + ins.getGrupo().getNombre())));
+            entity.getInscripciones().add(insEntity);
+        }
+        if (entity.getGrupo() == null && entity.getInscripciones().isEmpty()) {
+            throw new IllegalStateException("Matrícula sin grupo ni inscripciones — no se puede persistir");
+        }
+        MatriculaEntity persistida = jpaRepository.saveAndFlush(entity);
+        System.out.println("[MatriculaRepo] Persistida id=" + persistida.getId()
+                + " grupo_id=" + (persistida.getGrupo() != null ? persistida.getGrupo().getId() : "NULL")
+                + " inscripciones=" + persistida.getInscripciones().size());
     }
     @Override
     public Optional<Matricula> buscarPorEstudianteYPeriodo(String codigoEstudiante, String nombrePeriodo){
@@ -52,11 +61,11 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
     }
     @Override
     public List<Matricula> buscarPorGrupo(String nombreGrupo){
-        return mapper.toDomainList(jpaRepository.findByGrupoNombre(nombreGrupo));
+        return mapper.toDomainList(jpaRepository.findByGrupoNombreConInscripciones(nombreGrupo));
     }
     @Override
     public List<Matricula> listarTodos(){
-        return mapper.toDomainList(jpaRepository.findAll());
+        return mapper.toDomainList(jpaRepository.findAllConInscripciones());
     }
     @Override @Transactional
     public void actualizar(Matricula original, Matricula actualizada){
@@ -81,18 +90,6 @@ public class AdaptadorRepositorioMatriculas implements RepositorioMatriculas{
         if(domain.getGrupo() != null) {
             entity.setGrupo(grupoJpa.findByNombre(domain.getGrupo().getNombre())
                     .orElseThrow(()->new IllegalArgumentException("Grupo no existe")));
-        }
-    }
-    private void resolverInscripciones(MatriculaEntity entity, Matricula domain){
-        entity.getInscripciones().clear();
-        for(InscripcionAsignatura ins : domain.getInscripciones()){
-            MatriculaAsignaturaEntity insEntity = new MatriculaAsignaturaEntity();
-            insEntity.setMatricula(entity);
-            insEntity.setAsignatura(asignaturaJpa.findByNombre(ins.getAsignatura().getNombre())
-                    .orElseThrow(()->new IllegalArgumentException("Asignatura no existe: " + ins.getAsignatura().getNombre())));
-            insEntity.setGrupo(grupoJpa.findByNombre(ins.getGrupo().getNombre())
-                    .orElseThrow(()->new IllegalArgumentException("Grupo no existe: " + ins.getGrupo().getNombre())));
-            entity.getInscripciones().add(insEntity);
         }
     }
 }
