@@ -30,7 +30,9 @@ public class GruposUITest extends BaseUITest {
     public void setUp() {
         new CatalogCleanupHelper(springContext).limpiarTodo();
         GestionGrados gg = springContext.getBean(GestionGrados.class);
-        gg.crearGrado(GRADO_PREREQ_NOMBRE, GRADO_PREREQ_NIVEL);
+        if (gg.buscarPorNombreYNivel(GRADO_PREREQ_NOMBRE, GRADO_PREREQ_NIVEL) == null) {
+            gg.crearGrado(GRADO_PREREQ_NOMBRE, GRADO_PREREQ_NIVEL);
+        }
         WaitForAsyncUtils.waitForFxEvents();
     }
     @AfterEach
@@ -56,7 +58,6 @@ public class GruposUITest extends BaseUITest {
                 });
         });
     }
-
     @Test
     public void testCrearGrupo() throws Exception {
         GruposPage page = new GruposPage(this);

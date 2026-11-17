@@ -46,11 +46,19 @@ public class SeccionMatriculaUITest extends BaseUITest {
         GestionGrupos ggr = springContext.getBean(GestionGrupos.class);
         GestionPeriodos gp = springContext.getBean(GestionPeriodos.class);
         GestionEstudiantes ge = springContext.getBean(GestionEstudiantes.class);
-        gg.crearGrado("UITest-Grado", "Primaria");
+        if (gg.buscarPorNombreYNivel("UITest-Grado", "Primaria") == null) {
+            gg.crearGrado("UITest-Grado", "Primaria");
+        }
         Grado grado = gg.buscarPorNombreYNivel("UITest-Grado", "Primaria");
-        ggr.crearGrupo("UITest-Grupo", grado);
-        gp.crearPeriodo("UITest-Periodo", "2026-01-01", "2026-12-31", "Activo");
-        ge.agregar(new Estudiante("UITest-EST", "hash", "99999901", "Est", "UITest", 15));
+        if (ggr.buscarPorNombre("UITest-Grupo") == null) {
+            ggr.crearGrupo("UITest-Grupo", grado);
+        }
+        if (gp.buscarPorNombre("UITest-Periodo") == null) {
+            gp.crearPeriodo("UITest-Periodo", "2026-01-01", "2026-12-31", "Activo");
+        }
+        if (ge.buscarPorCodigo("UITest-EST") == null) {
+            ge.agregar(new Estudiante("UITest-EST", "hash", "99999901", "Est", "UITest", 15));
+        }
     }
     @Test
     public void testCrearMatriculaDesdeUI() throws Exception {

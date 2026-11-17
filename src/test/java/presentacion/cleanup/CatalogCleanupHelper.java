@@ -61,11 +61,16 @@ public class CatalogCleanupHelper {
     }
     private void limpiarMatriculas() {
         try {
-            GestionMatriculas gm = ctx.getBean(GestionMatriculas.class);
-            gm.listarTodas().stream()
-                .filter(m -> coincide(m.getEstudiante().getCodigo()) || coincide(m.getPeriodo().getNombre()) || coincide(m.getGrupo().getNombre()))
-                .forEach(gm::eliminarMatricula);
-        } catch (Exception ignored) {}
+            JdbcTemplate jdbc = new JdbcTemplate(ctx.getBean(DataSource.class));
+            jdbc.update("DELETE FROM matricula_asignaturas WHERE matricula_id IN (SELECT id FROM matriculas)");
+            jdbc.update("DELETE FROM matriculas");
+        } catch (Exception ignored) {
+            try {
+                JdbcTemplate jdbc = new JdbcTemplate(ctx.getBean(DataSource.class));
+                jdbc.update("DELETE FROM matricula_asignaturas");
+                jdbc.update("DELETE FROM matriculas");
+            } catch (Exception ignored2) {}
+        }
     }
     private void limpiarClases() {
         try {
@@ -83,9 +88,18 @@ public class CatalogCleanupHelper {
     }
     private void limpiarGrupos() {
         try {
+            JdbcTemplate jdbc = new JdbcTemplate(ctx.getBean(DataSource.class));
+            jdbc.update("UPDATE matriculas SET grupo_id = NULL WHERE grupo_id IN (SELECT id FROM grupos WHERE nombre LIKE ?)", prefijo + "%");
+            jdbc.update("DELETE FROM matricula_asignaturas WHERE grupo_id IN (SELECT id FROM grupos WHERE nombre LIKE ?)", prefijo + "%");
+            jdbc.update("DELETE FROM grupo_estudiantes WHERE grupo_id IN (SELECT id FROM grupos WHERE nombre LIKE ?)", prefijo + "%");
             GestionGrupos ggr = ctx.getBean(GestionGrupos.class);
             ggr.listarTodos().stream().filter(g -> coincide(g.getNombre())).forEach(ggr::eliminarGrupo);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+            try {
+                JdbcTemplate jdbc = new JdbcTemplate(ctx.getBean(DataSource.class));
+                jdbc.update("DELETE FROM grupos WHERE nombre LIKE ?", prefijo + "%");
+            } catch (Exception ignored2) {}
+        }
     }
     private void limpiarUsuarios() {
         try {
@@ -99,13 +113,26 @@ public class CatalogCleanupHelper {
         try {
             GestionGrados gg = ctx.getBean(GestionGrados.class);
             gg.listarTodos().stream().filter(g -> coincide(g.getNombre())).forEach(gg::eliminarGrado);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+            try {
+                JdbcTemplate jdbc = new JdbcTemplate(ctx.getBean(DataSource.class));
+                jdbc.update("DELETE FROM grados WHERE nombre LIKE ?", prefijo + "%");
+            } catch (Exception ignored2) {}
+        }
     }
     private void limpiarPeriodos() {
         try {
+            JdbcTemplate jdbc = new JdbcTemplate(ctx.getBean(DataSource.class));
+            jdbc.update("UPDATE matriculas SET periodo_id = NULL WHERE periodo_id IN (SELECT id FROM periodos_academicos WHERE nombre LIKE ?)", prefijo + "%");
+            jdbc.update("DELETE FROM recreo_periodos WHERE periodo_id IN (SELECT id FROM periodos_academicos WHERE nombre LIKE ?)", prefijo + "%");
             GestionPeriodos gp = ctx.getBean(GestionPeriodos.class);
             gp.listarTodos().stream().filter(p -> coincide(p.getNombre())).forEach(gp::eliminarPeriodo);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+            try {
+                JdbcTemplate jdbc = new JdbcTemplate(ctx.getBean(DataSource.class));
+                jdbc.update("DELETE FROM periodos_academicos WHERE nombre LIKE ?", prefijo + "%");
+            } catch (Exception ignored2) {}
+        }
     }
     private void limpiarAulas() {
         try {
